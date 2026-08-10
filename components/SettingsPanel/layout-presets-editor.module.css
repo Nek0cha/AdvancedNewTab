@@ -1,0 +1,83 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.help {
+  margin: 0 0 4px;
+  font-size: 12px;
+  color: var(--ant-muted);
+  line-height: 1.6;
+}
+
+.slot {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--ant-field-bg);
+  border: 1px solid var(--ant-field-border);
+}
+
+.nameInput {
+  padding: 7px 9px;
+  border: 1px solid var(--ant-field-border);
+  border-radius: var(--ant-field-radius);
+  background: transparent;
+  color: var(--ant-text);
+  font-size: 13px;
+}
+
+.nameInput:focus {
+  outline: none;
+  border-color: var(--ant-accent);
+  box-shadow: 0 0 0 3px var(--ant-accent-ring);
+}
+
+.slotMeta {
+  font-size: 11px;
+  color: var(--ant-muted);
+}
+
+.slotActions {
+  display: flex;
+  gap: 6px;
+}
+
+.actionButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  border: 1px solid var(--ant-field-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ant-text);
+  font-size: 12px;
+  transition: background-color 100ms ease, border-color 100ms ease;
+}
+
+.actionButton:hover {
+  border-color: var(--ant-field-border-hover);
+}
+
+.actionButton:active {
+  background: rgba(var(--ant-card-base), 0.14);
+}
+
+.actionButton.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.actionButton.armed {
+  border-color: var(--ant-accent);
+  color: var(--ant-accent);
+}
+
+.actionButton.danger.armed {
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+}

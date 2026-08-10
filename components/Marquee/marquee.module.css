@@ -1,0 +1,36 @@
+.viewport {
+  overflow: hidden;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.track {
+  display: inline-flex;
+  width: max-content;
+}
+
+.item {
+  padding-right: 32px;
+}
+
+.scrolling {
+  animation-name: scroll;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrolling {
+    animation: none;
+    /* アニメーションを止める代わりに、はみ出た分は素直に隠れるだけにする */
+  }
+}

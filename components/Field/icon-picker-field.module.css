@@ -1,0 +1,42 @@
+.iconGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+}
+
+.iconOption {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  border: 1px solid var(--ant-field-border);
+  border-radius: 8px;
+  background: var(--ant-field-bg);
+  color: var(--ant-text);
+  transition: background-color 140ms var(--ant-ease), border-color 140ms var(--ant-ease);
+}
+
+.iconOption:hover {
+  background: var(--ant-field-bg-hover);
+}
+
+.iconOptionActive {
+  border-color: var(--ant-accent);
+  color: var(--ant-accent);
+  background: var(--ant-field-bg-hover);
+}
+
+.previewRow {
+  display: flex;
+  margin-bottom: 10px;
+}
+
+.previewThumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--ant-field-border);
+  background: rgba(var(--ant-card-base), 0.08);
+  object-fit: contain;
+  padding: 4px;
+}

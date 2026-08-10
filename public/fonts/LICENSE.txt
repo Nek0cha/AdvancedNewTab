@@ -1,0 +1,8 @@
+このディレクトリのフォント（Space Grotesk / IBM Plex Sans / JetBrains Mono）は
+すべて Google Fonts で配布されている SIL Open Font License 1.1 のフォントです。
+
+- Space Grotesk: Florian Karsten
+- IBM Plex Sans: IBM Corp.
+- JetBrains Mono: JetBrains s.r.o.
+
+ライセンス全文: https://openfontlicense.org/

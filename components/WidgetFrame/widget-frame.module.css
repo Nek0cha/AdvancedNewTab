@@ -1,0 +1,172 @@
+.frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--ant-card-radius);
+}
+
+.card {
+  /* アプリ全体のUIクロム（ボタン・メニュー等）が使う --ant-card-bg とは別に、
+     見た目タブの「ウィジェットカードの背景色」専用の変数を参照する（lib/theme.ts 参照）。 */
+  background: var(--ant-widget-card-bg);
+  border: var(--ant-card-border-width) solid var(--ant-widget-card-border);
+  /* lightningcss のプレフィックス統合で標準プロパティが消えることがあるため、
+     -webkit- を先に書き、標準を後ろに置く（entrypoints/newtab/style.css の注記参照） */
+  -webkit-backdrop-filter: blur(var(--ant-card-blur));
+  backdrop-filter: blur(var(--ant-card-blur));
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 8px 28px rgba(0, 0, 0, 0.16);
+  transition: border-color 160ms var(--ant-ease), box-shadow 160ms var(--ant-ease);
+}
+
+/* 枠なし表示。編集モード中だけ掴める範囲が分かるように破線を出す */
+.bare {
+  background: transparent;
+  border: var(--ant-card-border-width) solid transparent;
+}
+
+.editing.bare {
+  border: 1px dashed var(--ant-card-border);
+  background: rgba(var(--ant-card-base), 0.04);
+}
+
+.editing {
+  cursor: grab;
+}
+
+.editing:hover {
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 12px 32px rgba(0, 0, 0, 0.22);
+}
+
+.editing:active {
+  cursor: grabbing;
+}
+
+/*
+ * 通常フローの子（flexで body の上に積む）ではなく、body の上に浮かせる
+ * オーバーレイにしている。以前は header 分だけ body の高さが編集モードで
+ * 減っていたため、編集モードに入る/出るたびにウィジェットの中身（文字サイズや
+ * 折り返し・カレンダーの行数など）がガクッとズレたりはみ出たりしていた。
+ * body を常にウィジェット全体の高さで固定し、header はその上に半透明の
+ * 帯として重ねることで、編集モードの有無で中身のレイアウトが変わらないようにしている。
+ */
+.header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 6px 6px 8px;
+  font-size: 12px;
+  color: var(--ant-muted);
+  background: var(--ant-menu-bg);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--ant-card-border);
+}
+
+.gripIcon {
+  flex: 0 0 auto;
+  opacity: 0.45;
+}
+
+.titleIcon {
+  flex: 0 0 auto;
+  opacity: 0.8;
+}
+
+.title {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--ant-app-body-font);
+  font-weight: 500;
+}
+
+.headerButton {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ant-text);
+  opacity: 0.65;
+  transition: background-color 140ms var(--ant-ease), opacity 140ms var(--ant-ease);
+}
+
+.headerButton:hover {
+  opacity: 1;
+  background: rgba(var(--ant-card-base), 0.12);
+}
+
+.headerButton:focus-visible {
+  opacity: 1;
+}
+
+.headerButton.danger:hover {
+  background: rgba(229, 92, 92, 0.28);
+  color: #ff9a9a;
+}
+
+.body {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+}
+
+/* 編集モード中はウィジェット内部のクリックを拾わせない（ドラッグを優先する） */
+.bodyLocked {
+  pointer-events: none;
+  user-select: none;
+}
+
+.unknown {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 14px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ant-muted);
+}
+
+.unknown svg {
+  flex: 0 0 auto;
+  color: #e0a030;
+  margin-top: 1px;
+}
+
+/*
+ * lib/grid-collision.ts の resolveOverlaps は、置き場所が本当に無い極端なケースでは
+ * 重なりを完全には解消しない（ページの外へ押し出すよりマシな妥協として許容している）。
+ * その残った重なりを画面上で放置せず、警告として視認できるようにする。
+ */
+.overlapping {
+  outline: 2px solid #ff5c5c;
+  outline-offset: -1px;
+  box-shadow: 0 0 0 4px rgba(255, 92, 92, 0.22);
+}
+
+.overlapWarning {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  /* .header（z-index:3、編集モード中は同じ左上帯を覆う）より上に出す */
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255, 92, 92, 0.9);
+  color: #1a0505;
+  pointer-events: none;
+}

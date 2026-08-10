@@ -1,0 +1,150 @@
+.root {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.swatchButton {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border-radius: 10px;
+  border: 1px solid var(--ant-field-border);
+  box-shadow: inset 0 0 0 2px rgba(var(--ant-card-base), 0.5);
+  cursor: pointer;
+}
+
+.swatchButton:hover {
+  border-color: var(--ant-field-border-hover);
+}
+
+.swatchButton:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--ant-accent-ring);
+}
+
+.hexField {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--ant-field-border);
+  border-radius: var(--ant-field-radius);
+  background: var(--ant-field-bg);
+  font-size: 13px;
+  font-family: var(--ant-mono);
+  text-transform: lowercase;
+}
+
+.hexField:focus {
+  outline: none;
+  border-color: var(--ant-accent);
+  box-shadow: 0 0 0 3px var(--ant-accent-ring);
+}
+
+.popover {
+  /* position / top / left / width は ColorPicker.tsx が毎回インラインstyleで設定する
+     （document.body へポータルするため。position-fixed周りの理由はコンポーネント側のコメント参照） */
+  z-index: 200;
+  padding: 12px;
+  border-radius: 14px;
+  background: var(--ant-menu-bg);
+  border: 1px solid var(--ant-field-border);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(20px);
+  animation: picker-in 120ms var(--ant-ease);
+}
+
+@keyframes picker-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .popover {
+    animation: none;
+  }
+}
+
+.svPanel {
+  position: relative;
+  width: 100%;
+  height: 130px;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.svWhite {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, #fff, rgba(255, 255, 255, 0));
+}
+
+.svBlack {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, #000, rgba(0, 0, 0, 0));
+}
+
+.svThumb {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4), 0 2px 6px rgba(0, 0, 0, 0.4);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.hueBar {
+  position: relative;
+  margin-top: 10px;
+  width: 100%;
+  height: 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  touch-action: none;
+  background: linear-gradient(
+    to right,
+    #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000
+  );
+}
+
+.hueThumb {
+  position: absolute;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.swatchRow {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.swatch {
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 0;
+  border-radius: 7px;
+  border: 1px solid var(--ant-field-border);
+  cursor: pointer;
+}
+
+.swatchActive {
+  box-shadow: 0 0 0 2px var(--ant-accent);
+}

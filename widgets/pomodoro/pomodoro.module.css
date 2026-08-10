@@ -1,0 +1,107 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 100%;
+  padding: 12px;
+  text-align: center;
+  font-family: var(--ant-canvas-font);
+}
+
+.phaseLabel {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.phaseLabel.work {
+  color: var(--ant-accent);
+}
+
+.phaseLabel.short,
+.phaseLabel.long {
+  color: #6ee7b7;
+}
+
+.time {
+  font-size: 34px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.progressTrack {
+  width: 100%;
+  max-width: 200px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(var(--ant-card-base), 0.14);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--ant-accent);
+  transition: width 240ms linear;
+}
+
+.progressFill.short,
+.progressFill.long {
+  background: #6ee7b7;
+}
+
+.rounds {
+  display: flex;
+  gap: 6px;
+}
+
+.roundDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(var(--ant-card-base), 0.22);
+}
+
+.roundDotDone {
+  background: var(--ant-accent);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.controlButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ant-text);
+  transition: background-color 120ms ease;
+}
+
+.controlButton:hover {
+  background: rgba(var(--ant-card-base), 0.14);
+}
+
+.playButton {
+  width: 36px;
+  height: 36px;
+  background: var(--ant-accent);
+  color: #16110c;
+}
+
+.playButton:hover {
+  filter: brightness(1.08);
+  background: var(--ant-accent);
+}

@@ -1,0 +1,25 @@
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--ant-card-border);
+}
+
+.iconWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: rgba(var(--ant-card-base), 0.1);
+  color: var(--ant-accent);
+}
+
+.name {
+  font-family: var(--ant-app-font);
+  font-size: 15px;
+  font-weight: 600;
+}

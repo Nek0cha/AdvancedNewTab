@@ -1,0 +1,180 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ant-muted);
+}
+
+.help {
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--ant-muted);
+  opacity: 0.85;
+}
+
+.control {
+  width: 100%;
+  padding: 9px 10px;
+  border: 1px solid var(--ant-field-border);
+  border-radius: var(--ant-field-radius);
+  background: var(--ant-field-bg);
+  font-size: 13px;
+  transition: border-color 140ms var(--ant-ease), background-color 140ms var(--ant-ease);
+}
+
+.control:hover {
+  border-color: var(--ant-field-border-hover);
+}
+
+.control:focus {
+  outline: none;
+  border-color: var(--ant-accent);
+  box-shadow: 0 0 0 3px var(--ant-accent-ring);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 64px;
+  line-height: 1.5;
+}
+
+/* トグルは1行に収める */
+.toggleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.toggleRow .label {
+  flex: 1 1 auto;
+  color: var(--ant-text);
+  font-weight: 400;
+  font-size: 13px;
+}
+
+.switch {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--ant-field-border);
+  border-radius: 999px;
+  background: var(--ant-field-bg);
+  position: relative;
+  transition: background-color 160ms var(--ant-ease), border-color 160ms var(--ant-ease);
+}
+
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--ant-text);
+  transition: transform 200ms var(--ant-ease);
+}
+
+.switch:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--ant-accent-ring);
+}
+
+.switchOn {
+  background: var(--ant-accent);
+  border-color: var(--ant-accent);
+}
+
+.switchOn::after {
+  transform: translateX(18px);
+  background: #16110c;
+}
+
+/* ---- リスト（可変長の項目） ---------------------------------------- */
+
+.listItems {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.listItem {
+  padding: 10px 10px 0;
+  border: 1px solid var(--ant-field-border);
+  border-radius: 10px;
+  background: var(--ant-field-bg);
+}
+
+.listItemHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-size: 11px;
+  color: var(--ant-muted);
+}
+
+.listItemIndex {
+  flex: 1 1 auto;
+}
+
+.miniButton {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--ant-field-border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ant-text);
+  transition: background-color 140ms var(--ant-ease);
+}
+
+.miniButton:hover:not(:disabled) {
+  background: var(--ant-field-bg-hover);
+}
+
+.miniButton:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.addButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+  width: 100%;
+  padding: 9px;
+  border: 1px dashed var(--ant-field-border);
+  border-radius: 10px;
+  background: transparent;
+  font-size: 13px;
+  transition: background-color 140ms var(--ant-ease), border-color 140ms var(--ant-ease);
+}
+
+.addButton:hover {
+  background: var(--ant-field-bg-hover);
+  border-color: var(--ant-accent);
+}
+
+.empty {
+  padding: 12px;
+  font-size: 12px;
+  color: var(--ant-muted);
+  text-align: center;
+  border: 1px dashed var(--ant-field-border);
+  border-radius: 10px;
+}

@@ -1,0 +1,48 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 8px;
+  text-align: center;
+  gap: 4px;
+  font-family: var(--ant-canvas-font);
+}
+
+.icon {
+  color: var(--ant-accent);
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
+}
+
+.temperature {
+  font-size: 1.8em;
+  font-weight: 300;
+  line-height: 1.1;
+}
+
+.place {
+  font-size: 0.85em;
+  color: var(--ant-muted);
+}
+
+.detail {
+  font-size: 0.75em;
+  color: var(--ant-muted);
+  display: flex;
+  gap: 10px;
+}
+
+.staleBadge {
+  font-size: 0.68em;
+  color: var(--ant-muted);
+  opacity: 0.8;
+}
+
+.empty {
+  padding: 12px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--ant-muted);
+  text-align: center;
+}

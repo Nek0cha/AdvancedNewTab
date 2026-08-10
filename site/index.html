@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AdvancedNewTab — 自由に組み替えられる新しいタブページ</title>
+  <meta name="description" content="ウィジェットを自由に配置できる、カスタマイズ可能なChrome新しいタブ拡張機能。時計・検索・リンク集からYouTubeミニプレーヤー、電卓、世界時計まで。" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <header class="site-header wrap">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">A</span>
+      AdvancedNewTab
+    </a>
+    <nav class="site-nav">
+      <a href="#features">機能</a>
+      <a href="#install">インストール</a>
+      <a href="terms.html">利用規約</a>
+      <a href="privacy.html">プライバシーポリシー</a>
+      <!-- GitHubユーザー名: Nek0cha（プレースホルダー。実リポジトリ作成後にURLを差し替えてください） -->
+      <a href="https://github.com/Nek0cha/AdvancedNewTab" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero wrap">
+      <h1>新しいタブを、自分のダッシュボードに。</h1>
+      <p>
+        時計・検索・リンク集からYouTubeミニプレーヤー、電卓、世界時計まで。
+        ドラッグ&ドロップで自由に並べ替えられる、オープンソースのChrome新しいタブ拡張機能です。
+      </p>
+      <div class="hero-actions">
+        <!-- Releaseページのzipへのリンク（プレースホルダー） -->
+        <a class="btn btn-primary" href="https://github.com/Nek0cha/AdvancedNewTab/releases" target="_blank" rel="noopener noreferrer">
+          最新版をダウンロード
+        </a>
+        <a class="btn btn-secondary" href="https://github.com/Nek0cha/AdvancedNewTab" target="_blank" rel="noopener noreferrer">
+          ソースコードを見る
+        </a>
+      </div>
+    </section>
+
+    <section class="wrap">
+      <div class="screenshot-placeholder">
+        スクリーンショット（プレースホルダー）<br />
+        ここに実際のダッシュボードのキャプチャ画像を差し込んでください
+      </div>
+    </section>
+
+    <section id="features" class="wrap">
+      <h2>収録ウィジェット</h2>
+      <p class="section-lead">
+        インストール直後に要求される権限は <code>storage</code> のみ。ブラウザのデータや外部通信が必要なウィジェットは、
+        実際にそのウィジェットを置いた瞬間だけ許可を求めます。
+      </p>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <h3>時計</h3>
+          <p>デジタル/アナログ切り替え、個別の背景ぼかし・暗さ調整にも対応。</p>
+          <span class="perm">権限不要</span>
+        </div>
+        <div class="feature-card">
+          <h3>世界時計</h3>
+          <p>最大4都市の現在時刻をコンパクトに表示。日付のズレも一目で分かります。</p>
+          <span class="perm">権限不要</span>
+        </div>
+        <div class="feature-card">
+          <h3>検索</h3>
+          <p>Google / Bing / DuckDuckGo / カスタムURLからその場で検索。</p>
+          <span class="perm">権限不要</span>
+        </div>
+        <div class="feature-card">
+          <h3>リンク集</h3>
+          <p>よく使うサイトをアイコン付きで登録。プリセットからワンクリックで追加できます。</p>
+          <span class="perm">favicon表示は同梱権限</span>
+        </div>
+        <div class="feature-card">
+          <h3>メモ</h3>
+          <p>ちょっとしたテキストを書き留めておけます。</p>
+          <span class="perm">権限不要</span>
+        </div>
+        <div class="feature-card">
+          <h3>カレンダー</h3>
+          <p>月表示。土日・祝日の色分けにも対応（オン/オフ切り替え可）。</p>
+          <span class="perm">権限不要</span>
+        </div>
+        <div class="feature-card">
+          <h3>カウントダウン / カウントアップ</h3>
+          <p>指定日時までの残り時間、または経過時間を表示。日付のみのコンパクト表示も選べます。</p>
+          <span class="perm">権限不要</span>
+        </div>
+        <div class="feature-card">
+          <h3>ポモドーロタイマー</h3>
+          <p>作業と休憩を交互に繰り返すタイマー。</p>
+          <span class="perm">権限不要</span>
+        </div>
+        <div class="feature-card">
+          <h3>電卓</h3>
+          <p>「1*2+3=」のように文字でもボタンでも計算できます。累乗（3^2）にも対応。</p>
+          <span class="perm">権限不要</span>
+        </div>
+        <div class="feature-card">
+          <h3>画像表示</h3>
+          <p>1枚固定、または複数アップロードした画像をフェード切り替えでスライドショー表示。</p>
+          <span class="perm">権限不要</span>
+        </div>
+        <div class="feature-card">
+          <h3>よく使うサイト</h3>
+          <p>ブラウザの閲覧頻度データから自動表示。</p>
+          <span class="perm">topSites</span>
+        </div>
+        <div class="feature-card">
+          <h3>ブックマーク</h3>
+          <p>最近追加したブックマークを一覧表示。</p>
+          <span class="perm">bookmarks</span>
+        </div>
+        <div class="feature-card">
+          <h3>天気</h3>
+          <p>指定した地名の現在の天気を表示（Open-Meteo提供、APIキー不要）。</p>
+          <span class="perm">対象ホストへの通信</span>
+        </div>
+        <div class="feature-card">
+          <h3>RSSフィード</h3>
+          <p>指定したRSS/Atomフィードの新着記事を一覧表示。</p>
+          <span class="perm">対象ホストへの通信</span>
+        </div>
+        <div class="feature-card">
+          <h3>YouTube ミニプレーヤー</h3>
+          <p>YouTube / YouTube Musicの再生を操作。シークバー・再生位置表示付き。</p>
+          <span class="perm">対象ホストへの通信</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap">
+      <h2>もっと自由に</h2>
+      <p class="section-lead">見た目とレイアウトも、細部まで手が届くようにしています。</p>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <h3>自由配置</h3>
+          <p>編集モードでドラッグ＆ドロップ。左下・右下どちらからでもリサイズできます。</p>
+        </div>
+        <div class="feature-card">
+          <h3>背景も自由に</h3>
+          <p>単色・グラデーション・画像から選択。カードの透明度・角丸・ぼかしも調整可能。</p>
+        </div>
+        <div class="feature-card">
+          <h3>バックアップ/復元</h3>
+          <p>設定画面から配置・ウィジェット設定・見た目をJSONひとつにエクスポート/インポート。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="install" class="wrap">
+      <h2>インストール方法</h2>
+      <p class="section-lead">
+        Chrome Web Storeには公開していません。GitHub Releasesから配布用のzipを読み込んでください。
+        Chromium系ブラウザ（Chrome、Edge、Braveなど）であれば動作します。
+      </p>
+      <ol class="steps">
+        <li>
+          <div>
+            <!-- Releasesページへのリンク（プレースホルダー） -->
+            <a href="https://github.com/Nek0cha/AdvancedNewTab/releases" target="_blank" rel="noopener noreferrer">Releasesページ</a>
+            から最新の <code>.zip</code> をダウンロードし、任意のフォルダに解凍する
+          </div>
+        </li>
+        <li>ブラウザで拡張機能の管理ページを開く（Chromeなら <code>chrome://extensions</code>）</li>
+        <li>右上の「デベロッパーモード」をONにする</li>
+        <li>「パッケージ化されていない拡張機能を読み込む」をクリックし、解凍したフォルダを選択する</li>
+        <li>拡張機能一覧に「AdvancedNewTab」が表示されれば完了</li>
+      </ol>
+    </section>
+  </main>
+
+  <footer class="site-footer wrap">
+    <div class="footer-row">
+      <span>&copy; 2026 Neko（<a href="https://github.com/Nek0cha" target="_blank" rel="noopener noreferrer" style="color:inherit">Nek0cha</a>） — MITライセンスで公開予定</span>
+      <div class="footer-links">
+        <a href="terms.html">利用規約</a>
+        <a href="privacy.html">プライバシーポリシー</a>
+        <a href="https://github.com/Nek0cha/AdvancedNewTab" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

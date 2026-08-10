@@ -1,0 +1,192 @@
+/*
+ * 全体のベーススタイル。
+ *
+ * 色・角丸・ぼかしなどのテーマ値はすべて lib/theme.ts が --ant-* として
+ * html 要素に注入するため、ここでは変数を参照するだけにとどめる。
+ *
+ * フォントは2系統に分けている。
+ * - --ant-app-font / --ant-app-body-font : アプリ自身の操作系UI（ツールバー・設定パネル等）。
+ *   ユーザー設定の対象外で、常に Space Grotesk + IBM Plex Sans（lib/fonts.css で同梱）。
+ * - --ant-canvas-font : 新規タブのキャンバス（ウィジェット本体）。ユーザーが見た目パネルから選ぶ。
+ */
+
+@import '@/lib/fonts.css';
+
+:root {
+  /* lib/theme.ts が上書きするまでの暫定値（storage 読み込み前でも破綻させないため） */
+  --ant-text: #f1ecec;
+  --ant-muted: rgba(241, 236, 236, 0.6);
+  --ant-accent: #ff8a4c;
+  --ant-accent-ring: rgba(255, 138, 76, 0.38);
+  --ant-canvas-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Kaku Gothic ProN', sans-serif;
+  --ant-card-base: 255, 255, 255;
+  --ant-card-bg: rgba(255, 255, 255, 0.06);
+  --ant-card-border: rgba(255, 255, 255, 0.16);
+  --ant-card-blur: 16px;
+  --ant-card-radius: 18px;
+  --ant-card-border-width: 1px;
+  --ant-card-opacity: 0.4;
+  --ant-field-bg: rgba(255, 255, 255, 0.1);
+  --ant-field-bg-hover: rgba(255, 255, 255, 0.16);
+  --ant-field-border: rgba(255, 255, 255, 0.22);
+  --ant-field-border-hover: var(--ant-accent);
+  --ant-field-radius: 10px;
+  --ant-menu-bg: rgba(24, 21, 19, 0.92);
+
+  /* アプリ自身の操作系UIフォント（同梱・ユーザー設定対象外） */
+  --ant-app-font: 'Space Grotesk', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', sans-serif;
+  --ant-app-body-font: 'IBM Plex Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', sans-serif;
+  --ant-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* モーション: transform/opacity にのみ使う指数的イーズアウト（バウンスは使わない） */
+  --ant-ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* サイドパネルの幅。Toolbar 側もこの変数を見て、パネルが開いている間は
+     自分の位置をずらす（UIが重なって見にくい問題の対策。components/Toolbar 参照） */
+  --ant-panel-width: min(380px, 100vw);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/*
+ * かつては html { scrollbar-gutter: stable; } を敷いていた（縦スクロールバーの
+ * 出現/消失で本文の横幅が変わる問題への対策）。しかし components/Grid/Grid.tsx で
+ * ページの縦の長さを画面ちょうど1枚分に固定して以降、このページは通常まず
+ * 縦スクロールしない＝ガターは常に「使われない予約済みの余白」になっていた。
+ *
+ * さらにこのガターは、position: fixed; right: 0 の要素（SidePanel）の実際の
+ * 描画位置をガターの分だけ右へ（画面の外側へ）ズラす副作用があり、パネルの右端が
+ * 画面の実際の右端まで届かなくなる（=通常フロー側は clientWidth 基準で790pxまで、
+ * パネルは right:0 基準でさらに右へ食い込んで見切れる）ことで、
+ * 画面右端に薄い色の段差が見えるバグの原因になっていた。スクロールが実質発生しない
+ * 今はガターを確保する理由が無いため、丸ごと外している。
+ */
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  /* 水平方向のスクロールは常に禁止する（グリッド側で幅を厳密に制御するため） */
+  overflow-x: clip;
+}
+
+body {
+  font-family: var(--ant-app-body-font);
+  color: var(--ant-text);
+  /* html 側に背景を敷いているため、body は透過させる */
+  background: transparent;
+  -webkit-font-smoothing: antialiased;
+  font-weight: 400;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  background: none;
+}
+
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ant-accent);
+  outline-offset: 2px;
+  transition: none; /* フォーカスリングの出現はアニメーションしない */
+}
+
+/* ---- カスタムスクロールバー ------------------------------------------- */
+/* ブラウザ既定の太いスクロールバーはテーマに合わせられないため、細く控えめなものに差し替える */
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ant-field-border) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(var(--ant-card-base), 0.22);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--ant-card-base), 0.34);
+  background-clip: content-box;
+}
+
+/* ---- react-grid-layout の見た目調整 ---------------------------------- */
+
+/*
+ * ドラッグ中に表示される着地予定位置のプレースホルダー。
+ *
+ * react-grid-layout 同梱CSSは既定で赤（background: red）を敷いており、
+ * ビルド後のCSS結合順序次第でこちらの上書きが負けることがあったため、
+ * !important で確実に勝たせる。色は「透明な黒の点線枠」に変更し、
+ * アクセント色を使った塗りよりも控えめで、テーマの明暗を問わず視認できる。
+ */
+.react-grid-item.react-grid-placeholder {
+  background: rgba(0, 0, 0, 0.16) !important;
+  border: 2px dashed rgba(0, 0, 0, 0.32) !important;
+  border-radius: var(--ant-card-radius) !important;
+  opacity: 1 !important;
+  transition-duration: 100ms !important;
+}
+
+:root[data-theme='dark'] .react-grid-item.react-grid-placeholder {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.28) !important;
+}
+
+/* 編集モード以外ではリサイズハンドルを出さない */
+.react-resizable-handle {
+  opacity: 0;
+  transition: opacity 140ms var(--ant-ease);
+}
+
+.ant-edit-mode .react-resizable-handle {
+  opacity: 0.55;
+}
+
+.ant-edit-mode .react-grid-item:hover .react-resizable-handle {
+  opacity: 1;
+}
+
+/*
+ * ハンドル自体の見た目（角かっこの三角形・位置）は components/Grid/ResizeHandle.tsx +
+ * resize-handle.module.css が自前描画している（react-resizable の既定ハンドルは
+ * resizeConfig.handleComponent で完全に差し替え済み）。ここでは
+ * react-grid-layout がドラッグ/リサイズを区別するために参照する
+ * `.react-resizable-handle` クラスの表示/非表示（編集モード・ホバー）だけを扱う。
+ */
+
+@media (prefers-reduced-motion: reduce) {
+  .react-grid-item,
+  .react-grid-item.cssTransforms {
+    transition: none !important;
+  }
+}

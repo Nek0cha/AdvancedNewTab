@@ -1,0 +1,167 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  height: 100%;
+  padding: 10px 12px;
+}
+
+.mainRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 100%;
+  padding: 12px;
+  text-align: center;
+  color: var(--ant-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.artworkWrap {
+  flex: 0 0 auto;
+}
+
+.artwork {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.artworkFallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  background: rgba(var(--ant-card-base), 0.12);
+  color: var(--ant-muted);
+}
+
+.info {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.metaRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.artist {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 11px;
+  color: var(--ant-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.duration {
+  flex: 0 0 auto;
+  font-size: 11px;
+  color: var(--ant-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 0 0 auto;
+}
+
+.controlButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ant-text);
+  transition: background-color 120ms ease;
+}
+
+.controlButton:hover {
+  background: rgba(var(--ant-card-base), 0.14);
+}
+
+.playButton {
+  width: 32px;
+  height: 32px;
+  background: var(--ant-accent);
+  color: #16110c;
+}
+
+.playButton:hover {
+  filter: brightness(1.08);
+  background: var(--ant-accent);
+}
+
+.seekRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.seekTime {
+  flex: 0 0 auto;
+  min-width: 28px;
+  font-size: 10px;
+  color: var(--ant-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.seekTrack {
+  position: relative;
+  flex: 1 1 auto;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(var(--ant-card-base), 0.18);
+  cursor: pointer;
+  touch-action: none;
+}
+
+.seekFill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 999px;
+  background: var(--ant-accent);
+  pointer-events: none;
+}
+
+.seekThumb {
+  position: absolute;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--ant-accent);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}

@@ -1,0 +1,61 @@
+.root {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--ant-field-border);
+  border-radius: var(--ant-field-radius);
+  background: var(--ant-field-bg);
+  transition: border-color 140ms var(--ant-ease), background-color 140ms var(--ant-ease);
+  overflow: hidden;
+}
+
+.root:focus-within {
+  border-color: var(--ant-accent);
+  box-shadow: 0 0 0 3px var(--ant-accent-ring);
+}
+
+.input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 9px 10px;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.input:focus {
+  outline: none;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  border-left: 1px solid var(--ant-field-border);
+}
+
+.stepButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 0;
+  width: 26px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--ant-muted);
+  transition: background-color 120ms var(--ant-ease), color 120ms var(--ant-ease);
+}
+
+.stepButton:first-child {
+  border-bottom: 1px solid var(--ant-field-border);
+}
+
+.stepButton:hover:not(:disabled) {
+  background: var(--ant-field-bg-hover);
+  color: var(--ant-text);
+}
+
+.stepButton:disabled {
+  opacity: 0.3;
+}

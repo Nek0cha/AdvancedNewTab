@@ -1,0 +1,97 @@
+.toolbar {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px;
+  border-radius: 999px;
+  background: rgba(var(--ant-card-base), 0.1);
+  border: 1px solid var(--ant-card-border);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  font-family: var(--ant-app-body-font);
+  /* 普段は主張させず、近づいたら出てくる */
+  opacity: 0.32;
+  transform: translateX(0);
+  transition: opacity 180ms var(--ant-ease), transform 220ms var(--ant-ease);
+}
+
+.toolbar:hover,
+.toolbar:focus-within,
+.editing {
+  opacity: 1;
+}
+
+/* ドラッグ中は指の動きに正確についてこさせたいので、位置系のトランジションを止める */
+.dragging {
+  transition: opacity 180ms var(--ant-ease);
+  opacity: 1;
+  cursor: grabbing;
+}
+
+/* サイドパネルが開いている間はパネル幅ぶん左へ退避する（UIの重なり対策）。
+   ツールバーが既定位置のときだけ有効（Toolbar.tsx 参照）。 */
+.panelOpen {
+  transform: translateX(calc(-1 * var(--ant-panel-width) - 12px));
+}
+
+.grip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 34px;
+  flex: 0 0 auto;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ant-muted);
+  cursor: grab;
+  touch-action: none;
+}
+
+.grip:hover {
+  color: var(--ant-text);
+}
+
+.grip:active {
+  cursor: grabbing;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background-color 140ms var(--ant-ease);
+}
+
+.button:hover {
+  background: rgba(var(--ant-card-base), 0.14);
+}
+
+.button:focus-visible {
+  background: rgba(var(--ant-card-base), 0.14);
+}
+
+.primary {
+  background: var(--ant-accent);
+  color: #16110c;
+  font-weight: 600;
+}
+
+.primary:hover,
+.primary:focus-visible {
+  background: var(--ant-accent);
+  filter: brightness(1.08);
+}

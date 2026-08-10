@@ -1,0 +1,108 @@
+.root {
+  position: relative;
+  width: 100%;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 10px;
+  border: 1px solid var(--ant-field-border);
+  border-radius: var(--ant-field-radius);
+  background: var(--ant-field-bg);
+  font-size: 13px;
+  text-align: left;
+  transition: border-color 140ms var(--ant-ease), background-color 140ms var(--ant-ease);
+}
+
+.trigger:hover:not(:disabled) {
+  border-color: var(--ant-field-border-hover);
+}
+
+.trigger:focus-visible {
+  outline: none;
+  border-color: var(--ant-accent);
+  box-shadow: 0 0 0 3px var(--ant-accent-ring);
+}
+
+.trigger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.triggerLabel {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chevron {
+  flex: 0 0 auto;
+  color: var(--ant-muted);
+  transition: transform 160ms var(--ant-ease);
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.menu {
+  z-index: 200;
+  margin: 0;
+  padding: 5px;
+  list-style: none;
+  max-height: 264px;
+  overflow-y: auto;
+  border-radius: 12px;
+  background: var(--ant-menu-bg);
+  border: 1px solid var(--ant-field-border);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(20px);
+  animation: dropdown-in 120ms var(--ant-ease);
+}
+
+@keyframes dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu {
+    animation: none;
+  }
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.optionHighlighted {
+  background: var(--ant-field-bg-hover);
+}
+
+.optionSelected {
+  color: var(--ant-accent);
+  font-weight: 600;
+}
+
+.optionLabel {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.checkIcon {
+  flex: 0 0 auto;
+}

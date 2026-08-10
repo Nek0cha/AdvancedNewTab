@@ -1,0 +1,42 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 10px;
+  font-family: var(--ant-canvas-font);
+}
+
+.title {
+  flex: 0 0 auto;
+  width: 100%;
+  margin-bottom: 4px;
+  padding: 2px 0 6px;
+  border: none;
+  border-bottom: 1px solid var(--ant-card-border);
+  outline: none;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.title::placeholder {
+  color: var(--ant-muted);
+  font-weight: 400;
+}
+
+.textarea {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  border: none;
+  outline: none;
+  resize: none;
+  background: transparent;
+  line-height: 1.6;
+  font-size: 13px;
+  font-family: var(--ant-canvas-font);
+}
+
+.textarea::placeholder {
+  color: var(--ant-muted);
+}

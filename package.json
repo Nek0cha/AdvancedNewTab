@@ -1,0 +1,32 @@
+{
+  "name": "advanced-new-tab",
+  "description": "ウィジェットを自由に配置できるカスタマイズ可能な新規タブ拡張機能",
+  "private": true,
+  "version": "0.1.0",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox",
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox",
+    "zip": "wxt zip",
+    "zip:firefox": "wxt zip -b firefox",
+    "compile": "tsc --noEmit",
+    "postinstall": "wxt prepare"
+  },
+  "dependencies": {
+    "lucide-react": "^1.29.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-grid-layout": "^2.2.4",
+    "zustand": "^5.0.2"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@wxt-dev/module-react": "^1.1.3",
+    "typescript": "^5.9.3",
+    "wxt": "^0.20.27"
+  }
+}

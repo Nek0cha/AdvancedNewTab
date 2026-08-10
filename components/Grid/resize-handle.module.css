@@ -1,0 +1,46 @@
+/*
+ * react-grid-layout は自前で `.react-grid-item > .react-resizable-handle.react-resizable-handle-{se,sw}`
+ * という3クラス構成（詳細度 0-3-0）のCSSを内蔵していて、これは ResizeHandle.tsx が
+ * cancel セレクタのために残している `.react-resizable-handle` / `.react-resizable-handle-sw`
+ * クラスと同じ要素にそのまま当たってしまう。ここのCSS Modulesクラスは単純な単一クラス
+ * （詳細度 0-1-0）なので、後から書いても詳細度で負けて既定の transform:rotate(90deg) 等が
+ * 勝ってしまう。!important で確実に上書きする。
+ */
+.handle {
+  position: absolute !important;
+  width: 18px !important;
+  height: 18px !important;
+  z-index: 10;
+  touch-action: none;
+}
+
+.se {
+  top: auto !important;
+  left: auto !important;
+  right: 2px !important;
+  bottom: 2px !important;
+  transform: none !important;
+  cursor: se-resize;
+}
+
+/* コーナーの形自体は .corner 1種類だけ。sw はそれを丸ごと水平反転して使う
+   （ResizeHandle.tsx のコメント参照）。 */
+.sw {
+  top: auto !important;
+  right: auto !important;
+  left: 2px !important;
+  bottom: 2px !important;
+  transform: scaleX(-1) !important;
+  cursor: sw-resize;
+}
+
+.corner {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--ant-text);
+  border-bottom: 2px solid var(--ant-text);
+  border-radius: 0 0 2px 0;
+}

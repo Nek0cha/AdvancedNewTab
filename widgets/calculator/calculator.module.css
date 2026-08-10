@@ -1,0 +1,97 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  height: 100%;
+  padding: 6px;
+  font-family: var(--ant-mono);
+  container-type: inline-size;
+}
+
+.display {
+  flex: 0 0 auto;
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--ant-field-border);
+  border-radius: var(--ant-field-radius);
+  background: var(--ant-field-bg);
+  color: var(--ant-text);
+  font-size: clamp(11px, 8cqw, 18px);
+  font-family: var(--ant-mono);
+  text-align: right;
+  min-width: 0;
+}
+
+.display:focus {
+  outline: none;
+  border-color: var(--ant-accent);
+  box-shadow: 0 0 0 3px var(--ant-accent-ring);
+}
+
+.displayError {
+  border-color: #e55c5c;
+}
+
+.errorText {
+  flex: 0 0 auto;
+  margin-top: -2px;
+  font-size: 11px;
+  color: #ff9a9a;
+  font-family: var(--ant-app-body-font);
+}
+
+.pad {
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: 1fr;
+  gap: 4px;
+  min-height: 0;
+}
+
+/*
+ * 塗りつぶし＋ホバーで色が変わる「立体的なボタン」感を避け、細い固定の枠線だけを
+ * 常設し、押した瞬間だけ薄暗くなるフラットな見た目にしている。
+ * ホバーでは枠線の色をわずかに変えるだけに留め、クリックしたこと自体は
+ * :active の背景で伝える。
+ */
+.key {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  border: 1px solid var(--ant-field-border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ant-text);
+  font-size: clamp(10px, 6cqw, 14px);
+  font-family: var(--ant-mono);
+  transition: background-color 100ms ease, border-color 100ms ease;
+}
+
+.key:hover {
+  border-color: var(--ant-field-border-hover);
+}
+
+.key:active {
+  background: rgba(var(--ant-card-base), 0.16);
+}
+
+.keyOperator {
+  color: var(--ant-accent);
+}
+
+.keyClear {
+  color: #ff9a9a;
+}
+
+.keyEquals {
+  grid-column: 1 / -1;
+  border-color: var(--ant-accent);
+  color: var(--ant-accent);
+  font-weight: 700;
+}
+
+.keyEquals:active {
+  background: var(--ant-accent-ring);
+}

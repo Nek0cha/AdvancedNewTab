@@ -1,0 +1,107 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 10px 12px;
+  font-family: var(--ant-canvas-font);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 0 0 auto;
+  margin-bottom: 8px;
+}
+
+/* calculator.module.css の .key と同じ考え方: 常設の細い枠線＋押した瞬間だけ薄暗く。 */
+.monthLabel {
+  padding: 4px 8px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background-color 100ms ease, border-color 100ms ease;
+}
+
+.monthLabel:hover {
+  border-color: var(--ant-field-border);
+}
+
+.monthLabel:active {
+  background: rgba(var(--ant-card-base), 0.14);
+}
+
+.navButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--ant-field-border);
+  border-radius: 6px;
+  color: var(--ant-muted);
+  transition: background-color 100ms ease, border-color 100ms ease, color 100ms ease;
+}
+
+.navButton:hover {
+  border-color: var(--ant-field-border-hover);
+  color: var(--ant-text);
+}
+
+.navButton:active {
+  background: rgba(var(--ant-card-base), 0.16);
+}
+
+.grid {
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: 1fr;
+  gap: 2px;
+  min-height: 0;
+}
+
+.weekdayCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--ant-muted);
+  padding-bottom: 4px;
+}
+
+.dayCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emptyCell {
+  visibility: hidden;
+}
+
+.dayNumber {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(24px, 100%);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  font-size: 11px;
+}
+
+.today {
+  background: var(--ant-accent);
+  color: #16110c;
+  font-weight: 700;
+}
+
+/* 「今日」と重なったときは today の配色（アクセント色の丸塗り）を優先する。 */
+.red {
+  color: #ff6b6b;
+}
+
+.blue {
+  color: #6aa9ff;
+}
