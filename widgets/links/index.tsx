@@ -25,7 +25,15 @@ interface LinksSettings extends Record<string, unknown> {
    * lucide/画像/URLアイコンには影響しない（IconValueDisplay の svgTint 参照）。
    */
   svgIconColor: string;
+  /** ウィジェット幅に対してリンクの並びをどこに寄せるか */
+  alignment: 'left' | 'center' | 'right';
 }
+
+const ALIGNMENT_TO_JUSTIFY_CONTENT: Record<LinksSettings['alignment'], string> = {
+  left: 'flex-start',
+  center: 'center',
+  right: 'flex-end',
+};
 
 /** lib/link-presets.ts のプリセットを、リストの追加ポップオーバーが扱える形に変換する。 */
 const LINK_ADD_PRESETS: ListPreset[] = LINK_PRESETS.map((preset) => ({
@@ -63,7 +71,7 @@ function LinksWidget({ settings, editMode }: WidgetProps<LinksSettings>) {
 
   return (
     <div className={styles.root}>
-      <div className={styles.grid}>
+      <div className={styles.grid} style={{ justifyContent: ALIGNMENT_TO_JUSTIFY_CONTENT[settings.alignment] }}>
         {items.map((item, index) => {
           const url = normalizeUrl(item.url);
           if (!url) return null;
@@ -73,6 +81,9 @@ function LinksWidget({ settings, editMode }: WidgetProps<LinksSettings>) {
               key={index}
               className={styles.item}
               href={url}
+              // 長いリンク名は .label 側のCSSで省略表示（ellipsis）されるため、
+              // ホバーで正式な表示名全文を見られるようにしておく。
+              title={item.label || new URL(url).hostname}
               target={settings.openInNewTab ? '_blank' : undefined}
               rel={settings.openInNewTab ? 'noopener noreferrer' : undefined}
               // 編集モード中はドラッグを優先し、誤クリックでの遷移を防ぐ
@@ -103,7 +114,9 @@ export const linksWidget = defineWidget<LinksSettings>({
   name: 'リンク集',
   description: 'よく使うサイトへのリンクをアイコン付きで並べます。',
   icon: Link2,
-  defaultLayout: { w: 4, h: 3, minW: 2, minH: 2 },
+  // minH: 1（他の1行系ウィジェットと同じ最小値）。アイコン1段分の高さに収まるので、
+  // 「もう一段狭くしたい」に応えて、ここまで縮められるようにしている。
+  defaultLayout: { w: 4, h: 3, minW: 2, minH: 1 },
   // favicon は wxt.config.ts で必須権限として宣言済み（インストール時に自動付与される）。
   // optional_permissions に無い権限を chrome.permissions.request() へ渡すとエラーになるため、
   // ここでは宣言しない。
@@ -115,6 +128,7 @@ export const linksWidget = defineWidget<LinksSettings>({
     ],
     openInNewTab: false,
     svgIconColor: '#f1ecec',
+    alignment: 'center',
   },
   settingsSchema: [
     {
@@ -130,6 +144,17 @@ export const linksWidget = defineWidget<LinksSettings>({
       presets: LINK_ADD_PRESETS,
     },
     { kind: 'toggle', key: 'openInNewTab', label: '新しいタブで開く' },
+    {
+      kind: 'select',
+      key: 'alignment',
+      label: '配置',
+      variant: 'tabs',
+      options: [
+        { value: 'left', label: '左寄せ' },
+        { value: 'center', label: '中央寄せ' },
+        { value: 'right', label: '右寄せ' },
+      ],
+    },
     {
       kind: 'color',
       key: 'svgIconColor',

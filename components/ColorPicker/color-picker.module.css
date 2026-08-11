@@ -3,6 +3,12 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  /* BackgroundEditor.tsx のグラデーション行のように、複数のColorPickerが
+     横並びで幅を分け合う場所で使われる。flexアイテムは既定で min-width: auto
+     になり、中の <input>（.hexField）が持つブラウザ既定の最小幅ぶんまでしか
+     縮められず、結果として2個並べたときに右側がコンテナからはみ出していた
+     （widgets/links の .item で直した「長いタイトルでボタンが広がる」不具合と同じ原因）。 */
+  min-width: 0;
 }
 
 .swatchButton {

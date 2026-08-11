@@ -11,6 +11,18 @@ export type IconValue =
 
 export const DEFAULT_ICON_VALUE: IconValue = { source: 'default' };
 
+/**
+ * `fill="currentColor"` 前提のSVGアイコン（プリセット等）を、常時ダークな編集UI
+ * （SidePanelのメニュー・設定パネル。テーマ非依存で `--ant-menu-bg` 等の固定色を使う箇所）
+ * の上で表示するときに使う、明るい色への固定tint。
+ *
+ * `<img src="data:image/svg+xml,...">` はページのCSS（currentColorを含む）を継承できない
+ * 独立した描画コンテキストのため、放置すると既定の黒でレンダリングされ、暗い背景に
+ * 埋もれて見えなくなる（tintSvgCode でSVG文字列自体を書き換えて色を焼き込むしかない）。
+ * components/Field/AddWithPresets.tsx のプリセット一覧アイコンと同じ理由・同じ値。
+ */
+export const DARK_UI_ICON_TINT = '#f1ecec';
+
 /** 保存されている値が壊れていても安全に既定値へフォールバックする。 */
 export function normalizeIconValue(value: unknown): IconValue {
   if (!value || typeof value !== 'object' || !('source' in value)) return DEFAULT_ICON_VALUE;

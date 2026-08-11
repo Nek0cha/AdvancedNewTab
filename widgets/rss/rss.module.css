@@ -51,6 +51,36 @@
   text-align: center;
 }
 
+/* 外部（指定フィードURL）への取得中、何も出ないと壊れているように見えるための表示。 */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 6px;
+  padding: 16px;
+  font-size: 12px;
+  color: var(--ant-muted);
+  text-align: center;
+}
+
+.spinner {
+  animation: ant-widget-spin 900ms linear infinite;
+}
+
+@keyframes ant-widget-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
+}
+
 .staleBadge {
   padding: 0 8px 6px;
   font-size: 10px;

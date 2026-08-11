@@ -3,6 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--
+      WXTは options エントリーポイントの options_ui を、wxt.config.ts の manifest.options_ui では
+      なく、このHTMLの `manifest.*` meta タグから読み取って生成する（wxt.config.ts 側の指定は
+      黙って上書き・無視される）。エクスポート/インポートは内容量があるため独立タブで開きたく、
+      manifest.mjs の `options.options.openInTab ?? false` を満たすにはここで宣言する必要がある。
+    -->
+    <meta name="manifest.open_in_tab" content="true" />
     <title>AdvancedNewTab の設定</title>
   </head>
   <body>

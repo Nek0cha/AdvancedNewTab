@@ -7,7 +7,11 @@
  * 自前の再帰下降パーサで +, -, *, /, %, 括弧, 小数, 単項マイナスだけを解釈する。
  */
 
-const TOKEN_RE = /\d+\.?\d*|\.\d+|[+\-*/%^()]/g;
+// 数値部分はカンマ（桁区切り）を許容する。計算結果を toLocaleString で
+// 「1,200」のように桁区切り表示したものが、そのまま次の式の続き（例:
+// 「1,200*2」）として再入力・再評価される作りになっているため、ここで
+// カンマを弾くと結果に3桁以上の数値が出るたびに続けて計算できなくなる。
+const TOKEN_RE = /[\d,]+\.?\d*|\.\d+|[+\-*/%^()]/g;
 
 class ExpressionError extends Error {}
 
@@ -94,7 +98,8 @@ function evaluateExpression(expr: string): number {
       return value;
     }
     const numToken = consume();
-    const value = Number(numToken);
+    // 桁区切りのカンマは数値としての意味を持たないので、Number() に渡す前に取り除く。
+    const value = Number(numToken.replace(/,/g, ''));
     if (Number.isNaN(value)) throw new ExpressionError(`不正な数値です: ${numToken}`);
     return value;
   }

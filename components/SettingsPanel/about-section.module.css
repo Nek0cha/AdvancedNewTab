@@ -1,0 +1,15 @@
+/*
+ * layout-presets-editor.module.css の .actionButton（丸ピルボタン）自体は流用しつつ、
+ * 並べ方だけこちらで上書きする。
+ *
+ * 元々は隣の「レイアウト保存」セクションと同じ横並び（.slotActions）を流用していたが、
+ * あちらは「保存/読込/削除」のような短いラベル前提で、SidePanelの横幅では
+ * 「プライバシーポリシー」のような長いラベルのボタンが3つ横に並びきらず、
+ * ボタン内でテキストが2行に折り返されてしまっていた。ここでは素直に縦積みにする。
+ */
+.list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}

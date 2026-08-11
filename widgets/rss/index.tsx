@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Rss } from 'lucide-react';
+import { Loader2, Rss } from 'lucide-react';
 
 import { PermissionGate } from '@/components/PermissionGate/PermissionGate';
 import { cached } from '@/lib/cache';
@@ -64,7 +64,14 @@ function RssContent({ settings }: WidgetProps<RssSettings>) {
   if (error) {
     return <div className={styles.empty}>{error}</div>;
   }
-  if (!items) return null;
+  if (!items) {
+    return (
+      <div className={styles.loading}>
+        <Loader2 size={20} className={styles.spinner} aria-hidden />
+        <span>読み込み中…</span>
+      </div>
+    );
+  }
 
   const visible = items.slice(0, settings.limit);
   if (visible.length === 0) {

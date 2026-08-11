@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { Upload } from 'lucide-react';
+import { ArrowRight, Upload } from 'lucide-react';
 
 import { ColorPicker } from '@/components/ColorPicker/ColorPicker';
 import { NumberStepper } from '@/components/NumberStepper/NumberStepper';
@@ -85,7 +85,7 @@ export function BackgroundEditor({ value, onChange }: BackgroundEditorProps) {
               value={value.gradient.from}
               onChange={(from) => onChange({ ...value, gradient: { ...value.gradient, from } })}
             />
-            <span className={styles.arrow}>→</span>
+            <ArrowRight size={16} className={styles.arrow} aria-hidden />
             <ColorPicker
               value={value.gradient.to}
               onChange={(to) => onChange({ ...value, gradient: { ...value.gradient, to } })}

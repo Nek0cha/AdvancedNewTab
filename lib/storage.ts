@@ -16,6 +16,22 @@ import { DEFAULT_FONT_ID } from '@/lib/fonts';
 import { SCHEMA_VERSION, createDefaultState } from '@/lib/defaults';
 import type { PersistedState } from '@/lib/types';
 
+/**
+ * 初回起動（ストレージに何も無い状態）にだけ使う、カスタムの既定レイアウト。
+ *
+ * 中身が null の間は何もせず、lib/defaults.ts の createDefaultState()（ハードコードされた
+ * 最小構成）がこれまでどおり使われる。差し替えたい場合は、options ページの
+ * 「JSONをダウンロード」でエクスポートした内容をこのファイルにそのまま貼り付ける
+ * （version・rev はそのままでよい。normalize() を通すため、多少スキーマが古くても
+ * 自動的に補正・移行される）。
+ *
+ * createDefaultState() 自体は書き換えない — normalize() が「壊れた/読めない保存データ」を
+ * 復旧するときの最終フォールバックとしても使われているため、常にハードコードされた
+ * 安全な既定値のまま残しておく必要がある（このJSONの中身がもし壊れていても、
+ * normalize() が結局 createDefaultState() まで遡って復旧できるようにするため）。
+ */
+import defaultStateOverride from '@/lib/default-state.json';
+
 const STATE_KEY = 'state';
 /** 静的サイト版が使う localStorage のキー。拡張機能版の STATE_KEY とは別名前空間にしておく。 */
 const WEB_STORAGE_KEY = 'ant:web-state';
@@ -146,10 +162,14 @@ export async function loadState(): Promise<PersistedState> {
   try {
     if (!isExtensionContext()) {
       const raw = localStorage.getItem(WEB_STORAGE_KEY);
-      return normalize(raw ? JSON.parse(raw) : undefined);
+      if (raw) return normalize(JSON.parse(raw));
+      // 保存済みデータが無い＝初回訪問のときだけ、カスタム既定レイアウトの出番
+      return normalize(defaultStateOverride ?? undefined);
     }
     const stored = await browser.storage.local.get(STATE_KEY);
-    return normalize(stored[STATE_KEY]);
+    if (stored[STATE_KEY] !== undefined) return normalize(stored[STATE_KEY]);
+    // 保存済みデータが無い＝初回起動のときだけ、カスタム既定レイアウトの出番
+    return normalize(defaultStateOverride ?? undefined);
   } catch (error) {
     console.error('[AdvancedNewTab] 設定の読み込みに失敗したため既定値で起動します', error);
     return createDefaultState();

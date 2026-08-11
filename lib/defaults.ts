@@ -37,6 +37,12 @@ export const DEFAULT_THEME: ThemeConfig = {
  * 「完全にカスタマイズ可能」であることと、初回に真っ白なキャンバスを見せることは別問題である。
  * 何を置けばよいか分からない状態を避けるため、権限を必要としないウィジェットだけで
  * 成立する既定レイアウトをあらかじめ用意している。
+ *
+ * 注意: ここの各レイアウト項目の w/h/minW/minH は、対応する widgets/<type>/index.tsx の
+ * defaultLayout とは別データとして持っている（widget追加ダイアログから足した場合は
+ * defaultLayout が使われるが、ここは初回起動専用の固定値）。widget側の defaultLayout を
+ * 変えたときはここも揃えて直すこと（揃え忘れると「新規追加したウィジェットとインストール
+ * 直後からある既定ウィジェットとで最小/初期サイズが違う」というズレが起きる）。
  */
 export function createDefaultState(): PersistedState {
   return {
@@ -47,22 +53,22 @@ export function createDefaultState(): PersistedState {
       lg: [
         { i: 'clock-1', x: 4, y: 0, w: 4, h: 2, minW: 2, minH: 1 },
         { i: 'search-1', x: 3, y: 2, w: 6, h: 1, minW: 3, minH: 1 },
-        { i: 'links-1', x: 3, y: 3, w: 6, h: 3, minW: 2, minH: 2 },
+        { i: 'links-1', x: 3, y: 3, w: 6, h: 3, minW: 2, minH: 1 },
       ],
       md: [
         { i: 'clock-1', x: 3, y: 0, w: 4, h: 2, minW: 2, minH: 1 },
         { i: 'search-1', x: 2, y: 2, w: 6, h: 1, minW: 3, minH: 1 },
-        { i: 'links-1', x: 2, y: 3, w: 6, h: 3, minW: 2, minH: 2 },
+        { i: 'links-1', x: 2, y: 3, w: 6, h: 3, minW: 2, minH: 1 },
       ],
       sm: [
         { i: 'clock-1', x: 1, y: 0, w: 4, h: 2, minW: 2, minH: 1 },
         { i: 'search-1', x: 0, y: 2, w: 6, h: 1, minW: 3, minH: 1 },
-        { i: 'links-1', x: 0, y: 3, w: 6, h: 3, minW: 2, minH: 2 },
+        { i: 'links-1', x: 0, y: 3, w: 6, h: 3, minW: 2, minH: 1 },
       ],
       xs: [
         { i: 'clock-1', x: 0, y: 0, w: 4, h: 2, minW: 2, minH: 1 },
         { i: 'search-1', x: 0, y: 2, w: 4, h: 1, minW: 3, minH: 1 },
-        { i: 'links-1', x: 0, y: 3, w: 4, h: 3, minW: 2, minH: 2 },
+        { i: 'links-1', x: 0, y: 3, w: 4, h: 3, minW: 2, minH: 1 },
       ],
     },
     widgets: {

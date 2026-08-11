@@ -6,3 +6,6 @@ stats.html
 stats-*.json
 *.log
 .DS_Store
+
+# 未圧縮の元画像（配布物には最適化済みの assets/image/*.webp のみ含める）
+site/assets/image/sample.png

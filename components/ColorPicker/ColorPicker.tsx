@@ -77,14 +77,25 @@ export function ColorPicker({ value, onChange, id }: ColorPickerProps) {
   useLayoutEffect(() => {
     if (!open || !rootRef.current) return;
     const rect = rootRef.current.getBoundingClientRect();
+    const popoverWidth = 220;
     const popoverHeight = 300; // svPanel + hueBar + swatchRow + padding のおおよその高さ
+    const margin = 8;
     const spaceBelow = window.innerHeight - rect.bottom;
     const openUpward = spaceBelow < popoverHeight && rect.top > spaceBelow;
 
+    // トリガー（スワッチボタン）は小さいが、ポップオーバーはそれよりずっと幅がある
+    // （220px固定）。単純に rect.left を基準にすると、行の右寄りにあるトリガー
+    // （グラデーションの2色目など）ではポップオーバーが画面右端からはみ出ていた。
+    // 右端に収まらない場合は、ビューポート右端から margin ぶん離した位置まで
+    // 左へ寄せる（Dropdown/AddWithPresetsのようにトリガー幅=メニュー幅の場合は
+    // 起こらないズレなので、ここだけの対応でよい）。
+    const maxLeft = window.innerWidth - popoverWidth - margin;
+    const left = Math.max(margin, Math.min(rect.left, maxLeft));
+
     setPopoverStyle({
       position: 'fixed',
-      left: rect.left,
-      width: 220,
+      left,
+      width: popoverWidth,
       ...(openUpward ? { bottom: window.innerHeight - rect.top + 8 } : { top: rect.bottom + 8 }),
     });
   }, [open]);

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { CloudSun } from 'lucide-react';
+import { CloudSun, Loader2 } from 'lucide-react';
 
 import { PermissionGate } from '@/components/PermissionGate/PermissionGate';
 import { cached } from '@/lib/cache';
@@ -55,7 +55,14 @@ function WeatherContent({ settings }: WidgetProps<WeatherSettings>) {
   if (error) {
     return <div className={styles.empty}>{error}</div>;
   }
-  if (!snapshot) return null;
+  if (!snapshot) {
+    return (
+      <div className={styles.loading}>
+        <Loader2 size={20} className={styles.spinner} aria-hidden />
+        <span>読み込み中…</span>
+      </div>
+    );
+  }
 
   const { Icon, label } = describeWeatherCode(snapshot.weatherCode, snapshot.isDay);
   const unitSuffix = settings.tempUnit === 'celsius' ? '℃' : '℉';

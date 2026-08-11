@@ -111,6 +111,35 @@
   border: 1px solid var(--ant-field-border);
   border-radius: 10px;
   background: var(--ant-field-bg);
+  /* カード全体がドラッグの起点（掴んで動かせる）。ボタンやテキスト欄など、
+     それ自体にクリック/選択の意味がある子要素は、独自のcursorで上書きされる。 */
+  cursor: grab;
+  /* ドラッグ中にブラウザ既定のテキスト選択（青いハイライト）・タッチスクロールが
+     割り込まないように。<input>/<textarea> 内の選択・編集はこの指定の影響を受けない
+     （フォームコントロールは常に自前の選択挙動を持つため）ので、展開時の入力欄には
+     影響しない。 */
+  touch-action: none;
+  user-select: none;
+}
+
+/* ドラッグ中の項目自体。「持ち上げている」感が出るよう薄く・浮かせる。
+   横方向には動かさない（transformはtranslateYのみ、Field.tsx側で付与）ため、
+   常に元のX位置のまま縦にだけ追従する。 */
+.listItemDragging {
+  position: relative;
+  z-index: 5;
+  cursor: grabbing;
+  opacity: 0.9;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.32);
+}
+
+/* ドロップ先（挿入位置）を示す細い線。カード自体は動かさず、この線だけが
+   ポインタの位置に応じて動く。 */
+.dropIndicator {
+  height: 2px;
+  margin: 3px 4px;
+  border-radius: 999px;
+  background: var(--ant-accent);
 }
 
 .listItemHeader {
@@ -122,8 +151,50 @@
   color: var(--ant-muted);
 }
 
-.listItemIndex {
+/* 折りたたみトグル。ヘッダー内の残り幅いっぱいを占めて、上へ/下へ/削除ボタンを右端に押しやる */
+.listItemToggle {
   flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 2px 0;
+  border: none;
+  background: transparent;
+  color: var(--ant-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.collapseIcon {
+  flex: 0 0 auto;
+  color: var(--ant-muted);
+  transition: transform 140ms var(--ant-ease);
+}
+
+.collapseIconOpen {
+  transform: rotate(180deg);
+}
+
+.listItemIcon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  color: var(--ant-muted);
+}
+
+.listItemTitle {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ant-text);
 }
 
 .miniButton {
@@ -138,6 +209,8 @@
   border-radius: 6px;
   background: transparent;
   color: var(--ant-text);
+  /* 親の .listItem が cursor: grab を持つため、明示しないと継承されてしまう */
+  cursor: pointer;
   transition: background-color 140ms var(--ant-ease);
 }
 
@@ -155,7 +228,7 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  margin-top: 10px;
+  margin: 10px 0;
   width: 100%;
   padding: 9px;
   border: 1px dashed var(--ant-field-border);

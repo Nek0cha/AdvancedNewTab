@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Star } from 'lucide-react';
+import { Loader2, Star } from 'lucide-react';
 
 import { PermissionGate } from '@/components/PermissionGate/PermissionGate';
 import { faviconUrl } from '@/lib/favicon';
@@ -47,7 +47,14 @@ function BookmarksList({ settings, editMode }: WidgetProps<BookmarksSettings>) {
   if (error) {
     return <div className={styles.empty}>ブックマークを読み込めませんでした: {error}</div>;
   }
-  if (!bookmarks) return null;
+  if (!bookmarks) {
+    return (
+      <div className={styles.loading}>
+        <Loader2 size={20} className={styles.spinner} aria-hidden />
+        <span>読み込み中…</span>
+      </div>
+    );
+  }
 
   if (bookmarks.length === 0) {
     return <div className={styles.empty}>ブックマークがまだありません。</div>;
@@ -61,6 +68,9 @@ function BookmarksList({ settings, editMode }: WidgetProps<BookmarksSettings>) {
             key={bookmark.id}
             className={styles.item}
             href={bookmark.url}
+            // 長いタイトルは .label 側のCSSで省略表示（ellipsis）されるため、
+            // ホバーで正式なタイトル全文を見られるようにしておく。
+            title={bookmark.title || new URL(bookmark.url).hostname}
             target={settings.openInNewTab ? '_blank' : undefined}
             rel={settings.openInNewTab ? 'noopener noreferrer' : undefined}
             onClick={(e) => {

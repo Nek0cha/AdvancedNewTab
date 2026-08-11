@@ -32,7 +32,7 @@
 }
 
 .arrow {
-  font-size: 13px;
+  flex: 0 0 auto;
   color: var(--ant-muted);
 }
 

@@ -10,12 +10,13 @@
 ## 中身
 
 - `index.html` — ランディングページ（Workbenchマクロ構造。機能紹介・インストール手順）
-- `terms.html` — 利用規約（Long Documentマクロ構造。**プレースホルダー**）
-- `privacy.html` — プライバシーポリシー（Long Documentマクロ構造。**プレースホルダー**。データの取り扱いに関する記述はソースコードの実際の挙動に基づいて書いていますが、公開前に見直してください）
+- `terms/index.html` — 利用規約（`/terms` でアクセス。Long Documentマクロ構造。**プレースホルダー**）
+- `privacy/index.html` — プライバシーポリシー（`/privacy` でアクセス。Long Documentマクロ構造。**プレースホルダー**。データの取り扱いに関する記述はソースコードの実際の挙動に基づいて書いていますが、公開前に見直してください）
 - `design.md` — ロックされたデザインシステム（トークン値・マクロ構造・声色の一次情報源）
 - `assets/tokens.css` — `design.md` の値を反映したCSSカスタムプロパティ
 - `assets/style.css` — 共通スタイル
 - `assets/icon/` — 拡張機能本体のアイコン（`public/icon/`からのコピー）をブランドマークとして使用
+- `assets/image/dashboard-sample.webp` — トップページに掲載している実際のダッシュボード画面のスクリーンショット（元の未圧縮画像はコミットしない。`.gitignore` 参照）
 - `app/` — **ビルド生成物**（下記「ブラウザ版（`app/`）」参照）。手で編集しない
 
 ## ブラウザ版（`app/`）
@@ -42,9 +43,10 @@ npm run build:web
 
 ## 公開前にやること
 
-1. `index.html` / `terms.html` / `privacy.html` 内の `https://github.com/Nek0cha/AdvancedNewTab` を実際のリポジトリURLに置き換える
-2. `terms.html` / `privacy.html` の内容を、専門家のレビューも含めて見直す
+1. `index.html` / `terms/index.html` / `privacy/index.html` 内の `https://github.com/Nek0cha/AdvancedNewTab` は実際のリポジトリURLと一致済み（変更していなければ確認のみでよい）
+2. `terms/index.html` / `privacy/index.html` の内容を、専門家のレビューも含めて見直す
 3. リポジトリ直下の `LICENSE`（MIT）が実在することを確認する
+4. `lib/site-links.ts` の `SITE_ORIGIN`（既定 `https://newtab.ny4n.net`）が、実際にこの `site/` を公開するドメインと一致しているか確認する（拡張機能側の「見た目」タブから、このドメインの `/`・`/terms`・`/privacy` へリンクしている）
 
 ## GitHub Pagesで公開する場合
 

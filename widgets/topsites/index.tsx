@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { TrendingUp } from 'lucide-react';
+import { Loader2, TrendingUp } from 'lucide-react';
 
 import { PermissionGate } from '@/components/PermissionGate/PermissionGate';
 import { faviconUrl } from '@/lib/favicon';
@@ -39,7 +39,14 @@ function TopSitesList({ settings, editMode }: WidgetProps<TopSitesSettings>) {
   if (error) {
     return <div className={styles.empty}>よく使うサイトを読み込めませんでした: {error}</div>;
   }
-  if (!sites) return null;
+  if (!sites) {
+    return (
+      <div className={styles.loading}>
+        <Loader2 size={20} className={styles.spinner} aria-hidden />
+        <span>読み込み中…</span>
+      </div>
+    );
+  }
 
   const items = sites.slice(0, settings.limit);
   if (items.length === 0) {
@@ -54,6 +61,9 @@ function TopSitesList({ settings, editMode }: WidgetProps<TopSitesSettings>) {
             key={site.url}
             className={styles.item}
             href={site.url}
+            // 長いサイト名は .label 側のCSSで省略表示（ellipsis）されるため、
+            // ホバーで正式なタイトル全文を見られるようにしておく。
+            title={site.title || new URL(site.url).hostname}
             target={settings.openInNewTab ? '_blank' : undefined}
             rel={settings.openInNewTab ? 'noopener noreferrer' : undefined}
             onClick={(e) => {

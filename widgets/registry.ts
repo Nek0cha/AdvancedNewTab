@@ -56,7 +56,7 @@ function register<S extends Record<string, unknown>>(def: WidgetDef<S>): void {
     settingsSchema: [
       ...def.settingsSchema,
       ...widgetBackgroundFields({ border: includeBorder }),
-      { kind: 'toggle', key: 'hideOnResize', label: 'サイズ変更時に自動で非表示にする' },
+      { kind: 'toggle', key: 'hideOnResize', label: 'ウィンドウサイズ変更時に自動で非表示にする' },
     ],
   } as unknown as AnyWidgetDef;
 

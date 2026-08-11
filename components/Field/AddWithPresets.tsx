@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Plus } from 'lucide-react';
 
-import { svgToDataUrl, tintSvgCode } from '@/lib/icon-value';
+import { DARK_UI_ICON_TINT, svgToDataUrl, tintSvgCode } from '@/lib/icon-value';
 import type { ListPreset } from '@/widgets/types';
 
 import styles from './field.module.css';
@@ -114,10 +114,10 @@ export function AddWithPresets({ addLabel, presets, onAddBlank, onAddPreset }: A
                     // プリセットのSVGは fill="currentColor" 前提（lib/icon-value.ts の
                     // tintSvgCode 参照）。<img> 描画では currentColor がページCSSを継承できず
                     // 既定の黒になるため、常時ダークのメニュー背景（--ant-menu-bg）に
-                    // 埋もれないよう明るい色に固定でtintする。
+                    // 埋もれないよう明るい色に固定でtintする（DARK_UI_ICON_TINT参照）。
                     <img
                       className={popoverStyles.presetIcon}
-                      src={svgToDataUrl(tintSvgCode(preset.iconSvg, '#f1ecec'))}
+                      src={svgToDataUrl(tintSvgCode(preset.iconSvg, DARK_UI_ICON_TINT))}
                       alt=""
                     />
                   ) : (

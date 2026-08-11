@@ -4,6 +4,7 @@ import { THEME_SCHEMA } from '@/lib/theme-schema';
 import type { ThemeConfig } from '@/lib/types';
 import { isFieldVisible } from '@/widgets/types';
 
+import { AboutSection } from './AboutSection';
 import { BackgroundEditor } from './BackgroundEditor';
 import { FontEditor } from './FontEditor';
 import { LayoutPresetsEditor } from './LayoutPresetsEditor';
@@ -50,6 +51,11 @@ export function ThemeSettingsPanel() {
       <section className={panelStyles.section}>
         <h3 className={panelStyles.sectionTitle}>レイアウト保存</h3>
         <LayoutPresetsEditor />
+      </section>
+
+      <section className={panelStyles.section}>
+        <h3 className={panelStyles.sectionTitle}>このアプリについて</h3>
+        <AboutSection />
       </section>
     </>
   );

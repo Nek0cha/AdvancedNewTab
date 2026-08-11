@@ -1,18 +1,45 @@
 .root {
   height: 100%;
-  padding: 12px;
+  /* 上下は8px（12pxだと、高さ1行ぶんまで縮めたとき数px足りずスクロールバーが出ていた）。
+     左右は見た目のバランスを保つため12pxのまま。 */
+  padding: 8px 12px;
   overflow-y: auto;
+  /* 縦に余裕がある/ちょうど1行ぶんしか無いときに、中身が上端に張り付かず
+     常に縦中央へ来るようにする（高さ1行に縮めたときの見え方の要望）。
+     項目が多くて折り返しても、複数行のかたまりごと中央寄せされるだけで壊れない。 */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   font-family: var(--ant-canvas-font);
+  /* スクロールバー自体は非表示にする（横に出て中身が欠けて見えるのを防ぐ）。
+     overflow-y: auto 自体は残すので、リンクが多く入りきらないときはホイール/タッチで
+     スクロールでき、アクセスできなくなることはない。 */
+  scrollbar-width: none;
+}
+
+.root::-webkit-scrollbar {
+  display: none;
 }
 
 .grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  /* justify-content は widgets/links の「配置」設定からインラインstyleで上書きされる。
+     この初期値は、その設定を持たない widgets/topsites・widgets/bookmarks（このCSSを
+     そのまま再利用している）向けの既定。 */
+  justify-content: center;
   gap: 10px;
 }
 
 .item {
   display: flex;
+  flex: 0 0 64px;
+  /* flexアイテムは既定で min-width: auto のため、中身（.label のテキスト）の
+     最小コンテンツ幅がそのままボタンの下限幅になってしまい、長いサイト名を
+     入れるとボタンごと横に広がってしまっていた（.label の white-space: nowrap +
+     text-overflow: ellipsis が効かなくなる古典的な原因）。min-width: 0 で
+     flex-basis（64px）まで縮められるようにし、ellipsis が実際に働くようにする。 */
+  min-width: 0;
   flex-direction: column;
   align-items: center;
   gap: 6px;
@@ -57,4 +84,35 @@
   font-size: 12px;
   color: var(--ant-muted);
   text-align: center;
+}
+
+/* 取得中（widgets/topsites・widgets/bookmarks のブラウザAPI呼び出し中）に
+   何も出ないと壊れているように見えるための表示。 */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 6px;
+  padding: 16px;
+  font-size: 12px;
+  color: var(--ant-muted);
+  text-align: center;
+}
+
+.spinner {
+  animation: ant-widget-spin 900ms linear infinite;
+}
+
+@keyframes ant-widget-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
 }

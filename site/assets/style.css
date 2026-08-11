@@ -50,7 +50,12 @@ code {
 .wrap {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 0 var(--space-lg);
+  /* padding shorthand は使わない: 左右だけを指定したい。
+     ショートハンドで書くと padding-top/bottom も 0 で確定してしまい、
+     同じ要素の `section { padding: var(--space-2xl) 0; }`（詳細度で負ける）を
+     問答無用で上書きしてセクション間の余白が消える事故があったため。 */
+  padding-left: var(--space-lg);
+  padding-right: var(--space-lg);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -356,6 +361,29 @@ h2 {
   border: 1px solid var(--color-rule);
   color: var(--color-ink-2);
   font-size: var(--text-xs);
+}
+
+/* ---- 実スクリーンショット（「見た目も、細部まで。」セクションのみの例外） --- */
+/*
+ * design.md のマクロ構造では index.html は原則「実スクリーンショットではなく
+ * CSSアートのミニダッシュボードを使う」としているが、この1枚は捏造ではない
+ * 実物の画面なので、テーマ・背景カスタマイズを語るこのセクション限定で例外的に
+ * 使用する（詳細は design.md 追記を参照）。偽のブラウザ枠（信号機ボタン等）は
+ * 付けず、他のカード類と同じ角丸・罫線のトーンだけで額装する。
+ */
+
+.showcase {
+  margin-top: var(--space-xl);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--color-rule);
+  overflow: hidden;
+  box-shadow: 0 20px 48px -24px oklch(20% 0.012 250 / 0.28);
+}
+
+.showcase img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 /* ---- インストール手順 ---------------------------------------------------- */
