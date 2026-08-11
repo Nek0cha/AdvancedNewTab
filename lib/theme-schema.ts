@@ -8,16 +8,6 @@ import type { FieldSchema } from '@/widgets/types';
  */
 export const THEME_SCHEMA: ReadonlyArray<FieldSchema> = [
   {
-    kind: 'select',
-    key: 'mode',
-    label: 'モード',
-    options: [
-      { value: 'dark', label: 'ダーク' },
-      { value: 'light', label: 'ライト' },
-    ],
-    help: 'カード面や文字の既定色を切り替えます。',
-  },
-  {
     kind: 'text',
     key: 'tabTitle',
     label: '新しいタブページの名前',

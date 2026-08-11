@@ -1,8 +1,10 @@
 import { forwardRef, type HTMLAttributes } from 'react';
 import { AlignHorizontalJustifyCenter, Copy, GripVertical, Settings2, TriangleAlert, X } from 'lucide-react';
 
+import { useGridStatus } from '@/components/Grid/GridStatusContext';
 import { cx } from '@/lib/cx';
 import { useAppStore } from '@/lib/store';
+import { getWidgetBackgroundStyle, type WidgetBackgroundSettings } from '@/lib/widget-background';
 import { getWidgetDef } from '@/widgets/registry';
 
 import { WidgetErrorBoundary } from './ErrorBoundary';
@@ -23,7 +25,7 @@ interface WidgetFrameProps extends HTMLAttributes<HTMLDivElement> {
  * （ここを怠るとドラッグもリサイズも動かない）
  */
 export const WidgetFrame = forwardRef<HTMLDivElement, WidgetFrameProps>(function WidgetFrame(
-  { instanceId, className, children, overlapping, ...rest },
+  { instanceId, className, children, overlapping, style: gridStyle, ...rest },
   ref,
 ) {
   const editMode = useAppStore((s) => s.editMode);
@@ -36,21 +38,36 @@ export const WidgetFrame = forwardRef<HTMLDivElement, WidgetFrameProps>(function
   const def = instance ? getWidgetDef(instance.type) : undefined;
   const frameKind = def?.frame ?? 'card';
 
+  // 設定の欠けは既定値で埋める。ウィジェットに設定項目を追加しても、
+  // 既存ユーザーのデータをマイグレーションせずに済む。
+  const settings = def ? { ...def.defaultSettings, ...(instance?.settings ?? {}) } : {};
+  const Icon = def?.icon;
+
+  // ウィンドウリサイズ中・狭い画面幅のときに時計・検索以外を一時的に隠す
+  // （widgets/registry.ts が注入する hideOnResize 設定。既定は clock/search だけ false）。
+  // 編集モード中は隠すと配置操作の邪魔になるため対象外にする。
+  const { isResizing, isNarrow } = useGridStatus();
+  const shouldHideOnResize = !editMode && settings.hideOnResize === true && (isResizing || isNarrow);
+
   const rootClassName = cx(
     className,
     styles.frame,
     frameKind === 'bare' ? styles.bare : styles.card,
     editMode && styles.editing,
     editMode && overlapping && styles.overlapping,
+    shouldHideOnResize && styles.resizeHidden,
   );
 
-  // 設定の欠けは既定値で埋める。ウィジェットに設定項目を追加しても、
-  // 既存ユーザーのデータをマイグレーションせずに済む。
-  const settings = def ? { ...def.defaultSettings, ...(instance?.settings ?? {}) } : {};
-  const Icon = def?.icon;
+  // 個別スタイルは backgroundScope:'self'（検索など）を宣言したウィジェットだけ、
+  // Component が自前で適用する。それ以外は widgets/registry.ts が全ウィジェットへ
+  // 自動注入した設定を、ここで外枠（.card/.bare）へ一括適用する。
+  const backgroundStyle =
+    def && def.backgroundScope !== 'self'
+      ? getWidgetBackgroundStyle(settings as WidgetBackgroundSettings)
+      : undefined;
 
   return (
-    <div ref={ref} className={rootClassName} {...rest}>
+    <div ref={ref} className={rootClassName} style={{ ...gridStyle, ...backgroundStyle }} {...rest}>
       {editMode && overlapping && (
         <span className={styles.overlapWarning} title="他のウィジェットと重なっています">
           <TriangleAlert size={13} />

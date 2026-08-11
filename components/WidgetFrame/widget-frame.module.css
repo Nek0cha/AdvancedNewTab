@@ -4,6 +4,18 @@
   border-radius: var(--ant-card-radius);
 }
 
+/*
+ * 「サイズ変更時に自動で非表示にする」設定がONのウィジェットを、ウィンドウリサイズ中・
+ * 狭い画面幅の間だけ隠す（components/Grid/GridStatusContext.tsx 参照）。
+ * react-grid-layout のレイアウト計算やドラッグ座標の追跡を壊さないよう、
+ * unmount ではなく opacity/pointer-events による非表示化に留めている。
+ */
+.resizeHidden {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms var(--ant-ease);
+}
+
 .card {
   /* アプリ全体のUIクロム（ボタン・メニュー等）が使う --ant-card-bg とは別に、
      見た目タブの「ウィジェットカードの背景色」専用の変数を参照する（lib/theme.ts 参照）。 */

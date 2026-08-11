@@ -63,8 +63,6 @@ export interface CustomFont {
 }
 
 export interface ThemeConfig {
-  /** ライト/ダーク。CSS側は [data-theme] で分岐する */
-  mode: 'dark' | 'light';
   background: BackgroundConfig;
   /** 文字色 */
   textColor: string;
@@ -151,7 +149,6 @@ export interface PersistedState {
  * （public/boot.js が読む。キー名を変える場合は boot.js も合わせること）
  */
 export interface BootTheme {
-  mode: 'dark' | 'light';
   /** html要素に流し込む background ショートハンドの値 */
   background: string;
   color: string;

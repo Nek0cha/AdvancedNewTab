@@ -1,16 +1,24 @@
 /**
- * chrome.storage.local への読み書きとマイグレーションを引き受ける層。
+ * 状態の読み書きとマイグレーションを引き受ける層。
  *
- * chrome.storage.sync は使用していない。合計100KB / 1項目8KB の制限に
- * レイアウトJSONと背景画像が収まらないためで、端末間の移行は
+ * 拡張機能ビルドでは chrome.storage.local を使う。chrome.storage.sync は使用していない。
+ * 合計100KB / 1項目8KB の制限にレイアウトJSONと背景画像が収まらないためで、端末間の移行は
  * options ページの JSON エクスポート/インポートで代替する。
+ *
+ * 壁紙・スタートページ用途の静的サイト版（entrypoints/webapp、`npm run build:web`）には
+ * chrome.storage が存在しないため、`isExtensionContext()`（lib/platform.ts）で分岐し、
+ * 同じ関数シグネチャのまま localStorage ベースの代替実装に切り替える。normalize/migrateRaw は
+ * 保存先に依存しない純粋な変換なので、どちらの実装からも共通で使い回す。
  */
 
+import { isExtensionContext } from '@/lib/platform';
 import { DEFAULT_FONT_ID } from '@/lib/fonts';
 import { SCHEMA_VERSION, createDefaultState } from '@/lib/defaults';
 import type { PersistedState } from '@/lib/types';
 
 const STATE_KEY = 'state';
+/** 静的サイト版が使う localStorage のキー。拡張機能版の STATE_KEY とは別名前空間にしておく。 */
+const WEB_STORAGE_KEY = 'ant:web-state';
 
 /** 保存の書き込み間隔（ms）。ドラッグ中の onLayoutChange 連打を吸収する。 */
 const WRITE_DEBOUNCE_MS = 400;
@@ -72,6 +80,14 @@ function migrateRaw(raw: unknown): unknown {
     theme = { cardBorderWidth: 1, tabTitle: '新しいタブ', customFont: null, ...theme };
   }
 
+  // v2 → v3: ライトモードを廃止し常時ダーク化。mode は型ごと削除したため、
+  // 残っていても単に無視されるだけで実害は無いが、亡霊のように残り続けないよう
+  // 明示的に取り除いておく。
+  if (version < 3 && theme && 'mode' in theme) {
+    const { mode: _mode, ...rest } = theme;
+    theme = rest;
+  }
+
   return theme ? { ...obj, version: SCHEMA_VERSION, theme } : obj;
 }
 
@@ -128,6 +144,10 @@ export function parseImportedState(raw: unknown): PersistedState {
 
 export async function loadState(): Promise<PersistedState> {
   try {
+    if (!isExtensionContext()) {
+      const raw = localStorage.getItem(WEB_STORAGE_KEY);
+      return normalize(raw ? JSON.parse(raw) : undefined);
+    }
     const stored = await browser.storage.local.get(STATE_KEY);
     return normalize(stored[STATE_KEY]);
   } catch (error) {
@@ -137,6 +157,10 @@ export async function loadState(): Promise<PersistedState> {
 }
 
 export async function saveState(state: PersistedState): Promise<void> {
+  if (!isExtensionContext()) {
+    localStorage.setItem(WEB_STORAGE_KEY, JSON.stringify(state));
+    return;
+  }
   await browser.storage.local.set({ [STATE_KEY]: state });
 }
 
@@ -166,6 +190,22 @@ export function createDebouncedSaver(): (state: PersistedState) => void {
 
 /** 他のタブ／options ページでの変更を購読する。解除用の関数を返す。 */
 export function subscribeExternalChanges(onChange: (state: PersistedState) => void): () => void {
+  if (!isExtensionContext()) {
+    // localStorage の 'storage' イベントはブラウザ標準で「別タブ・別ウィンドウでの変更」の
+    // ときだけ発火する（変更した本人のタブでは発火しない）ため、chrome.storage.onChanged と
+    // 同じ「自分以外の変更を検知する」用途にそのまま使える。
+    const listener = (event: StorageEvent): void => {
+      if (event.key !== WEB_STORAGE_KEY || event.newValue === null) return;
+      try {
+        onChange(normalize(JSON.parse(event.newValue)));
+      } catch (error) {
+        console.error('[AdvancedNewTab] 他タブからの変更の読み取りに失敗しました', error);
+      }
+    };
+    window.addEventListener('storage', listener);
+    return () => window.removeEventListener('storage', listener);
+  }
+
   const listener = (
     changes: Record<string, { newValue?: unknown }>,
     areaName: string,

@@ -56,7 +56,7 @@ export function toBootTheme(theme: ThemeConfig): BootTheme {
     background = `${bg.image.fallbackColor} url("${bg.image.src}") center / cover no-repeat fixed`;
   }
 
-  return { mode: theme.mode, background, color: theme.textColor };
+  return { background, color: theme.textColor };
 }
 
 /** boot.js が次回起動時に読むミラーを更新する。 */
@@ -102,7 +102,6 @@ export function applyTheme(theme: ThemeConfig): void {
   const root = document.documentElement;
   const boot = toBootTheme(theme);
 
-  root.setAttribute('data-theme', theme.mode);
   root.style.background = boot.background;
   root.style.backgroundAttachment = 'fixed';
   root.style.backgroundSize = 'cover';
@@ -121,34 +120,31 @@ export function applyTheme(theme: ThemeConfig): void {
   s.setProperty('--ant-card-radius', `${theme.cardRadius}px`);
   s.setProperty('--ant-card-border-width', `${theme.cardBorderWidth}px`);
 
-  // カード面・フォーム部品の色はテーマモードから導出する（アプリのUIクロム全般が
+  // カード面・フォーム部品の色は常時ダーク前提の値を使う（アプリのUIクロム全般が
   // この --ant-card-base に乗っかっているため、ここはユーザーの cardColor では
   // 変えない。ボタン・ドロップダウン・メニュー・スクロールバーまで巻き込んで
   // 全部の色が変わってしまう）。
-  const cardBase = theme.mode === 'dark' ? '255, 255, 255' : '18, 16, 14';
+  const cardBase = '255, 255, 255';
   s.setProperty('--ant-card-base', cardBase);
-  s.setProperty('--ant-card-bg', `rgba(${cardBase}, ${theme.cardOpacity * (theme.mode === 'dark' ? 0.14 : 0.08)})`);
-  s.setProperty('--ant-card-border', `rgba(${cardBase}, ${theme.mode === 'dark' ? 0.16 : 0.14})`);
+  s.setProperty('--ant-card-bg', `rgba(${cardBase}, ${theme.cardOpacity * 0.14})`);
+  s.setProperty('--ant-card-border', `rgba(${cardBase}, 0.16)`);
 
   // ウィジェットカード自体の背景色だけは theme.cardColor でユーザーが変えられる
   // （見た目タブ「ウィジェットカードの背景色」）。components/WidgetFrame の .card が
   // --ant-card-bg/--ant-card-border ではなくこちらを参照する。
   const widgetCardBase = hexToRgbString(theme.cardColor);
-  s.setProperty(
-    '--ant-widget-card-bg',
-    `rgba(${widgetCardBase}, ${theme.cardOpacity * (theme.mode === 'dark' ? 0.14 : 0.08)})`,
-  );
-  s.setProperty('--ant-widget-card-border', `rgba(${widgetCardBase}, ${theme.mode === 'dark' ? 0.16 : 0.14})`);
-  s.setProperty('--ant-muted', theme.mode === 'dark' ? 'rgba(241, 236, 236, 0.6)' : 'rgba(38, 32, 28, 0.62)');
+  s.setProperty('--ant-widget-card-bg', `rgba(${widgetCardBase}, ${theme.cardOpacity * 0.14})`);
+  s.setProperty('--ant-widget-card-border', `rgba(${widgetCardBase}, 0.16)`);
+  s.setProperty('--ant-muted', 'rgba(241, 236, 236, 0.6)');
 
   // フォーム部品（Dropdown/ColorPicker等）用トークン。カードよりわずかに濃く、判読性を優先する。
-  s.setProperty('--ant-field-bg', `rgba(${cardBase}, ${theme.mode === 'dark' ? 0.1 : 0.06})`);
-  s.setProperty('--ant-field-bg-hover', `rgba(${cardBase}, ${theme.mode === 'dark' ? 0.16 : 0.1})`);
-  s.setProperty('--ant-field-border', `rgba(${cardBase}, ${theme.mode === 'dark' ? 0.22 : 0.18})`);
+  s.setProperty('--ant-field-bg', `rgba(${cardBase}, 0.1)`);
+  s.setProperty('--ant-field-bg-hover', `rgba(${cardBase}, 0.16)`);
+  s.setProperty('--ant-field-border', `rgba(${cardBase}, 0.22)`);
   s.setProperty('--ant-field-border-hover', theme.accentColor);
   s.setProperty('--ant-field-radius', '10px');
   // ポップオーバー（ドロップダウン/カラーピッカー）は判読性優先でカード面より不透明度を上げる
-  s.setProperty('--ant-menu-bg', theme.mode === 'dark' ? 'rgba(24, 21, 19, 0.92)' : 'rgba(252, 249, 244, 0.94)');
+  s.setProperty('--ant-menu-bg', 'rgba(24, 21, 19, 0.92)');
 
   document.title = theme.tabTitle || '新しいタブ';
 

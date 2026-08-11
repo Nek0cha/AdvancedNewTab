@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "site-preview",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "site", "-l", "4567"],
+      "port": 4567
+    },
+    {
+      "name": "ext-preview",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", ".output/chrome-mv3", "-l", "4568"],
+      "port": 4568
+    }
+  ]
+}

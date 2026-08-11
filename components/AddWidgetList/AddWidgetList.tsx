@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { isExtensionContext } from '@/lib/platform';
 import { requestWidgetPermissions } from '@/lib/permissions';
 import { useAppStore } from '@/lib/store';
 import { listWidgetDefs } from '@/widgets/registry';
@@ -7,8 +8,14 @@ import type { AnyWidgetDef } from '@/widgets/types';
 
 import styles from './add-widget-list.module.css';
 
-/** 追加ダイアログに出す「必要な権限」の説明文。 */
+/**
+ * 追加ダイアログに出す「必要な権限」の説明文。
+ * 静的サイト版（拡張機能コンテキスト以外）には権限という概念自体が無く、
+ * lib/permissions.ts のガードにより許可ダイアログも実際には出ないため、
+ * 誤解を招かないよう表示自体を省く。
+ */
 function permissionNote(def: AnyWidgetDef): string | null {
+  if (!isExtensionContext()) return null;
   const chrome = def.permissions?.chrome ?? [];
   const hosts = def.permissions?.hosts ?? [];
   if (chrome.length === 0 && hosts.length === 0) return null;

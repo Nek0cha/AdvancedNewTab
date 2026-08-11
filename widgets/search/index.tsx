@@ -1,17 +1,12 @@
 import { useState, type FormEvent } from 'react';
 import { Search as SearchIcon } from 'lucide-react';
 
-import {
-  getWidgetBackgroundStyle,
-  WIDGET_BACKGROUND_DEFAULTS,
-  WIDGET_BACKGROUND_FIELDS,
-  type WidgetBackgroundSettings,
-} from '@/lib/widget-background';
+import { getWidgetBackgroundStyle, type WidgetBackgroundSettings } from '@/lib/widget-background';
 import { defineWidget, type WidgetProps } from '@/widgets/types';
 
 import styles from './search.module.css';
 
-interface SearchSettings extends Record<string, unknown>, WidgetBackgroundSettings {
+interface SearchSettings extends Record<string, unknown> {
   engine: 'google' | 'bing' | 'duckduckgo' | 'custom';
   /** engine === 'custom' のときに使う。"%s" を検索語に置換する */
   customUrlTemplate: string;
@@ -50,8 +45,10 @@ function SearchWidget({ settings, editMode }: WidgetProps<SearchSettings>) {
   };
 
   // 個別背景は検索バー（<form>）だけに適用する。ウィジェット全体を包むと、
-  // グリッドセルの方が検索バーより横に広いときに余白まで塗られてしまうため。
-  const backgroundStyle = getWidgetBackgroundStyle(settings);
+  // グリッドセルの方が検索バーより横に広いときに余白まで塗られてしまうため、
+  // widgets/types.ts の backgroundScope:'self' でWidgetFrame側の自動適用を止め、
+  // ここで自前適用している（widgets/registry.ts が注入した設定値を使う）。
+  const backgroundStyle = getWidgetBackgroundStyle(settings as unknown as WidgetBackgroundSettings);
 
   return (
     <div className={styles.root}>
@@ -77,13 +74,15 @@ export const searchWidget = defineWidget<SearchSettings>({
   description: '好きな検索エンジンにその場で検索できます。',
   icon: SearchIcon,
   frame: 'bare',
+  // 個別背景を検索バーの<form>だけに適用したいため、WidgetFrameの自動適用対象から外す
+  // （上のコンポーネント内コメント参照）。
+  backgroundScope: 'self',
   defaultLayout: { w: 6, h: 1, minW: 3, minH: 1 },
   defaultSettings: {
     engine: 'google',
     customUrlTemplate: 'https://www.google.com/search?q=%s',
     openInNewTab: false,
     placeholder: '検索...',
-    ...WIDGET_BACKGROUND_DEFAULTS,
   },
   settingsSchema: [
     {
@@ -106,7 +105,6 @@ export const searchWidget = defineWidget<SearchSettings>({
     },
     { kind: 'text', key: 'placeholder', label: 'プレースホルダー文言' },
     { kind: 'toggle', key: 'openInNewTab', label: '新しいタブで結果を開く' },
-    ...WIDGET_BACKGROUND_FIELDS,
   ],
   Component: SearchWidget,
 });

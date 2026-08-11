@@ -27,9 +27,6 @@
     var theme = JSON.parse(raw);
     var root = document.documentElement;
 
-    if (theme.mode === 'dark' || theme.mode === 'light') {
-      root.setAttribute('data-theme', theme.mode);
-    }
     if (typeof theme.background === 'string') {
       // background ショートハンドは background-size 等をリセットするため、必ず先に当てる
       root.style.background = theme.background;

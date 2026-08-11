@@ -16,7 +16,7 @@ function exportFileName(): string {
 
 function summarize(state: PersistedState): string {
   const widgetCount = Object.keys(state.widgets).length;
-  return `ウィジェット ${widgetCount} 個 ／ テーマ「${state.theme.mode === 'dark' ? 'ダーク' : 'ライト'}」`;
+  return `ウィジェット ${widgetCount} 個`;
 }
 
 export function OptionsApp() {

@@ -13,6 +13,7 @@
     "zip": "wxt zip",
     "zip:firefox": "wxt zip -b firefox",
     "compile": "tsc --noEmit",
+    "build:web": "node scripts/build-web.mjs",
     "postinstall": "wxt prepare"
   },
   "dependencies": {
@@ -25,8 +26,10 @@
   "devDependencies": {
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^4.3.4",
     "@wxt-dev/module-react": "^1.1.3",
     "typescript": "^5.9.3",
+    "vite": "^6.0.7",
     "wxt": "^0.20.27"
   }
 }

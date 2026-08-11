@@ -10,62 +10,96 @@ import type { ComponentType } from 'react';
 import type { LucideIcon } from 'lucide-react';
 
 /**
+ * 「他のフィールドの値が特定値のときだけ表示する」条件。
+ *
+ * 例: 背景モードが「個別」のときだけ色・ぼかし等を表示する（lib/widget-background.ts）。
+ * 同じ settings オブジェクト内の別キーだけを参照できる、シンプルな一段の条件に絞っている
+ * （ネストした条件やAND/ORの組み合わせが要る複雑なフォームは今のところ無いため）。
+ */
+export interface FieldVisibility {
+  key: string;
+  equals: unknown;
+}
+
+/** 全種別に共通するプロパティ。 */
+interface FieldSchemaCommon {
+  help?: string;
+  /** 指定すると、他フィールドの値がこの条件を満たすときだけこのフィールドを描画する。 */
+  visibleWhen?: FieldVisibility;
+}
+
+/**
  * 設定フォームのフィールド宣言。
  *
  * ウィジェット側はこの配列を書くだけで、フォームのJSXは一切書かない。
  * components/SettingsPanel がこれを読んで入力欄を生成し、値の書き戻しまで行う。
  * ウィジェットを増やしても設定画面の実装コストが増えないようにするための仕組み。
  */
-export type FieldSchema =
-  | { kind: 'text'; key: string; label: string; placeholder?: string; help?: string }
-  | { kind: 'textarea'; key: string; label: string; rows?: number; help?: string }
-  | {
-      kind: 'number';
-      key: string;
-      label: string;
-      min?: number;
-      max?: number;
-      step?: number;
-      help?: string;
-    }
-  | { kind: 'toggle'; key: string; label: string; help?: string }
-  | {
-      kind: 'select';
-      key: string;
-      label: string;
-      options: ReadonlyArray<{ value: string; label: string }>;
-      help?: string;
-    }
-  | { kind: 'color'; key: string; label: string; help?: string }
-  /**
-   * アイコン選択。値は IconValue（lib/icon-value.ts）を JSON として保持する。
-   * 「未設定（既定表示に委ねる）」「lucideアイコンから選ぶ」「画像アップロード」
-   * 「SVGコード貼り付け」「画像URL指定」の5系統を切り替えられる。
-   */
-  | { kind: 'icon'; key: string; label: string; help?: string }
-  /**
-   * 複数の画像をアップロードして管理するフィールド。値は dataURL の配列（string[]）。
-   * ドラッグ&ドロップの並べ替えはせず、追加は末尾に足す・削除はその場で行うだけの
-   * シンプルな管理に留めている（widgets/image 参照）。
-   */
-  | { kind: 'imageList'; key: string; label: string; help?: string }
-  /** オブジェクトの配列を編集する。リンク集やRSSフィード一覧のように件数が可変のものに使う */
-  | {
-      kind: 'list';
-      key: string;
-      label: string;
-      itemFields: ReadonlyArray<FieldSchema>;
-      addLabel?: string;
-      help?: string;
-      /**
-       * 「既存の項目から追加」の選択肢（例: リンク集のプリセット）。
-       * 指定すると追加ボタンが「空の項目を追加」＋プリセット一覧を出す
-       * ポップオーバー式に変わる。省略時は従来どおり即座に空項目を追加する。
-       */
-      presets?: ReadonlyArray<ListPreset>;
-      /** 指定するとこの件数に達したとき追加ボタンを隠す（例: 世界時計の最大4都市）。省略時は無制限。 */
-      maxItems?: number;
-    };
+export type FieldSchema = FieldSchemaCommon &
+  (
+    | { kind: 'text'; key: string; label: string; placeholder?: string }
+    | { kind: 'textarea'; key: string; label: string; rows?: number }
+    | {
+        kind: 'number';
+        key: string;
+        label: string;
+        min?: number;
+        max?: number;
+        step?: number;
+      }
+    | { kind: 'toggle'; key: string; label: string }
+    | {
+        kind: 'select';
+        key: string;
+        label: string;
+        options: ReadonlyArray<{ value: string; label: string }>;
+        /**
+         * 'tabs' を指定すると、ドロップダウンではなくボタン列（BackgroundEditor と同じ見た目）で
+         * 選ばせる。選択肢が2〜3個で、切り替えた瞬間に他のフィールドの表示/非表示が変わる
+         * ような「モード切り替え」的な用途向け（省略時は従来どおりドロップダウン）。
+         */
+        variant?: 'dropdown' | 'tabs';
+      }
+    | { kind: 'color'; key: string; label: string }
+    /**
+     * アイコン選択。値は IconValue（lib/icon-value.ts）を JSON として保持する。
+     * 「未設定（既定表示に委ねる）」「lucideアイコンから選ぶ」「画像アップロード」
+     * 「SVGコード貼り付け」「画像URL指定」の5系統を切り替えられる。
+     */
+    | { kind: 'icon'; key: string; label: string }
+    /**
+     * 複数の画像をアップロードして管理するフィールド。値は dataURL の配列（string[]）。
+     * ドラッグ&ドロップの並べ替えはせず、追加は末尾に足す・削除はその場で行うだけの
+     * シンプルな管理に留めている（widgets/image 参照）。
+     */
+    | { kind: 'imageList'; key: string; label: string }
+    /** オブジェクトの配列を編集する。リンク集やRSSフィード一覧のように件数が可変のものに使う */
+    | {
+        kind: 'list';
+        key: string;
+        label: string;
+        itemFields: ReadonlyArray<FieldSchema>;
+        addLabel?: string;
+        /**
+         * 「既存の項目から追加」の選択肢（例: リンク集のプリセット）。
+         * 指定すると追加ボタンが「空の項目を追加」＋プリセット一覧を出す
+         * ポップオーバー式に変わる。省略時は従来どおり即座に空項目を追加する。
+         */
+        presets?: ReadonlyArray<ListPreset>;
+        /** 指定するとこの件数に達したとき追加ボタンを隠す（例: 世界時計の最大4都市）。省略時は無制限。 */
+        maxItems?: number;
+      }
+  );
+
+/**
+ * settingsSchema を実際に描画する側（WidgetSettingsPanel / ThemeSettingsPanel）で、
+ * `visibleWhen` を満たさないフィールドを除外するための共通ヘルパー。
+ * `values` は同じ階層のフィールドの現在値をまとめたオブジェクト（settings や theme）。
+ */
+export function isFieldVisible(schema: FieldSchema, values: Record<string, unknown>): boolean {
+  if (!schema.visibleWhen) return true;
+  return values[schema.visibleWhen.key] === schema.visibleWhen.equals;
+}
 
 /** FieldSchema(list) の presets に渡す1件分。 */
 export interface ListPreset {
@@ -114,6 +148,15 @@ export interface WidgetDef<S extends Record<string, unknown> = Record<string, un
     chrome?: readonly string[];
     hosts?: readonly string[];
   };
+  /**
+   * 個別スタイル（lib/widget-background.ts）の適用範囲。
+   * - 'frame'（既定）: WidgetFrame が自動的にウィジェットの外枠（.card/.bare）へ適用する
+   * - 'self'  : ウィジェット自身が Component 内で適用する（例: 検索は検索バーの
+   *             <form> だけに適用したいため、外枠には何もしない）
+   * widgets/registry.ts の register() が全ウィジェットへ個別スタイルの設定項目を
+   * 自動的に注入するため、'self' を選ぶウィジェットも設定UI自体は同じものが出る。
+   */
+  backgroundScope?: 'frame' | 'self';
   defaultSettings: S;
   settingsSchema: ReadonlyArray<FieldSchema>;
   Component: ComponentType<WidgetProps<S>>;

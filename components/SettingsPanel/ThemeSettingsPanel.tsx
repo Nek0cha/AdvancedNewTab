@@ -2,6 +2,7 @@ import { Field } from '@/components/Field/Field';
 import { useAppStore } from '@/lib/store';
 import { THEME_SCHEMA } from '@/lib/theme-schema';
 import type { ThemeConfig } from '@/lib/types';
+import { isFieldVisible } from '@/widgets/types';
 
 import { BackgroundEditor } from './BackgroundEditor';
 import { FontEditor } from './FontEditor';
@@ -34,7 +35,9 @@ export function ThemeSettingsPanel() {
 
       <section className={panelStyles.section}>
         <h3 className={panelStyles.sectionTitle}>表示</h3>
-        {THEME_SCHEMA.map((schema) => (
+        {THEME_SCHEMA.filter((schema) =>
+          isFieldVisible(schema, theme as unknown as Record<string, unknown>),
+        ).map((schema) => (
           <Field
             key={schema.key}
             schema={schema}

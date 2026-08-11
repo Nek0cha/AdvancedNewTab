@@ -2,8 +2,18 @@ import { useRef } from 'react';
 import { Upload } from 'lucide-react';
 
 import { cx } from '@/lib/cx';
-import { normalizeIconValue, type IconValue } from '@/lib/icon-value';
+import { normalizeIconValue, svgToDataUrl, tintSvgCode, type IconValue } from '@/lib/icon-value';
 import { LINK_ICON_OPTIONS } from '@/lib/link-icons';
+
+/**
+ * SVGプレビューに適用する固定色。
+ *
+ * <img> はページのCSS（currentColorの継承）が一切効かない独立した描画コンテキストのため、
+ * currentColor を使ったSVG（Iconify系のアイコンはほぼすべてこの形式）をそのままプレビューに
+ * 出すと、色の初期値である黒として描画され潰れて見えなくなる（lib/icon-value.ts 参照）。
+ * アプリが常時ダークテーマである前提で、判読できる明るい色に固定でtintする。
+ */
+const PREVIEW_TINT_COLOR = '#f1ecec';
 
 import backgroundEditorStyles from '../SettingsPanel/background-editor.module.css';
 import fieldStyles from './field.module.css';
@@ -126,7 +136,7 @@ export function IconPickerField({ value, onChange }: IconPickerFieldProps) {
             <div className={styles.previewRow}>
               <img
                 className={styles.previewThumb}
-                src={`data:image/svg+xml;utf8,${encodeURIComponent(current.code)}`}
+                src={svgToDataUrl(tintSvgCode(current.code, PREVIEW_TINT_COLOR))}
                 alt=""
               />
             </div>

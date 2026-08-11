@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AdvancedNewTab（ブラウザ版）</title>
+    <meta
+      name="description"
+      content="ウィジェットを自由に配置できるダッシュボード。壁紙・スタートページとしてブラウザだけで使えます（データはこの端末のブラウザ内だけに保存されます）。"
+    />
+    <!--
+      FOUC対策。拡張機能版（entrypoints/newtab）と全く同じ public/boot.js をそのまま使う
+      （lib/theme.ts が書く localStorage ミラーのキー・形は共通のため、ここでも通用する）。
+
+      あえて相対パス（"./boot.js"）ではなく publicDir 由来のルート相対パスのまま書いている。
+      Viteのビルドは非モジュールscriptの相対src参照をうまく処理できず（ビルドが失敗する）、
+      一方でルート相対パスの publicDir 参照は base の値に応じて自動的に書き換えてくれる
+      （vite.web.config.ts の base 参照）ため、こちらが正解。
+    -->
+    <script src="/boot.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./main.tsx"></script>
+  </body>
+</html>

@@ -1,6 +1,7 @@
 import { Field } from '@/components/Field/Field';
 import { useAppStore } from '@/lib/store';
 import { getWidgetDef } from '@/widgets/registry';
+import { isFieldVisible } from '@/widgets/types';
 
 import styles from './widget-settings-header.module.css';
 
@@ -32,7 +33,7 @@ export function WidgetSettingsPanel({ instanceId }: WidgetSettingsPanelProps) {
         </span>
         <span className={styles.name}>{def.name}</span>
       </div>
-      {def.settingsSchema.map((schema) => (
+      {def.settingsSchema.filter((schema) => isFieldVisible(schema, settings)).map((schema) => (
         // key は instanceId も含めて一意にする。schema.key（'fontScale' 等）だけだと、
         // 別ウィジェットの同名フィールドと衝突してしまう。WidgetSettingsPanel は
         // ウィジェットを切り替えても同じコンポーネントインスタンスのまま instanceId

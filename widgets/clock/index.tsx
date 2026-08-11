@@ -1,19 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Clock as ClockIcon } from 'lucide-react';
 
-import {
-  getWidgetBackgroundStyle,
-  WIDGET_BACKGROUND_DEFAULTS,
-  WIDGET_BACKGROUND_FIELDS,
-  type WidgetBackgroundSettings,
-} from '@/lib/widget-background';
 import { defineWidget, type WidgetProps } from '@/widgets/types';
 
 import { AnalogClock } from './AnalogClock';
 import styles from './clock.module.css';
 import { DATE_FORMAT_OPTIONS, formatClockDate, type DateFormat } from './format-date';
 
-interface ClockSettings extends Record<string, unknown>, WidgetBackgroundSettings {
+interface ClockSettings extends Record<string, unknown> {
   mode: 'digital' | 'analog';
   use24Hour: boolean;
   /** デジタル表示の秒 / アナログの秒針、どちらにも使う */
@@ -53,11 +47,10 @@ function useNow(tickEverySecond: boolean): Date {
 function ClockWidget({ settings }: WidgetProps<ClockSettings>) {
   const now = useNow(settings.showSeconds);
   const dateText = settings.showDate ? formatClockDate(now, settings.dateFormat) : null;
-  const backgroundStyle = getWidgetBackgroundStyle(settings);
 
   if (settings.mode === 'analog') {
     return (
-      <div className={styles.root} style={backgroundStyle}>
+      <div className={styles.root}>
         <div className={styles.analogWrap}>
           <AnalogClock now={now} showSeconds={settings.showSeconds} />
         </div>
@@ -74,7 +67,7 @@ function ClockWidget({ settings }: WidgetProps<ClockSettings>) {
   const meridiem = now.getHours() < 12 ? 'AM' : 'PM';
 
   return (
-    <div className={styles.root} style={backgroundStyle}>
+    <div className={styles.root}>
       <div className={styles.time} style={{ fontSize: `${3 * settings.fontScale}rem` }}>
         {hours}:{minutes}
         {settings.showSeconds && <span className={styles.seconds}>{seconds}</span>}
@@ -103,7 +96,6 @@ export const clockWidget = defineWidget<ClockSettings>({
     showDate: true,
     dateFormat: 'en-long',
     fontScale: 1,
-    ...WIDGET_BACKGROUND_DEFAULTS,
   },
   settingsSchema: [
     {
@@ -133,7 +125,6 @@ export const clockWidget = defineWidget<ClockSettings>({
       step: 0.1,
       help: '1.0 で標準サイズです。',
     },
-    ...WIDGET_BACKGROUND_FIELDS,
   ],
   Component: ClockWidget,
 });

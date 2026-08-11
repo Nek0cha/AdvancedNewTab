@@ -16,8 +16,37 @@ import { computeGridMetrics, GRID_CONTAINER_PADDING_Y } from '@/lib/grid-metrics
 import { useAppStore } from '@/lib/store';
 import { BREAKPOINTS, COLS, type BreakpointName } from '@/lib/types';
 
+import { GridStatusProvider } from './GridStatusContext';
 import { ResizeHandle } from './ResizeHandle';
 import styles from './grid.module.css';
+
+/**
+ * ウィンドウ幅をドラッグしている最中かどうかを追跡する。
+ *
+ * 「サイズ変更時に自動で非表示にする」機能（GridStatusContext / WidgetFrame.tsx）が、
+ * ドラッグの一瞬一瞬のブレークポイント切り替わりでウィジェットがガタつくのを隠すために使う。
+ * `resize` イベントは連打されるため、350ms 無操作が続いたら「落ち着いた」とみなして false に戻す
+ * （useViewportHeight と同じ resize リスナーの書き味）。
+ */
+const RESIZE_SETTLE_MS = 350;
+
+function useIsResizing(): boolean {
+  const [isResizing, setIsResizing] = useState(false);
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const onResize = (): void => {
+      setIsResizing(true);
+      if (timer !== undefined) clearTimeout(timer);
+      timer = setTimeout(() => setIsResizing(false), RESIZE_SETTLE_MS);
+    };
+    window.addEventListener('resize', onResize);
+    return () => {
+      window.removeEventListener('resize', onResize);
+      if (timer !== undefined) clearTimeout(timer);
+    };
+  }, []);
+  return isResizing;
+}
 
 /** 参照の同一性を保つため、毎回の再生成を避けてモジュール定数にしている。 */
 const CONTAINER_PADDING = [24, GRID_CONTAINER_PADDING_Y] as const;
@@ -86,6 +115,7 @@ export function Grid() {
   // WidthProvider(HOC) の後継。ResizeObserver でコンテナ幅を追う。
   const { width, containerRef, mounted } = useContainerWidth({ measureBeforeMount: true });
   const viewportHeight = useViewportHeight();
+  const isResizing = useIsResizing();
 
   /**
    * ページの縦の長さを画面ちょうど1枚分に固定する。
@@ -112,6 +142,18 @@ export function Grid() {
     () => getBreakpointFromWidth(BREAKPOINTS, width) as BreakpointName,
     [width],
   );
+
+  // lg（1400px以上）以外はすべて「狭い」とみなし、GridStatusContext 経由で
+  // WidgetFrame の自動非表示判定に使う。
+  //
+  // 当初は sm/xs（700px未満）だけを対象にしていたが、実際に使ってみると
+  // lg⇔md の境界（1400px付近）でもブレークポイントが切り替わった瞬間に
+  // 配置が一時的に崩れて見える不具合が出ていた。md幅にはmd用に保存された
+  // レイアウトがあるので必ずしも壊れているわけではないが、境界を跨ぐ操作
+  // （ウィンドウの手動リサイズ等）の最中は見た目のガタつきの方が気になるため、
+  // lg未満はまとめて「狭い」扱いにして早めに隠すようにした。
+  const isNarrow = breakpoint !== 'lg';
+  const gridStatus = useMemo(() => ({ isResizing, isNarrow }), [isResizing, isNarrow]);
 
   /**
    * ドラッグ／リサイズを開始した瞬間の状態を覚えておく。
@@ -261,6 +303,7 @@ export function Grid() {
   );
 
   return (
+    <GridStatusProvider value={gridStatus}>
     <div ref={containerRef} className={cx(styles.container, editMode && 'ant-edit-mode')}>
       {/*
         幅が確定する前に描くと、いったん最小ブレークポイント（xs）で組まれてしまう。
@@ -308,5 +351,6 @@ export function Grid() {
         </ResponsiveGridLayout>
       )}
     </div>
+    </GridStatusProvider>
   );
 }

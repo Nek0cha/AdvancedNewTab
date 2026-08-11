@@ -4,47 +4,53 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>プライバシーポリシー — AdvancedNewTab</title>
+  <link rel="icon" href="assets/icon/icon-48.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/style.css" />
 </head>
 <body>
-  <header class="site-header wrap">
-    <a class="brand" href="index.html">
-      <span class="brand-mark">A</span>
-      AdvancedNewTab
-    </a>
-    <nav class="site-nav">
-      <a href="index.html#features">機能</a>
-      <a href="terms.html">利用規約</a>
-      <a href="privacy.html">プライバシーポリシー</a>
-      <a href="https://github.com/Nek0cha/AdvancedNewTab" target="_blank" rel="noopener noreferrer">GitHub</a>
-    </nav>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="index.html">
+        <img src="assets/icon/icon-128.png" alt="" />
+        AdvancedNewTab
+      </a>
+      <nav class="site-nav">
+        <a href="index.html#features">機能</a>
+        <a href="index.html#install">インストール</a>
+        <a href="terms.html">規約</a>
+        <a href="privacy.html">プライバシー</a>
+        <a href="https://github.com/Nek0cha/AdvancedNewTab" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </nav>
+    </div>
   </header>
 
-  <div class="doc">
+  <article class="doc">
     <a class="back" href="index.html">&larr; トップに戻る</a>
     <h1>プライバシーポリシー</h1>
     <p class="doc-updated">最終更新日: 2026年8月10日（草案）</p>
 
-    <div class="placeholder-banner">
-      ⚠️ これはプレースホルダー（草案）です。データの取り扱いに関する記述は実際のソースコードの
-      挙動に基づいて書いていますが、公開前に必ず最新のコードと照らし合わせて見直してください。
+    <p class="draft-note">
+      これはプレースホルダー（草案）です。データの取り扱いに関する記述は実際のソースコードの挙動に
+      基づいて書いていますが、公開前に必ず最新のコードと照らし合わせて見直してください。
       Chrome Web Storeに掲載する場合は、ストアの審査要件（該当するデータ利用区分の申告等）も別途確認が必要です。
-    </div>
+    </p>
 
-    <h2>1. 基本方針</h2>
-    <p>
+    <p class="lede">
       AdvancedNewTab（以下「本ソフトウェア」）は、開発者（Neko / Nek0cha）が運営するいかなるサーバーにも、
       ユーザーのデータを送信しません。本ソフトウェアが扱うデータは、すべてユーザー自身のブラウザ内、
       またはユーザーが明示的に選択した第三者サービスとの間でのみやり取りされます。
     </p>
 
-    <h2>2. 収集する情報</h2>
+    <h2 class="inline">収集する情報</h2>
     <p>
       本ソフトウェアは、氏名・メールアドレス・閲覧履歴などの個人を特定する情報を収集しません。
       アクセス解析や広告目的のトラッキングも行いません。
     </p>
 
-    <h2>3. データの保存場所</h2>
+    <h2 class="inline">データの保存場所</h2>
     <p>
       ウィジェットの配置や設定、テーマ、メモの内容などは、すべてブラウザ標準の
       <code>chrome.storage.local</code>（端末内のローカルストレージ）に保存されます。開発者を含む第三者が
@@ -52,7 +58,7 @@
       JSONエクスポート/インポート機能をユーザー自身の操作で使用していただく形になります（自動同期は行いません）。
     </p>
 
-    <h2>4. 権限について</h2>
+    <h2 class="inline">権限について</h2>
     <p>
       インストール直後に付与される権限は <code>storage</code>（上記のローカル保存用）のみです。
       それ以外の権限は、該当する機能（ウィジェット）を実際に配置したタイミングで、都度ブラウザの許可ダイアログを
@@ -64,7 +70,7 @@
       <li><strong>ホストアクセス（天気・RSS・YouTube連携）</strong>: ユーザーが指定した外部サービス（Open-Meteo、指定したRSSフィード、YouTube/YouTube Music）に、ユーザーのブラウザから直接アクセスします。開発者のサーバーを経由することはありません。</li>
     </ul>
 
-    <h2>5. 第三者サービス</h2>
+    <h2 class="inline">第三者サービス</h2>
     <p>
       天気ウィジェットは<a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a>に、
       RSSウィジェットはユーザーが指定したフィードURLに、YouTubeミニプレーヤーはYouTube/YouTube Musicのページに、
@@ -72,22 +78,22 @@
       各サービスが定めるプライバシーポリシーに従います。
     </p>
 
-    <h2>6. 背景画像・アップロードした画像</h2>
+    <h2 class="inline">背景画像・アップロードした画像</h2>
     <p>
       背景画像や画像表示ウィジェットにアップロードした画像は、data URL化された上で
       <code>chrome.storage.local</code>に保存されます。外部サーバーへのアップロードは行いません。
     </p>
 
-    <h2>7. 本ポリシーの変更</h2>
+    <h2 class="inline">本ポリシーの変更</h2>
     <p>本ポリシーの内容は、本ソフトウェアの更新に伴い変更されることがあります。変更後の内容は本ページの更新をもって効力を生じます。</p>
 
-    <h2>8. お問い合わせ</h2>
+    <h2 class="inline">お問い合わせ</h2>
     <p>
       本ポリシーに関するお問い合わせは、
       <a href="https://github.com/Nek0cha/AdvancedNewTab/issues" target="_blank" rel="noopener noreferrer">GitHubのIssue</a>
       にてお願いします。
     </p>
-  </div>
+  </article>
 
   <footer class="site-footer wrap">
     <div class="footer-row">

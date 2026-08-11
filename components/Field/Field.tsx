@@ -6,12 +6,13 @@ import { Dropdown } from '@/components/Dropdown/Dropdown';
 import { NumberStepper } from '@/components/NumberStepper/NumberStepper';
 import { cx } from '@/lib/cx';
 import { DEFAULT_ICON_VALUE } from '@/lib/icon-value';
-import type { FieldSchema, ListPreset } from '@/widgets/types';
+import { isFieldVisible, type FieldSchema, type ListPreset } from '@/widgets/types';
 
 import { AddWithPresets } from './AddWithPresets';
 import { IconPickerField } from './IconPickerField';
 import { ImageListField } from './ImageListField';
 import styles from './field.module.css';
+import tabStyles from '../SettingsPanel/background-editor.module.css';
 
 interface FieldProps {
   schema: FieldSchema;
@@ -136,18 +137,20 @@ export function Field({ schema, value, onChange }: FieldProps) {
                   </button>
                 </div>
 
-                {schema.itemFields.map((itemField) => (
-                  <Field
-                    key={itemField.key}
-                    schema={itemField}
-                    value={item[itemField.key]}
-                    onChange={(fieldValue) => {
-                      const next = [...items];
-                      next[index] = { ...item, [itemField.key]: fieldValue };
-                      replace(next);
-                    }}
-                  />
-                ))}
+                {schema.itemFields
+                  .filter((itemField) => isFieldVisible(itemField, item))
+                  .map((itemField) => (
+                    <Field
+                      key={itemField.key}
+                      schema={itemField}
+                      value={item[itemField.key]}
+                      onChange={(fieldValue) => {
+                        const next = [...items];
+                        next[index] = { ...item, [itemField.key]: fieldValue };
+                        replace(next);
+                      }}
+                    />
+                  ))}
               </div>
             ))}
           </div>
@@ -215,7 +218,22 @@ export function Field({ schema, value, onChange }: FieldProps) {
         />
       )}
 
-      {schema.kind === 'select' && (
+      {schema.kind === 'select' && schema.variant === 'tabs' && (
+        <div className={tabStyles.tabs}>
+          {schema.options.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              className={cx(tabStyles.tab, value === option.value && tabStyles.tabActive)}
+              onClick={() => onChange(option.value)}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {schema.kind === 'select' && schema.variant !== 'tabs' && (
         <Dropdown
           id={id}
           value={typeof value === 'string' ? value : ''}

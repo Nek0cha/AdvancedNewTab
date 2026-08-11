@@ -11,6 +11,7 @@
  * 同期的に呼ぶこと。
  */
 
+import { isExtensionContext } from '@/lib/platform';
 import type { AnyWidgetDef } from '@/widgets/types';
 
 export interface PermissionSpec {
@@ -43,6 +44,10 @@ function toPermissionsRequest(
 export async function hasPermissions(spec: PermissionSpec): Promise<boolean> {
   const request = toPermissionsRequest(spec);
   if (!request) return true;
+  // 拡張機能コンテキスト以外（静的サイト版）には chrome.permissions 自体が存在しない。
+  // 「権限」という概念そのものが無く、host権限はCORSが許す限りそのままfetchできるため、
+  // 常に許可済み扱いにしてPermissionGateを素通りさせる（lib/platform.ts参照）。
+  if (!isExtensionContext()) return true;
   try {
     return await browser.permissions.contains(request);
   } catch (error) {
@@ -58,6 +63,7 @@ export async function hasPermissions(spec: PermissionSpec): Promise<boolean> {
 export async function requestPermissions(spec: PermissionSpec): Promise<boolean> {
   const request = toPermissionsRequest(spec);
   if (!request) return true;
+  if (!isExtensionContext()) return true;
   try {
     return await browser.permissions.request(request);
   } catch (error) {
