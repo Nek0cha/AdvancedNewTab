@@ -1,3 +1,5 @@
+import { useRef } from 'react';
+
 import styles from './clock.module.css';
 
 interface AnalogClockProps {
@@ -7,6 +9,25 @@ interface AnalogClockProps {
 
 const TICKS = Array.from({ length: 12 }, (_, i) => i);
 
+/**
+ * 秒針の CSS transition (`.secondHand`) は rotate() の角度の数値をそのまま
+ * 補間するため、59秒→0秒（354deg→0deg）の瞬間だけ「6度分時計回り」ではなく
+ * 「354度分反時計回りに逆走」して見えてしまう。359→0→1→2... と生の角度を
+ * 60秒ごとにリセットせず、ラップを検知するたびに +360 して単調増加させることで、
+ * transition が常に短い順回転だけを補間するようにしている。
+ */
+function useUnwrappedAngle(rawAngle: number): number {
+  const stateRef = useRef({ lastRaw: rawAngle, offset: 0 });
+  const state = stateRef.current;
+
+  if (rawAngle < state.lastRaw) {
+    state.offset += 360;
+  }
+  state.lastRaw = rawAngle;
+
+  return rawAngle + state.offset;
+}
+
 /** シンプルな文字盤のアナログ時計。SVGの回転で針を表現する。 */
 export function AnalogClock({ now, showSeconds }: AnalogClockProps) {
   const hours = now.getHours() % 12;
@@ -15,7 +36,8 @@ export function AnalogClock({ now, showSeconds }: AnalogClockProps) {
 
   const hourAngle = (hours + minutes / 60) * 30;
   const minuteAngle = (minutes + seconds / 60) * 6;
-  const secondAngle = seconds * 6;
+  const rawSecondAngle = seconds * 6;
+  const secondAngle = useUnwrappedAngle(rawSecondAngle);
 
   return (
     <svg className={styles.analogFace} viewBox="0 0 100 100" role="img" aria-label="アナログ時計">

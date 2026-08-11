@@ -36,11 +36,22 @@ click the reload icon on the extension card in `chrome://extensions` and close/r
 
 - `newtab/` — the dashboard itself (`chrome_url_overrides.newtab`, auto-wired by WXT from the directory name).
 - `options/` — settings page (JSON export/import; most per-widget/theme editing actually happens in the
-  newtab side panel, not here).
+  newtab side panel, not here). `open_in_tab: true` is set via a `<meta name="manifest.open_in_tab">` tag
+  in `entrypoints/options/index.html`, **not** `wxt.config.ts`'s `manifest.options_ui` — WXT detects the
+  `options` entrypoint and regenerates `manifest.options_ui` from that entrypoint's own meta tags,
+  silently discarding whatever `wxt.config.ts` sets there (confirmed by reading
+  `node_modules/wxt/dist/core/utils/manifest.mjs`). Any other WXT-generated manifest field with a
+  per-entrypoint equivalent likely has the same trap.
 - `background.ts` — RSS pre-fetch on an alarm, an `openOptionsPage` toolbar-click handler, and the
   YouTube-media message relay (see below).
 - `youtube-media.content.ts` — content script for `youtube.com` / `music.youtube.com`, registered at
-  **runtime**, not in the manifest (see "Optional permissions" below).
+  **runtime**, not in the manifest (see "Permissions model" below).
+
+`wxt.config.ts` also disables Vite's automatic `modulePreload` (`vite: () => ({ build: { modulePreload:
+false } })`): the default `<link rel="modulepreload" crossorigin>` hints for chunks shared between
+newtab/options (e.g. a lucide-react icon module) trigger Chrome's "cross-world extension resource
+mismatch" console warning on `chrome-extension://` pages. The chunk still loads correctly via the normal
+`<script type="module">` import graph either way — only the (harmless but noisy) preload hint is lost.
 
 ### Widget plugin system (`widgets/`)
 
@@ -73,6 +84,34 @@ caps at 4 cities this way — there's no per-field conditional visibility in the
 needs two mutually-exclusive input shapes for two modes, like `widgets/countdown`'s detailed vs.
 date-only, just declares both fields and each mode's `Component` branch reads only the one it needs).
 
+### List field drag-and-drop (`components/Field/Field.tsx`)
+
+`FieldSchema(kind: 'list')` items (links, world-clock cities) are reordered by dragging the whole card —
+not a separate handle — and render collapsed by default, showing only an icon+title summary derived from
+the first `icon`- and `text`-kind entries in `itemFields`. A few details are load-bearing:
+
+- Click vs. drag is disambiguated by a 5px pointer-movement threshold (`pendingRef`), not by a dedicated
+  drag handle: `pointerdown` on the card just starts tracking, and a plain click (no movement past the
+  threshold) never calls `setDrag`, so the collapse toggle and delete button keep working normally. Text
+  selection is suppressed with both `e.preventDefault()` and CSS `user-select: none`; native form controls
+  are excluded via `target.closest('input, textarea, select')` so typing/selecting inside an expanded
+  item's own fields is unaffected.
+- The dragged card is **not** spliced out and live-reordered in the DOM. Only that card gets a
+  `transform: translateY(...)` (vertical-only — translateX is never set, so the card can't drift
+  sideways) computed from the pointer's Y delta; every other card stays exactly where it started, and a
+  separate `.dropIndicator` line shows where it would land. The array is only actually reordered once, on
+  drop. This was chosen over a live-splicing preview specifically to avoid measuring/animating sibling
+  cards of unequal height (collapsed vs. expanded items differ a lot).
+- `computeOverIndex` returns a position in the array *with the dragged item already removed* — exactly
+  what `array.splice(overIndex, 0, moved)` expects right after `array.splice(from, 1)`. Treating it as an
+  index into the original (not-yet-shortened) array is the natural mistake and lands drops one slot off
+  whenever the drag crosses more than one neighbor.
+- The collapsed/expanded state is a positional `Set<number>` (list items have no stable id), so any
+  reorder or delete must transform it in lockstep (`moveOpen`/`removeOpen`) or the wrong card ends up
+  looking expanded after a drag.
+- Commits happen only on `pointerup`, never on every `pointermove` — same rationale as the store's
+  rev-guard below (writing on every move would spam `chrome.storage.local` and risk the same race class).
+
 ### State and persistence (`lib/store.ts`, `lib/storage.ts`, `lib/defaults.ts`)
 
 Single Zustand store (`useAppStore`) holding one `PersistedState` blob: `{ version, rev, theme, layouts,
@@ -102,6 +141,15 @@ Schema migrations live in `lib/storage.ts`'s `migrateRaw()`, keyed off `SCHEMA_V
 `normalize()` merge runs** — `normalize()` does a shallow merge against defaults, so a field whose
 *shape* changed (not just added) must already be converted before it gets there, or the old shape will
 silently pass through merged with new defaults.
+
+A fresh install's very first state is `createDefaultState()` (hardcoded in `lib/defaults.ts`), *unless*
+`lib/default-state.json` is non-`null` — that file (default `null`) is meant to be replaced wholesale with
+a real `PersistedState` exported from the options page's JSON download, and `loadState()` only consults it
+when storage is completely empty (never on top of an existing install). It's routed through the same
+`normalize()` used for imports, so a stale schema in it self-heals the same way an old exported JSON
+would. `createDefaultState()` itself stays untouched by this feature — `normalize()` still falls back to
+it as the last resort when stored/imported data is unreadable, so it has to remain a known-good literal
+independent of whatever `default-state.json` contains.
 
 ### First-paint (FOUC) handling
 
@@ -199,7 +247,10 @@ a plain `<img>`, so embedded `<script>`/event handlers can't execute. This has o
 mind: an `<img>` is an opaque replaced element, so page CSS (including `currentColor`) cannot reach inside
 it. Bulk-recoloring SVG icons (`widgets/links`' `svgIconColor` setting) is therefore done by string-
 replacing `currentColor` in the SVG source itself before building the data URI
-(`lib/icon-value.ts`'s `tintSvgCode`), not via CSS.
+(`lib/icon-value.ts`'s `tintSvgCode`), not via CSS. The same constraint applies to icons rendered in the
+always-dark UI chrome regardless of the user's theme (preset popovers, `Field.tsx`'s collapsed list-item
+summary) — `DARK_UI_ICON_TINT` in `lib/icon-value.ts` is the one shared fixed tint for that context, kept
+separate from the user's theme text color on purpose.
 
 ### Fonts (`lib/fonts.ts`, `lib/fonts.css`, `public/fonts/`)
 
@@ -229,6 +280,15 @@ call time to `browser.scripting.registerContentScripts()` in `lib/media-registra
 granted (`browser.permissions.onAdded`) and again on every background-script startup (dynamic
 registrations don't reliably survive an extension reload).
 
+`ensureYoutubeMediaContentScript()` always unregisters before registering, rather than checking
+`getRegisteredContentScripts()` first — the check-then-act version raced against itself when both
+triggers fired close together (e.g. startup coinciding with a permission grant for a *different* widget,
+since `permissions.onAdded` fires for any permission), throwing "Duplicate script ID" and leaving the
+content script unregistered for the rest of that browser session (nothing retried it, so the YouTube
+widget just stayed empty until the extension was reloaded). Registration is now also retried with backoff
+(`RETRY_DELAYS_MS`), since the `scripting` API can be unavailable in the first moments after an MV3
+service worker cold-starts.
+
 ### YouTube/YouTube Music mini player relay (`lib/media-relay.ts`, `lib/media-store.ts`, `lib/media-registration.ts`)
 
 Three-party message relay, since the newtab page can't see into another tab directly:
@@ -249,6 +309,15 @@ action (`video.play()/pause()` directly; site-specific button clicks for next/pr
 between polls. The content script's own change-detection (`sendIfChanged`) compares a version of the
 state with `capturedAt` zeroed and `currentTime` floored to whole seconds — comparing the raw state would
 never dedupe (both fields change every single poll), spamming a message every second even while paused.
+
+## Marketing site (`site/`)
+
+A separate, mostly-static landing site — `terms/` and `privacy/` are directories (not `.html` files) so
+they're reachable at extension-less `/terms` / `/privacy` URLs on static hosts, the same trick `site/app/`
+(the `npm run build:web` output) already used. It has its own locked design system: read `site/design.md`
+before touching any page under `site/`, and see `site/README.md` for how the pieces fit together.
+`lib/site-links.ts` is the one place the extension itself (the appearance tab's "about" links) points out
+to that site, independent of everything else under `site/`.
 
 ## Localization
 
