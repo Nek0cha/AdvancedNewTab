@@ -13,7 +13,7 @@
 }
 
 .time {
-  font-weight: 300;
+  font-weight: calc(300 + var(--ant-weight-delta, 0));
   letter-spacing: 0.01em;
   line-height: 1.05;
 }
@@ -27,7 +27,7 @@
 .meridiem {
   opacity: 0.6;
   font-size: 0.32em;
-  font-weight: 500;
+  font-weight: calc(500 + var(--ant-weight-delta, 0));
   letter-spacing: 0.04em;
   margin-left: 0.35em;
   vertical-align: middle;

@@ -9,8 +9,8 @@
 }
 
 .root:focus-within {
-  border-color: var(--ant-accent);
-  box-shadow: 0 0 0 3px var(--ant-accent-ring);
+  border-color: var(--ant-chrome-accent);
+  box-shadow: 0 0 0 3px var(--ant-chrome-accent-ring);
 }
 
 .input {
@@ -43,7 +43,7 @@
   padding: 0;
   border: none;
   background: transparent;
-  color: var(--ant-muted);
+  color: var(--ant-chrome-muted);
   transition: background-color 120ms var(--ant-ease), color 120ms var(--ant-ease);
 }
 
@@ -53,7 +53,7 @@
 
 .stepButton:hover:not(:disabled) {
   background: var(--ant-field-bg-hover);
-  color: var(--ant-text);
+  color: var(--ant-chrome-text);
 }
 
 .stepButton:disabled {

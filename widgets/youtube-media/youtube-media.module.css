@@ -57,7 +57,7 @@
 
 .title {
   font-size: 13px;
-  font-weight: 600;
+  font-weight: calc(600 + var(--ant-weight-delta, 0));
 }
 
 .metaRow {

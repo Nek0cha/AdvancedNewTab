@@ -5,6 +5,8 @@ import { useGridStatus } from '@/components/Grid/GridStatusContext';
 import { cx } from '@/lib/cx';
 import { useAppStore } from '@/lib/store';
 import { getWidgetBackgroundStyle, type WidgetBackgroundSettings } from '@/lib/widget-background';
+import { isWidgetStyleCustomized } from '@/lib/widget-style-code';
+import { getWidgetTextStyle, type WidgetTextSettings } from '@/lib/widget-style';
 import { getWidgetDef } from '@/widgets/registry';
 
 import { WidgetErrorBoundary } from './ErrorBoundary';
@@ -30,6 +32,7 @@ export const WidgetFrame = forwardRef<HTMLDivElement, WidgetFrameProps>(function
 ) {
   const editMode = useAppStore((s) => s.editMode);
   const instance = useAppStore((s) => s.state.widgets[instanceId]);
+  const theme = useAppStore((s) => s.state.theme);
   const removeWidget = useAppStore((s) => s.removeWidget);
   const duplicateWidget = useAppStore((s) => s.duplicateWidget);
   const openPanel = useAppStore((s) => s.openPanel);
@@ -66,8 +69,19 @@ export const WidgetFrame = forwardRef<HTMLDivElement, WidgetFrameProps>(function
       ? getWidgetBackgroundStyle(settings as WidgetBackgroundSettings)
       : undefined;
 
+  // 文字色・アクセントカラー・太さの個別設定（未指定なら undefined で何も上書きしない）。
+  // CSSカスタムプロパティとして .frame へ注入するだけで、各ウィジェットの .module.css は
+  // 変更不要（すべて var(--ant-text)/var(--ant-accent)/var(--ant-muted) を参照しているため、
+  // 継承でウィジェット内部全体へ自動的に伝播する。編集モードの帯は --ant-chrome-text 系の
+  // 固定トークンを使っているため、ここで上書きしても影響を受けない）。
+  const textStyle = getWidgetTextStyle(settings as WidgetTextSettings, theme);
+
+  // 個別スタイル（背景・文字色・アクセント・サブアクセント・太さ）のどれかを
+  // 「個別に指定」しているかどうか。設定ボタンに気づきやすいバッジを出す判定に使う。
+  const isCustomized = isWidgetStyleCustomized(settings);
+
   return (
-    <div ref={ref} className={rootClassName} style={{ ...gridStyle, ...backgroundStyle }} {...rest}>
+    <div ref={ref} className={rootClassName} style={{ ...gridStyle, ...backgroundStyle, ...textStyle }} {...rest}>
       {editMode && overlapping && (
         <span className={styles.overlapWarning} title="他のウィジェットと重なっています">
           <TriangleAlert size={13} />
@@ -91,10 +105,11 @@ export const WidgetFrame = forwardRef<HTMLDivElement, WidgetFrameProps>(function
             <button
               type="button"
               className={cx(styles.headerButton, 'ant-no-drag')}
-              title={`${def.name} の設定`}
+              title={isCustomized ? `${def.name} の設定（個別スタイルを使用中）` : `${def.name} の設定`}
               onClick={() => openPanel({ kind: 'widget', instanceId })}
             >
               <Settings2 size={14} />
+              {isCustomized && <span className={styles.customBadge} aria-hidden />}
             </button>
           )}
           <button

@@ -20,7 +20,7 @@
   border: 1px solid transparent;
   border-radius: 8px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: calc(600 + var(--ant-weight-delta, 0));
   transition: background-color 100ms ease, border-color 100ms ease;
 }
 
@@ -94,7 +94,7 @@
 .today {
   background: var(--ant-accent);
   color: #16110c;
-  font-weight: 700;
+  font-weight: calc(700 + var(--ant-weight-delta, 0));
 }
 
 /* 「今日」と重なったときは today の配色（アクセント色の丸塗り）を優先する。 */

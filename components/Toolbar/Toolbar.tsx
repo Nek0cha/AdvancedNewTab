@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
-import { Check, GripVertical, Palette, Pencil, Plus } from 'lucide-react';
+import { Check, GripVertical, Palette, Pencil, Plus, Redo2, Undo2 } from 'lucide-react';
 
 import { cx } from '@/lib/cx';
 import { useAppStore } from '@/lib/store';
@@ -11,6 +11,18 @@ interface DragOrigin {
   startY: number;
   originLeft: number;
   originTop: number;
+}
+
+/**
+ * フォーカスがテキスト入力系の要素にあるかどうか。
+ * Ctrl+Z/Ctrl+Y をアプリ全体のUndo/Redoとして奪ってしまうと、入力欄でのブラウザ標準の
+ * テキスト取り消しと衝突する。入力欄にフォーカスがある間はショートカットを発動させず、
+ * ブラウザ標準の挙動に委ねる。
+ */
+function isEditableTarget(el: Element | null): boolean {
+  if (!(el instanceof HTMLElement)) return false;
+  const tag = el.tagName;
+  return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || el.isContentEditable;
 }
 
 /**
@@ -37,6 +49,10 @@ export function Toolbar() {
   const openPanel = useAppStore((s) => s.openPanel);
   const toolbarPosition = useAppStore((s) => s.state.toolbarPosition);
   const setToolbarPosition = useAppStore((s) => s.setToolbarPosition);
+  const undo = useAppStore((s) => s.undo);
+  const redo = useAppStore((s) => s.redo);
+  const canUndo = useAppStore((s) => s.canUndo);
+  const canRedo = useAppStore((s) => s.canRedo);
 
   const toolbarRef = useRef<HTMLDivElement>(null);
   const dragOriginRef = useRef<DragOrigin | null>(null);
@@ -80,6 +96,29 @@ export function Toolbar() {
       window.removeEventListener('pointerup', onUp);
     };
   }, [dragging, setToolbarPosition]);
+
+  // Ctrl+Z / Ctrl+Y（Ctrl+Shift+Z）でUndo/Redo。編集モード中だけ、かつ入力欄に
+  // フォーカスが無いときだけ発動させる（isEditableTarget 参照）。
+  useEffect(() => {
+    if (!editMode) return;
+
+    const onKeyDown = (e: KeyboardEvent): void => {
+      const isModifier = e.ctrlKey || e.metaKey;
+      if (!isModifier || isEditableTarget(document.activeElement)) return;
+
+      const key = e.key.toLowerCase();
+      if (key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        undo();
+      } else if (key === 'y' || (key === 'z' && e.shiftKey)) {
+        e.preventDefault();
+        redo();
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [editMode, undo, redo]);
 
   const handleGripPointerDown = (e: ReactPointerEvent<HTMLButtonElement>): void => {
     const el = toolbarRef.current;
@@ -132,6 +171,24 @@ export function Toolbar() {
           >
             <Palette size={15} />
             見た目
+          </button>
+          <button
+            type="button"
+            className={styles.button}
+            disabled={!canUndo}
+            title="元に戻す（Ctrl+Z）"
+            onClick={() => undo()}
+          >
+            <Undo2 size={15} />
+          </button>
+          <button
+            type="button"
+            className={styles.button}
+            disabled={!canRedo}
+            title="やり直す（Ctrl+Y）"
+            onClick={() => redo()}
+          >
+            <Redo2 size={15} />
           </button>
         </>
       )}

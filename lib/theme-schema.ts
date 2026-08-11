@@ -1,3 +1,4 @@
+import { WEIGHT_PRESET_OPTIONS } from '@/lib/text-weight';
 import type { FieldSchema } from '@/widgets/types';
 
 /**
@@ -16,6 +17,41 @@ export const THEME_SCHEMA: ReadonlyArray<FieldSchema> = [
   },
   { kind: 'color', key: 'textColor', label: '文字色' },
   { kind: 'color', key: 'accentColor', label: 'アクセント色' },
+  {
+    kind: 'select',
+    key: 'textWeightPreset',
+    label: '文字の太さ',
+    variant: 'tabs',
+    options: WEIGHT_PRESET_OPTIONS,
+    help: 'ウィジェット側で個別に「既定」以外を選んでいる場合は、そちらが優先されます。',
+  },
+  {
+    kind: 'select',
+    key: 'subAccentMode',
+    label: 'サブアクセントカラー',
+    variant: 'tabs',
+    options: [
+      { value: 'auto', label: '自動（文字色×アクセント）' },
+      { value: 'custom', label: '色を指定' },
+    ],
+    help: 'カレンダーの曜日・時計の目盛り・検索のプレースホルダーなど、カード内で控えめに表示する文字の色です。',
+  },
+  {
+    kind: 'number',
+    key: 'subAccentBlend',
+    label: 'アクセントカラーの混ぜ具合',
+    min: 0,
+    max: 100,
+    step: 5,
+    help: '数値が大きいほどアクセントカラーに近づき、小さいほど文字色に近づきます。',
+    visibleWhen: { key: 'subAccentMode', equals: 'auto' },
+  },
+  {
+    kind: 'color',
+    key: 'subAccentColor',
+    label: 'サブアクセントカラー（色を指定）',
+    visibleWhen: { key: 'subAccentMode', equals: 'custom' },
+  },
   {
     kind: 'color',
     key: 'cardColor',

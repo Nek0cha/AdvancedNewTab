@@ -7,6 +7,7 @@
  */
 
 import { WIDGET_BACKGROUND_DEFAULTS, widgetBackgroundFields } from '@/lib/widget-background';
+import { WIDGET_TEXT_DEFAULTS, widgetTextFields } from '@/lib/widget-style';
 import { bookmarksWidget } from '@/widgets/bookmarks';
 import { calculatorWidget } from '@/widgets/calculator';
 import { calendarWidget } from '@/widgets/calendar';
@@ -50,12 +51,14 @@ function register<S extends Record<string, unknown>>(def: WidgetDef<S>): void {
     ...def,
     defaultSettings: {
       ...WIDGET_BACKGROUND_DEFAULTS,
+      ...WIDGET_TEXT_DEFAULTS,
       hideOnResize: hideOnResizeDefault,
       ...def.defaultSettings,
     },
     settingsSchema: [
       ...def.settingsSchema,
       ...widgetBackgroundFields({ border: includeBorder }),
+      ...widgetTextFields(),
       { kind: 'toggle', key: 'hideOnResize', label: 'ウィンドウサイズ変更時に自動で非表示にする' },
     ],
   } as unknown as AnyWidgetDef;

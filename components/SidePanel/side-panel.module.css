@@ -7,6 +7,11 @@
   flex-direction: column;
   width: var(--ant-panel-width);
   height: 100vh;
+  /* 操作UIは常時 --ant-menu-bg（固定の暗い面）の上に乗るため、ここだけ文字色も
+     テーマの --ant-text に追従させず固定トークンにする（見た目タブで暗い文字色を
+     選んでも設定パネル自体が読めなくならないように）。個々の子要素が自前で色を
+     指定していない場合の安全弁も兼ねる。 */
+  color: var(--ant-chrome-text);
   background: var(--ant-menu-bg);
   -webkit-backdrop-filter: blur(24px) saturate(140%);
   backdrop-filter: blur(24px) saturate(140%);
@@ -56,7 +61,7 @@
   border: none;
   border-radius: 8px;
   background: transparent;
-  color: var(--ant-text);
+  color: var(--ant-chrome-text);
   opacity: 0.7;
   transition: background-color 140ms var(--ant-ease), opacity 140ms var(--ant-ease);
 }

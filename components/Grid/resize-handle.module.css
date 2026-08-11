@@ -40,7 +40,7 @@
   bottom: 4px;
   width: 8px;
   height: 8px;
-  border-right: 2px solid var(--ant-text);
-  border-bottom: 2px solid var(--ant-text);
+  border-right: 2px solid var(--ant-chrome-text);
+  border-bottom: 2px solid var(--ant-chrome-text);
   border-radius: 0 0 2px 0;
 }

@@ -12,7 +12,7 @@
   border: 1px solid var(--ant-field-border);
   border-radius: 8px;
   background: var(--ant-field-bg);
-  color: var(--ant-text);
+  color: var(--ant-chrome-text);
   transition: background-color 140ms var(--ant-ease), border-color 140ms var(--ant-ease);
 }
 
@@ -21,8 +21,8 @@
 }
 
 .iconOptionActive {
-  border-color: var(--ant-accent);
-  color: var(--ant-accent);
+  border-color: var(--ant-chrome-accent);
+  color: var(--ant-chrome-accent);
   background: var(--ant-field-bg-hover);
 }
 

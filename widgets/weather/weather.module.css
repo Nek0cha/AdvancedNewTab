@@ -17,7 +17,7 @@
 
 .temperature {
   font-size: 1.8em;
-  font-weight: 300;
+  font-weight: calc(300 + var(--ant-weight-delta, 0));
   line-height: 1.1;
 }
 

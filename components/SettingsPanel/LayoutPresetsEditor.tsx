@@ -46,8 +46,8 @@ export function LayoutPresetsEditor() {
   return (
     <div className={styles.root}>
       <p className={styles.help}>
-        今のウィジェット配置・構成を最大{MAX_LAYOUT_PRESETS}枠まで保存し、後から呼び出せます
-        （見た目のテーマは含まれません）。読み込むと今の配置は上書きされます。
+        今のウィジェット配置・構成・見た目のテーマをまとめて最大{MAX_LAYOUT_PRESETS}
+        枠まで保存し、後から呼び出せます。読み込むと今の配置・テーマは上書きされます。
       </p>
       {Array.from({ length: MAX_LAYOUT_PRESETS }, (_, slot) => {
         const preset = layoutPresets[slot] ?? null;

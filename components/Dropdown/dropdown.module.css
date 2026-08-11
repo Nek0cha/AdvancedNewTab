@@ -23,8 +23,8 @@
 
 .trigger:focus-visible {
   outline: none;
-  border-color: var(--ant-accent);
-  box-shadow: 0 0 0 3px var(--ant-accent-ring);
+  border-color: var(--ant-chrome-accent);
+  box-shadow: 0 0 0 3px var(--ant-chrome-accent-ring);
 }
 
 .trigger:disabled {
@@ -41,7 +41,7 @@
 
 .chevron {
   flex: 0 0 auto;
-  color: var(--ant-muted);
+  color: var(--ant-chrome-muted);
   transition: transform 160ms var(--ant-ease);
 }
 
@@ -58,6 +58,9 @@
   overflow-y: auto;
   border-radius: 12px;
   background: var(--ant-menu-bg);
+  /* document.body へポータルされるため（Dropdown.tsx参照）、.panel からの継承に頼らず
+     ここで明示する。.option 自体は個別に color を持たず、このベース色を継承する。 */
+  color: var(--ant-chrome-text);
   border: 1px solid var(--ant-field-border);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(20px);
@@ -92,7 +95,7 @@
 }
 
 .optionSelected {
-  color: var(--ant-accent);
+  color: var(--ant-chrome-accent);
   font-weight: 600;
 }
 

@@ -14,13 +14,13 @@
   border-radius: 8px;
   background: transparent;
   font-size: 12px;
-  color: var(--ant-muted);
+  color: var(--ant-chrome-muted);
   transition: background-color 140ms var(--ant-ease), color 140ms var(--ant-ease);
 }
 
 .tabActive {
   background: var(--ant-field-bg-hover);
-  color: var(--ant-text);
+  color: var(--ant-chrome-text);
   font-weight: 600;
 }
 
@@ -33,7 +33,7 @@
 
 .arrow {
   flex: 0 0 auto;
-  color: var(--ant-muted);
+  color: var(--ant-chrome-muted);
 }
 
 .gradientPreview {
@@ -59,7 +59,7 @@
 }
 
 .fileButton:hover {
-  border-color: var(--ant-accent);
+  border-color: var(--ant-chrome-accent);
   background: var(--ant-field-bg-hover);
 }
 

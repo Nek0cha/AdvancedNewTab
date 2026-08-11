@@ -68,6 +68,19 @@ export interface ThemeConfig {
   textColor: string;
   /** アクセント色（リンク・フォーカスリングなど） */
   accentColor: string;
+  /** 文字の太さ（3段階プリセット）。lib/text-weight.ts の WEIGHT_PRESET_DELTA 経由で --ant-weight-delta に変換する */
+  textWeightPreset: 'light' | 'normal' | 'bold';
+  /**
+   * カード内の「サブアクセントカラー」（曜日・目盛り・プレースホルダー等の控えめな文字。
+   * CSS上は --ant-muted）の決め方。
+   * - 'auto'   : 文字色×アクセントカラーから自動計算（subAccentBlend が混合比率）
+   * - 'custom' : subAccentColor をそのまま使う
+   */
+  subAccentMode: 'auto' | 'custom';
+  /** 'auto' のときの、アクセントカラーをどれだけ混ぜるか（0〜100） */
+  subAccentBlend: number;
+  /** 'custom' のときに使う色 */
+  subAccentColor: string;
   /** widgets/lib/fonts.ts の FontOption.id、または 'custom' */
   canvasFontId: string;
   /** canvasFontId === 'custom' のときに使う */
@@ -104,12 +117,17 @@ export interface WidgetInstance {
   settings: Record<string, unknown>;
 }
 
-/** レイアウト保存機能（最大3枠）の1件分。テーマは含まず、配置とウィジェット構成だけを保存する。 */
+/** レイアウト保存機能（最大3枠）の1件分。配置・ウィジェット構成・見た目のテーマを丸ごと保存する。 */
 export interface LayoutPreset {
   name: string;
   savedAt: number;
   layouts: Partial<Record<BreakpointName, Layout>>;
   widgets: Record<string, WidgetInstance>;
+  /**
+   * 保存時点のテーマ。本機能追加前に保存された枠には存在しないため、読み込み側
+   * （lib/store.ts の loadLayoutPreset）は undefined を「テーマは変更しない」として扱う。
+   */
+  theme?: ThemeConfig;
 }
 
 /** レイアウト保存の最大枠数。 */

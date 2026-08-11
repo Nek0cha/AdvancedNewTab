@@ -15,7 +15,7 @@
   height: 34px;
   border-radius: 9px;
   background: rgba(var(--ant-card-base), 0.1);
-  color: var(--ant-accent);
+  color: var(--ant-chrome-accent);
 }
 
 .name {

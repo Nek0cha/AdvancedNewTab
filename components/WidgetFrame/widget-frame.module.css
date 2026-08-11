@@ -71,7 +71,10 @@
   gap: 6px;
   padding: 6px 6px 6px 8px;
   font-size: 12px;
-  color: var(--ant-muted);
+  /* この帯は編集モード専用のオーバーレイUI（常時 --ant-menu-bg の上）であり、
+     下のウィジェット本体（.card/.body）とは別物。ウィジェット個別の文字色設定
+     （lib/widget-style.ts）の影響を受けないよう、固定トークンを使う。 */
+  color: var(--ant-chrome-muted);
   background: var(--ant-menu-bg);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
@@ -98,6 +101,7 @@
 }
 
 .headerButton {
+  position: relative;
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
@@ -108,9 +112,25 @@
   border: none;
   border-radius: 6px;
   background: transparent;
-  color: var(--ant-text);
+  color: var(--ant-chrome-text);
   opacity: 0.65;
   transition: background-color 140ms var(--ant-ease), opacity 140ms var(--ant-ease);
+}
+
+/*
+ * 設定ボタンの右上に出す小さな点。「このウィジェットは背景/文字色/アクセント/太さの
+ * どれかを個別に指定している」ことを見た目だけでは気づけない、というフィードバックへの対応。
+ * 常時ダーク前提の操作UIバッジなので --ant-chrome-accent（固定）を使う。
+ */
+.customBadge {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ant-chrome-accent);
+  pointer-events: none;
 }
 
 .headerButton:hover {
@@ -131,6 +151,25 @@
   position: absolute;
   inset: 0;
   overflow: auto;
+  /*
+   * ウィジェット本文の文字色の基準値。color は継承プロパティだが、ここで明示的に
+   * var(--ant-text) を書いておかないと、entrypoints/newtab/style.css の
+   * `body { color: var(--ant-text) }` が既に具体的な色（ルート要素の --ant-text）へ
+   * 解決した上で継承させてしまい、.frame 側でウィジェット個別に --ant-text を
+   * 上書きしても（lib/widget-style.ts の getWidgetTextStyle）反映されない
+   * （＝「個別に指定」で文字色を変えても既定の文字色のまま、という不具合の原因だった）。
+   * ここで改めて var(--ant-text) を参照させることで、.frame（このすぐ上の祖先）の
+   * カスタムプロパティを使って毎回フレッシュに解決させる。
+   */
+  color: var(--ant-text);
+  /*
+   * ウィジェット本文の太さの基準値。font-weight は継承プロパティなので、個々の要素
+   * （見出し・数値表示など）が独自の font-weight（calc(<値> + var(--ant-weight-delta,0))）を
+   * 持っていればそちらが優先され、持っていない要素（本文・リスト項目など）はここから
+   * 継承する。以前はここに何も指定していなかったため、明示的な font-weight を持たない
+   * 要素がブラウザ既定のまま固定され、太さプリセットを変えても反映されなかった。
+   */
+  font-weight: calc(400 + var(--ant-weight-delta, 0));
 }
 
 /* 編集モード中はウィジェット内部のクリックを拾わせない（ドラッグを優先する） */
@@ -146,7 +185,7 @@
   padding: 14px;
   font-size: 13px;
   line-height: 1.6;
-  color: var(--ant-muted);
+  color: var(--ant-chrome-muted);
 }
 
 .unknown svg {

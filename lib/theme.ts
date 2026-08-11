@@ -5,8 +5,9 @@
  * var(--ant-*) だけを参照する。これによりテーマ変更が「変数の差し替え1本」で済む。
  */
 
-import { hexToRgbString } from '@/lib/color';
+import { applyMutedAlpha, CARD_OPACITY_SCALE, computeAccentRing, computeMutedColor, hexToRgbString } from '@/lib/color';
 import { getFontStack } from '@/lib/fonts';
+import { WEIGHT_PRESET_DELTA } from '@/lib/text-weight';
 import {
   BOOT_THEME_KEY,
   type BackgroundConfig,
@@ -113,7 +114,19 @@ export function applyTheme(theme: ThemeConfig): void {
   const s = root.style;
   s.setProperty('--ant-text', theme.textColor);
   s.setProperty('--ant-accent', theme.accentColor);
-  s.setProperty('--ant-accent-ring', `color-mix(in oklab, ${theme.accentColor} 38%, transparent)`);
+  s.setProperty('--ant-accent-ring', computeAccentRing(theme.accentColor));
+  // カード内の「サブアクセントカラー」（カレンダー曜日・時計の目盛り・検索の
+  // プレースホルダー等、widgets/**/*.module.css が参照する --ant-muted）。以前は
+  // rgba(241, 236, 236, 0.6) の完全固定値だったため、テーマの文字色・アクセントカラーを
+  // 変えても一切追従しなかった。既定（'auto'）では文字色×アクセントカラーから自動計算し、
+  // 'custom' なら見た目タブで指定した色をそのまま使う。
+  s.setProperty(
+    '--ant-muted',
+    theme.subAccentMode === 'custom'
+      ? applyMutedAlpha(theme.subAccentColor)
+      : computeMutedColor(theme.textColor, theme.accentColor, theme.subAccentBlend),
+  );
+  s.setProperty('--ant-weight-delta', String(WEIGHT_PRESET_DELTA[theme.textWeightPreset]));
   s.setProperty('--ant-canvas-font', resolveCanvasFontStack(theme));
   s.setProperty('--ant-card-opacity', String(theme.cardOpacity));
   s.setProperty('--ant-card-blur', `${theme.cardBlur}px`);
@@ -126,16 +139,15 @@ export function applyTheme(theme: ThemeConfig): void {
   // 全部の色が変わってしまう）。
   const cardBase = '255, 255, 255';
   s.setProperty('--ant-card-base', cardBase);
-  s.setProperty('--ant-card-bg', `rgba(${cardBase}, ${theme.cardOpacity * 0.14})`);
+  s.setProperty('--ant-card-bg', `rgba(${cardBase}, ${theme.cardOpacity * CARD_OPACITY_SCALE})`);
   s.setProperty('--ant-card-border', `rgba(${cardBase}, 0.16)`);
 
   // ウィジェットカード自体の背景色だけは theme.cardColor でユーザーが変えられる
   // （見た目タブ「ウィジェットカードの背景色」）。components/WidgetFrame の .card が
   // --ant-card-bg/--ant-card-border ではなくこちらを参照する。
   const widgetCardBase = hexToRgbString(theme.cardColor);
-  s.setProperty('--ant-widget-card-bg', `rgba(${widgetCardBase}, ${theme.cardOpacity * 0.14})`);
+  s.setProperty('--ant-widget-card-bg', `rgba(${widgetCardBase}, ${theme.cardOpacity * CARD_OPACITY_SCALE})`);
   s.setProperty('--ant-widget-card-border', `rgba(${widgetCardBase}, 0.16)`);
-  s.setProperty('--ant-muted', 'rgba(241, 236, 236, 0.6)');
 
   // フォーム部品（Dropdown/ColorPicker等）用トークン。カードよりわずかに濃く、判読性を優先する。
   s.setProperty('--ant-field-bg', `rgba(${cardBase}, 0.1)`);
