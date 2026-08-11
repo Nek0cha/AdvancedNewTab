@@ -24,20 +24,20 @@
 
 .cityTime {
   font-size: 15px;
-  font-weight: 600;
+  font-weight: calc(600 + var(--ant-weight-delta, 0));
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
 .cityTimeInvalid {
   color: var(--ant-muted);
-  font-weight: 400;
+  font-weight: calc(400 + var(--ant-weight-delta, 0));
 }
 
 .dayOffset {
   margin-left: 4px;
   font-size: 10px;
-  font-weight: 500;
+  font-weight: calc(500 + var(--ant-weight-delta, 0));
   color: var(--ant-accent);
   vertical-align: super;
 }

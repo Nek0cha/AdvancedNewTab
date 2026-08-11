@@ -30,7 +30,7 @@
 
 .value {
   font-size: 26px;
-  font-weight: 700;
+  font-weight: calc(700 + var(--ant-weight-delta, 0));
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }
@@ -74,7 +74,7 @@
 .compactNumber {
   margin: 0 2px;
   font-size: 22px;
-  font-weight: 700;
+  font-weight: calc(700 + var(--ant-weight-delta, 0));
   font-variant-numeric: tabular-nums;
 }
 

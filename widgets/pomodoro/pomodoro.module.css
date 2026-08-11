@@ -12,7 +12,7 @@
 
 .phaseLabel {
   font-size: 12px;
-  font-weight: 600;
+  font-weight: calc(600 + var(--ant-weight-delta, 0));
   letter-spacing: 0.02em;
 }
 
@@ -27,7 +27,7 @@
 
 .time {
   font-size: 34px;
-  font-weight: 700;
+  font-weight: calc(700 + var(--ant-weight-delta, 0));
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }

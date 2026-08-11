@@ -55,6 +55,45 @@ const save = createDebouncedSaver();
  */
 let highestLocalRev = 0;
 
+/**
+ * 元に戻す/やり直す（Undo/Redo）用の履歴。
+ *
+ * commit() が全ミューテーションの唯一の経路であることを利用し、ここに履歴の出し入れを
+ * 一括で足す。テキスト入力欄はキー入力のたびに commit() されるため、そのまま1回ごとに
+ * 履歴を積むと「あ」「あい」「あいう」…と1文字ごとにUndoが必要になってしまう。
+ * 短い間隔（COALESCE_MS）の連続した commit() は1つの履歴ステップにまとめる
+ * （storage への書き込みを 400ms デバウンスしているのと同じ発想だが、目的が違うので別物）。
+ */
+const MAX_HISTORY = 50;
+const COALESCE_MS = 800;
+let past: PersistedState[] = [];
+let future: PersistedState[] = [];
+/** 現在まとめている最中の編集バーストの「開始時点」の状態。null なら何も保留していない。 */
+let coalesceBaseline: PersistedState | null = null;
+let coalesceTimer: ReturnType<typeof setTimeout> | undefined;
+
+/** 保留中の編集バーストを確定させ、履歴（past）へ実際に積む。 */
+function flushCoalesce(): void {
+  if (coalesceTimer !== undefined) {
+    clearTimeout(coalesceTimer);
+    coalesceTimer = undefined;
+  }
+  if (coalesceBaseline) {
+    past.push(coalesceBaseline);
+    if (past.length > MAX_HISTORY) past.shift();
+    coalesceBaseline = null;
+  }
+}
+
+/** 他タブ由来の変更などで、ローカルのUndo/Redo履歴を丸ごと無効化する。 */
+function resetHistory(): void {
+  if (coalesceTimer !== undefined) clearTimeout(coalesceTimer);
+  coalesceTimer = undefined;
+  coalesceBaseline = null;
+  past = [];
+  future = [];
+}
+
 /** 右側サイドパネルに何を出しているか。 */
 export type PanelState =
   | null
@@ -70,6 +109,9 @@ interface AppStore {
   /** 右側サイドパネルの表示内容。null なら閉じている */
   panel: PanelState;
   state: PersistedState;
+  /** ツールバーのUndo/Redoボタンの活性状態。lib/store.ts 内の履歴（past/future）を反映する。 */
+  canUndo: boolean;
+  canRedo: boolean;
 
   init: () => Promise<void>;
   setEditMode: (value: boolean) => void;
@@ -103,15 +145,36 @@ interface AppStore {
   deleteLayoutPreset: (slot: number) => void;
   /** インポート・初期化用に状態を丸ごと差し替える */
   replaceState: (next: PersistedState) => void;
+  /** 直前の変更を1ステップ取り消す。取り消せる変更が無ければ何もしない。 */
+  undo: () => void;
+  /** undo() で取り消した変更をやり直す。やり直せる変更が無ければ何もしない。 */
+  redo: () => void;
 }
 
 export const useAppStore = create<AppStore>((set, get) => {
-  /** 状態を更新し、テーマ適用と永続化まで面倒を見る共通経路。 */
-  const commit = (next: PersistedState): void => {
+  /**
+   * 状態を更新し、テーマ適用と永続化まで面倒を見る共通経路。
+   * `opts.history` を明示的に false にした呼び出し（undo/redo自身）だけは履歴を積まない
+   * （さもないと undo するたびに「undo したこと」自体が新たな履歴になり、
+   * 何度押しても同じ2状態を行き来するだけになってしまう）。
+   */
+  const commit = (next: PersistedState, opts?: { history?: boolean }): void => {
+    const recordHistory = opts?.history !== false;
+    if (recordHistory) {
+      if (!coalesceBaseline) coalesceBaseline = get().state;
+      future = [];
+      if (coalesceTimer !== undefined) clearTimeout(coalesceTimer);
+      coalesceTimer = setTimeout(flushCoalesce, COALESCE_MS);
+    }
+
     const withRev = { ...next, rev: highestLocalRev + 1 };
     highestLocalRev = withRev.rev;
     applyTheme(withRev.theme);
-    set({ state: withRev });
+    set({
+      state: withRev,
+      canUndo: past.length > 0 || coalesceBaseline !== null,
+      canRedo: future.length > 0,
+    });
     save(withRev);
   };
 
@@ -120,6 +183,8 @@ export const useAppStore = create<AppStore>((set, get) => {
     editMode: false,
     panel: null,
     state: createDefaultState(),
+    canUndo: false,
+    canRedo: false,
 
     init: async () => {
       const loaded = await loadState();
@@ -133,7 +198,10 @@ export const useAppStore = create<AppStore>((set, get) => {
         if (external.rev <= highestLocalRev) return;
         highestLocalRev = external.rev;
         applyTheme(external.theme);
-        set({ state: external });
+        // 他タブ由来の状態ジャンプを起点にした undo/redo は一貫性が保てないため、
+        // ローカルの履歴は丸ごと無効化する。
+        resetHistory();
+        set({ state: external, canUndo: false, canRedo: false });
       });
     },
 
@@ -263,6 +331,7 @@ export const useAppStore = create<AppStore>((set, get) => {
         savedAt: Date.now(),
         layouts: current.layouts,
         widgets: current.widgets,
+        theme: current.theme,
       };
       const layoutPresets = [...current.layoutPresets];
       layoutPresets[slot] = preset;
@@ -273,7 +342,8 @@ export const useAppStore = create<AppStore>((set, get) => {
       const current = get().state;
       const preset = current.layoutPresets[slot];
       if (!preset) return;
-      commit({ ...current, layouts: preset.layouts, widgets: preset.widgets });
+      // preset.theme は本機能追加前に保存された枠には存在しない。その場合は今のテーマを維持する。
+      commit({ ...current, layouts: preset.layouts, widgets: preset.widgets, theme: preset.theme ?? current.theme });
     },
 
     deleteLayoutPreset: (slot) => {
@@ -285,5 +355,24 @@ export const useAppStore = create<AppStore>((set, get) => {
     },
 
     replaceState: (next) => commit(next),
+
+    undo: () => {
+      // 保留中の編集バーストがあれば、まずそれを1ステップとして確定させてから戻す
+      // （さもないと直近の未確定の編集がUndo対象に含まれず消えてしまう）。
+      flushCoalesce();
+      if (past.length === 0) return;
+      const prev = past.pop()!;
+      future.push(get().state);
+      commit(prev, { history: false });
+      set({ canUndo: past.length > 0, canRedo: future.length > 0 });
+    },
+
+    redo: () => {
+      if (future.length === 0) return;
+      const next = future.pop()!;
+      past.push(get().state);
+      commit(next, { history: false });
+      set({ canUndo: past.length > 0, canRedo: future.length > 0 });
+    },
   };
 });

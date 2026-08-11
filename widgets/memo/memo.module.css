@@ -16,12 +16,12 @@
   outline: none;
   background: transparent;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: calc(600 + var(--ant-weight-delta, 0));
 }
 
 .title::placeholder {
   color: var(--ant-muted);
-  font-weight: 400;
+  font-weight: calc(400 + var(--ant-weight-delta, 0));
 }
 
 .textarea {

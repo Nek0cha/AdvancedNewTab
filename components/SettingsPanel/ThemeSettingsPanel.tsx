@@ -1,8 +1,7 @@
-import { Field } from '@/components/Field/Field';
+import { FieldList } from '@/components/Field/FieldList';
 import { useAppStore } from '@/lib/store';
 import { THEME_SCHEMA } from '@/lib/theme-schema';
 import type { ThemeConfig } from '@/lib/types';
-import { isFieldVisible } from '@/widgets/types';
 
 import { AboutSection } from './AboutSection';
 import { BackgroundEditor } from './BackgroundEditor';
@@ -36,16 +35,11 @@ export function ThemeSettingsPanel() {
 
       <section className={panelStyles.section}>
         <h3 className={panelStyles.sectionTitle}>表示</h3>
-        {THEME_SCHEMA.filter((schema) =>
-          isFieldVisible(schema, theme as unknown as Record<string, unknown>),
-        ).map((schema) => (
-          <Field
-            key={schema.key}
-            schema={schema}
-            value={theme[schema.key as keyof ThemeConfig]}
-            onChange={(value) => patchTheme({ [schema.key]: value } as Partial<ThemeConfig>)}
-          />
-        ))}
+        <FieldList
+          schema={THEME_SCHEMA}
+          values={theme as unknown as Record<string, unknown>}
+          onChange={(key, value) => patchTheme({ [key]: value } as Partial<ThemeConfig>)}
+        />
       </section>
 
       <section className={panelStyles.section}>

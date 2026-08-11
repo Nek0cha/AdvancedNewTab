@@ -89,7 +89,7 @@
   grid-column: 1 / -1;
   border-color: var(--ant-accent);
   color: var(--ant-accent);
-  font-weight: 700;
+  font-weight: calc(700 + var(--ant-weight-delta, 0));
 }
 
 .keyEquals:active {

@@ -18,7 +18,27 @@
   --ant-muted: rgba(241, 236, 236, 0.6);
   --ant-accent: #ff8a4c;
   --ant-accent-ring: rgba(255, 138, 76, 0.38);
+  --ant-weight-delta: 0;
   --ant-canvas-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Kaku Gothic ProN', sans-serif;
+
+  /*
+   * 操作UI（サイドパネル・ツールバー・ドロップダウン等）専用の固定文字色。
+   *
+   * --ant-text / --ant-muted はユーザーのテーマ（文字色・アクセントカラー）に追従する
+   * ため、常時ダークな --ant-menu-bg / rgba(--ant-card-base, ...) の上に乗る操作UIで
+   * そのまま使うと、ユーザーが暗い文字色を選んだ瞬間に読めなくなる。値は変更前の
+   * --ant-text / --ant-muted の既定値と同じにしてあり、見た目に変化はない
+   * （lib/icon-value.ts の DARK_UI_ICON_TINT も同じ値を使っている）。
+   */
+  --ant-chrome-text: #f1ecec;
+  --ant-chrome-muted: rgba(241, 236, 236, 0.6);
+  /* 同じ理由でアクセントカラーも固定する（フォーカスリング・選択中タブ・選択項目の
+     ハイライト等）。値は既定のアクセント色と同じにしてあり、見た目に変化はない。 */
+  --ant-chrome-accent: #ff8a4c;
+  --ant-chrome-accent-ring: rgba(255, 138, 76, 0.38);
+  /* トグルスイッチのON色。アクセントカラーだと見づらい/紛らわしいという声があったため、
+     一般的な「ON=緑」の慣習に合わせた固定色にしている。 */
+  --ant-chrome-toggle-on: #34d399;
   --ant-card-base: 255, 255, 255;
   --ant-card-bg: rgba(255, 255, 255, 0.06);
   --ant-card-border: rgba(255, 255, 255, 0.16);

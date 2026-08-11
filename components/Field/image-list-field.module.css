@@ -58,5 +58,5 @@
 
 .addButton:hover {
   background: var(--ant-field-bg-hover);
-  border-color: var(--ant-accent);
+  border-color: var(--ant-chrome-accent);
 }

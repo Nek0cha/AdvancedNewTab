@@ -8,13 +8,16 @@
   gap: 4px;
   padding: 5px;
   border-radius: 999px;
+  /* SidePanel の .panel と同じ理由で、常に読めるよう文字色を固定トークンにする */
+  color: var(--ant-chrome-text);
   background: rgba(var(--ant-card-base), 0.1);
   border: 1px solid var(--ant-card-border);
   -webkit-backdrop-filter: blur(18px);
   backdrop-filter: blur(18px);
   font-family: var(--ant-app-body-font);
-  /* 普段は主張させず、近づいたら出てくる */
-  opacity: 0.32;
+  /* 普段は主張させず、近づいたら出てくる。以前は 0.32 で薄すぎて見つけにくいという
+     フィードバックがあったため、存在に気づける程度まで引き上げてある。 */
+  opacity: 0.55;
   transform: translateX(0);
   transition: opacity 180ms var(--ant-ease), transform 220ms var(--ant-ease);
 }
@@ -48,13 +51,13 @@
   border: none;
   border-radius: 999px;
   background: transparent;
-  color: var(--ant-muted);
+  color: var(--ant-chrome-muted);
   cursor: grab;
   touch-action: none;
 }
 
 .grip:hover {
-  color: var(--ant-text);
+  color: var(--ant-chrome-text);
 }
 
 .grip:active {
@@ -84,6 +87,20 @@
   background: rgba(var(--ant-card-base), 0.14);
 }
 
+.button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.button:disabled:hover {
+  background: transparent;
+}
+
+/*
+ * 「完了」ボタンだけは例外的にテーマのアクセントカラー（var(--ant-accent)、テーマに追従）を
+ * 使う。他の操作UI要素はすべて --ant-chrome-accent（固定）にしているが、ここだけは
+ * 「自分の選んだアクセントカラーをこのボタンで見たい」というフィードバックに応じている。
+ */
 .primary {
   background: var(--ant-accent);
   color: #16110c;

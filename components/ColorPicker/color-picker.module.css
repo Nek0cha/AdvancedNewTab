@@ -28,7 +28,7 @@
 
 .swatchButton:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px var(--ant-accent-ring);
+  box-shadow: 0 0 0 3px var(--ant-chrome-accent-ring);
 }
 
 .hexField {
@@ -38,6 +38,7 @@
   border: 1px solid var(--ant-field-border);
   border-radius: var(--ant-field-radius);
   background: var(--ant-field-bg);
+  color: var(--ant-chrome-text);
   font-size: 13px;
   font-family: var(--ant-mono);
   text-transform: lowercase;
@@ -45,8 +46,8 @@
 
 .hexField:focus {
   outline: none;
-  border-color: var(--ant-accent);
-  box-shadow: 0 0 0 3px var(--ant-accent-ring);
+  border-color: var(--ant-chrome-accent);
+  box-shadow: 0 0 0 3px var(--ant-chrome-accent-ring);
 }
 
 .popover {
@@ -56,6 +57,7 @@
   padding: 12px;
   border-radius: 14px;
   background: var(--ant-menu-bg);
+  color: var(--ant-chrome-text);
   border: 1px solid var(--ant-field-border);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(20px);
@@ -152,5 +154,5 @@
 }
 
 .swatchActive {
-  box-shadow: 0 0 0 2px var(--ant-accent);
+  box-shadow: 0 0 0 2px var(--ant-chrome-accent);
 }

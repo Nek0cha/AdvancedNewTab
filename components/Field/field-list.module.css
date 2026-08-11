@@ -1,0 +1,11 @@
+/*
+ * タブ切り替え＋条件表示フィールドをひとまとめにする箱。
+ * 中の最後の Field が持つ margin-bottom（field.module.css の .field）をそのまま
+ * 箱の下余白として使うため、あえて padding-bottom を付けていない。
+ */
+.group {
+  border: 1px solid var(--ant-field-border);
+  border-radius: 12px;
+  padding: 14px 14px 0;
+  margin-bottom: 16px;
+}

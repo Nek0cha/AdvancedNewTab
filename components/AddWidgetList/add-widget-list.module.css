@@ -25,7 +25,7 @@
 }
 
 .item:focus-visible {
-  border-color: var(--ant-accent);
+  border-color: var(--ant-chrome-accent);
 }
 
 .iconWrap {
@@ -37,7 +37,7 @@
   height: 34px;
   border-radius: 9px;
   background: rgba(var(--ant-card-base), 0.1);
-  color: var(--ant-accent);
+  color: var(--ant-chrome-accent);
 }
 
 .text {
@@ -57,7 +57,7 @@
   margin-top: 2px;
   font-size: 12px;
   line-height: 1.5;
-  color: var(--ant-muted);
+  color: var(--ant-chrome-muted);
 }
 
 .permission {
@@ -65,5 +65,5 @@
   margin-top: 6px;
   font-size: 11px;
   line-height: 1.5;
-  color: var(--ant-muted);
+  color: var(--ant-chrome-muted);
 }

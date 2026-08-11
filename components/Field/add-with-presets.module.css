@@ -10,6 +10,8 @@
   border: 1px solid var(--ant-field-border);
   border-radius: var(--ant-field-radius);
   background: var(--ant-menu-bg);
+  /* document.body へポータルされるため、.panel からの継承に頼らずここで明示する。 */
+  color: var(--ant-chrome-text);
   backdrop-filter: blur(18px);
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
   padding: 6px;
@@ -24,7 +26,7 @@
   border: none;
   border-radius: 8px;
   background: transparent;
-  color: var(--ant-text);
+  color: var(--ant-chrome-text);
   font-size: 13px;
   text-align: left;
   flex: 0 0 auto;
