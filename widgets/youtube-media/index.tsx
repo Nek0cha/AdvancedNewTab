@@ -61,11 +61,17 @@ function useDisplayedTime(state: MediaState | null, seekingTime: number | null):
   return state.duration > 0 ? Math.min(state.duration, raw) : raw;
 }
 
-function SeekBar({ state }: { state: MediaState }) {
+/**
+ * state が null の間（＝何も再生していない間）は、操作不能なグレーアウト表示に
+ * なる。フックの呼び出し順序を保つため、その場合も useDisplayedTime/useEffect
+ * 自体は呼びつつ、ポインター操作だけ無効化する。
+ */
+function SeekBar({ state }: { state: MediaState | null }) {
+  const disabled = !state;
   const trackRef = useRef<HTMLDivElement>(null);
   const [seekingTime, setSeekingTime] = useState<number | null>(null);
   const displayedTime = useDisplayedTime(state, seekingTime);
-  const duration = state.duration;
+  const duration = state?.duration ?? 0;
 
   const timeAtClientX = (clientX: number): number | null => {
     const rect = trackRef.current?.getBoundingClientRect();
@@ -75,7 +81,7 @@ function SeekBar({ state }: { state: MediaState }) {
   };
 
   useEffect(() => {
-    if (seekingTime == null) return;
+    if (disabled || seekingTime == null) return;
 
     const onMove = (e: PointerEvent): void => {
       const t = timeAtClientX(e.clientX);
@@ -94,23 +100,27 @@ function SeekBar({ state }: { state: MediaState }) {
       window.removeEventListener('pointerup', onUp);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [seekingTime]);
+  }, [seekingTime, disabled]);
 
   const fraction = duration > 0 ? Math.min(1, Math.max(0, displayedTime / duration)) : 0;
 
   return (
-    <div className={styles.seekRow}>
-      <span className={styles.seekTime}>{formatTime(displayedTime)}</span>
+    <div className={cx(styles.seekRow, disabled && styles.seekRowDisabled)}>
+      <span className={styles.seekTime}>{disabled ? '0:00' : formatTime(displayedTime)}</span>
       <div
         ref={trackRef}
         className={styles.seekTrack}
-        onPointerDown={(e) => {
-          const t = timeAtClientX(e.clientX);
-          if (t != null) setSeekingTime(t);
-        }}
+        onPointerDown={
+          disabled
+            ? undefined
+            : (e) => {
+                const t = timeAtClientX(e.clientX);
+                if (t != null) setSeekingTime(t);
+              }
+        }
       >
         <div className={styles.seekFill} style={{ width: `${fraction * 100}%` }} />
-        <div className={styles.seekThumb} style={{ left: `${fraction * 100}%` }} />
+        {!disabled && <div className={styles.seekThumb} style={{ left: `${fraction * 100}%` }} />}
       </div>
     </div>
   );
@@ -147,20 +157,17 @@ function PlayerContent({ settings }: { settings: YoutubeMediaSettings }) {
 
   if (!loaded) return null;
 
-  if (!state) {
-    return (
-      <div className={styles.empty}>
-        <Music2 size={20} />
-        <span>YouTube / YouTube Musicで何か再生すると、ここに表示されます</span>
-      </div>
-    );
-  }
+  // 何も再生していない間も「再生中」と同じレイアウト（アートワーク/タイトル/コント
+  // ロール/シークバー）を維持し、中身だけプレースホルダーに差し替える。以前は専用の
+  // 中央寄せメッセージに切り替えていたが、再生開始時とレイアウトが丸ごと変わって
+  // しまい見た目の一貫性がなかった。
+  const placeholder = !state;
 
   return (
     <div className={styles.root}>
       <div className={styles.mainRow}>
         <div className={styles.artworkWrap}>
-          {state.artwork ? (
+          {state?.artwork ? (
             <img className={styles.artwork} src={state.artwork} alt="" />
           ) : (
             <div className={styles.artworkFallback}>
@@ -170,11 +177,22 @@ function PlayerContent({ settings }: { settings: YoutubeMediaSettings }) {
         </div>
 
         <div className={styles.info}>
-          <Marquee className={styles.title} text={state.title} />
-          <div className={styles.metaRow}>
-            {state.artist && <span className={styles.artist}>{state.artist}</span>}
-            {state.duration > 0 && <span className={styles.duration}>{formatTime(state.duration)}</span>}
-          </div>
+          {state ? (
+            <>
+              <Marquee className={styles.title} text={state.title} />
+              <div className={styles.metaRow}>
+                {state.artist && <span className={styles.artist}>{state.artist}</span>}
+                {state.duration > 0 && <span className={styles.duration}>{formatTime(state.duration)}</span>}
+              </div>
+            </>
+          ) : (
+            <>
+              <Marquee className={styles.title} text="再生中の曲はありません" />
+              <div className={styles.metaRow}>
+                <span className={styles.artist}>YouTube / YouTube Musicで再生すると表示されます</span>
+              </div>
+            </>
+          )}
         </div>
 
         <div className={styles.controls}>
@@ -182,6 +200,7 @@ function PlayerContent({ settings }: { settings: YoutubeMediaSettings }) {
             type="button"
             className={styles.controlButton}
             title="前へ"
+            disabled={placeholder}
             onClick={() => sendControl('previous')}
           >
             <SkipBack size={16} />
@@ -189,15 +208,17 @@ function PlayerContent({ settings }: { settings: YoutubeMediaSettings }) {
           <button
             type="button"
             className={cx(styles.controlButton, styles.playButton)}
-            title={state.playing ? '一時停止' : '再生'}
+            title={state?.playing ? '一時停止' : '再生'}
+            disabled={placeholder}
             onClick={() => sendControl('playpause')}
           >
-            {state.playing ? <Pause size={18} /> : <Play size={18} />}
+            {state?.playing ? <Pause size={18} /> : <Play size={18} />}
           </button>
           <button
             type="button"
             className={styles.controlButton}
             title="次へ"
+            disabled={placeholder}
             onClick={() => sendControl('next')}
           >
             <SkipForward size={16} />
@@ -205,7 +226,7 @@ function PlayerContent({ settings }: { settings: YoutubeMediaSettings }) {
         </div>
       </div>
 
-      {settings.showSeekBar && state.duration > 0 && <SeekBar state={state} />}
+      {settings.showSeekBar && (!state || state.duration > 0) && <SeekBar state={state} />}
     </div>
   );
 }

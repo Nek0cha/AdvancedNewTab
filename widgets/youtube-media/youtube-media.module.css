@@ -14,20 +14,6 @@
   min-width: 0;
 }
 
-.empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  height: 100%;
-  padding: 12px;
-  text-align: center;
-  color: var(--ant-muted);
-  font-size: 12px;
-  line-height: 1.5;
-}
-
 .artworkWrap {
   flex: 0 0 auto;
 }
@@ -110,6 +96,18 @@
   background: rgba(var(--ant-card-base), 0.14);
 }
 
+/* 何も再生していない間はボタンを押せても意味がないので、操作不能な見た目にする */
+.controlButton:disabled {
+  color: var(--ant-muted);
+  opacity: 0.5;
+  cursor: default;
+  pointer-events: none;
+}
+
+.controlButton:disabled:hover {
+  background: transparent;
+}
+
 .playButton {
   width: 32px;
   height: 32px;
@@ -122,10 +120,24 @@
   background: var(--ant-accent);
 }
 
+.playButton:disabled {
+  background: rgba(var(--ant-card-base), 0.16);
+  color: var(--ant-muted);
+}
+
 .seekRow {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+/* 何も再生していない間のシークバー。操作できないことが分かるよう全体を薄くする */
+.seekRowDisabled {
+  opacity: 0.5;
+}
+
+.seekRowDisabled .seekTrack {
+  cursor: default;
 }
 
 .seekTime {
