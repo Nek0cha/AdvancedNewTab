@@ -32,7 +32,7 @@ export default defineConfig({
       // content script を実行時登録するために使う（entrypoints/background.ts 参照）。
       'scripting',
     ],
-    optional_permissions: ['topSites', 'bookmarks', 'history', 'sessions'],
+    optional_permissions: ['topSites', 'bookmarks'],
     optional_host_permissions: ['https://*/*'],
     // options_ui はここでは指定しない： WXTは options エントリーポイントを検出すると
     // manifest.options_ui を自前で（丸ごと）生成し直すため、ここに書いても黙って上書きされる。
