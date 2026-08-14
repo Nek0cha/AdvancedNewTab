@@ -2,7 +2,7 @@
   "name": "advanced-new-tab",
   "description": "ウィジェットを自由に配置できるカスタマイズ可能な新規タブ拡張機能",
   "private": true,
-  "version": "0.2.2",
+  "version": "0.2.3",
   "license": "MIT",
   "type": "module",
   "scripts": {

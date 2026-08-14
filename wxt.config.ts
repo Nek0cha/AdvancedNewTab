@@ -31,6 +31,16 @@ export default defineConfig({
       // YouTube/YouTube Musicミニプレーヤーが optional_host_permissions 許可後に
       // content script を実行時登録するために使う（entrypoints/background.ts 参照）。
       'scripting',
+      // 検索ウィジェット（widgets/search）が browser.search.query() でブラウザの既定の
+      // 検索エンジンに検索を委譲するために使う。この権限は他と違い optional にできない：
+      // optional_permissions は「該当ウィジェットを追加した瞬間のクリックというユーザー
+      // ジェスチャー」に chrome.permissions.request() を紐付けて要求する設計だが（上記コメント
+      // 参照）、検索ウィジェットは lib/defaults.ts の createDefaultState() でインストール直後
+      // から既定配置されており、紐付けられるクリック操作が存在しない。
+      // 以前は検索エンジン（Google/Bing/DuckDuckGo/カスタムURL）を本ウィジェット内で選ばせて
+      // 独自に切り替えていたが、Chromeウェブストアの単一用途ポリシーで「新しいタブページの
+      // 変更」と「検索設定の変更」の二重目的とみなされ却下されたため撤去した。
+      'search',
     ],
     optional_permissions: ['topSites', 'bookmarks'],
     optional_host_permissions: ['https://*/*'],

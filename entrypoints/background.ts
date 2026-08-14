@@ -1,6 +1,6 @@
 import { cached } from '@/lib/cache';
 import { ensureYoutubeMediaContentScript } from '@/lib/media-registration';
-import type { MediaControlMessage, MediaGetMessage, MediaState, MediaStateMessage } from '@/lib/media-relay';
+import type { MediaControlMessage, MediaStateMessage } from '@/lib/media-relay';
 import { MediaStore } from '@/lib/media-store';
 import { isRssFetchRequest, type RssFetchResponse } from '@/lib/messages';
 import { loadState } from '@/lib/storage';

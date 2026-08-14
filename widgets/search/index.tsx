@@ -7,25 +7,9 @@ import { defineWidget, type WidgetProps } from '@/widgets/types';
 import styles from './search.module.css';
 
 interface SearchSettings extends Record<string, unknown> {
-  engine: 'google' | 'bing' | 'duckduckgo' | 'custom';
-  /** engine === 'custom' のときに使う。"%s" を検索語に置換する */
-  customUrlTemplate: string;
   /** 検索結果を現在のタブで開くか、新しいタブで開くか */
   openInNewTab: boolean;
   placeholder: string;
-}
-
-const ENGINE_TEMPLATES: Record<Exclude<SearchSettings['engine'], 'custom'>, string> = {
-  google: 'https://www.google.com/search?q=%s',
-  bing: 'https://www.bing.com/search?q=%s',
-  duckduckgo: 'https://duckduckgo.com/?q=%s',
-};
-
-function buildSearchUrl(settings: SearchSettings, query: string): string {
-  const template =
-    settings.engine === 'custom' ? settings.customUrlTemplate : ENGINE_TEMPLATES[settings.engine];
-  const encoded = encodeURIComponent(query);
-  return template.includes('%s') ? template.replace('%s', encoded) : `${template}${encoded}`;
 }
 
 function SearchWidget({ settings, editMode }: WidgetProps<SearchSettings>) {
@@ -36,12 +20,20 @@ function SearchWidget({ settings, editMode }: WidgetProps<SearchSettings>) {
     const query = value.trim();
     if (!query) return;
 
-    const url = buildSearchUrl(settings, query);
-    if (settings.openInNewTab) {
-      window.open(url, '_blank', 'noopener,noreferrer');
-    } else {
-      window.location.href = url;
-    }
+    // 検索エンジン自体は拡張機能側で選ばせず、常にブラウザに設定されている既定の
+    // 検索エンジンで検索する（chrome.search / browser.search API、"search" 権限）。
+    // 以前はGoogle/Bing/DuckDuckGo/カスタムURLを本ウィジェット内で切り替えられたが、
+    // Chromeウェブストアの単一用途ポリシーで「新しいタブページの変更」と「検索設定の
+    // 変更」の二重目的とみなされ却下された。ブラウザの検索設定を読み替えているだけで
+    // 拡張機能が独自に管理しているわけではない、という状態にするため撤去している。
+    browser.search
+      .query({
+        text: query,
+        disposition: settings.openInNewTab ? 'NEW_TAB' : 'CURRENT_TAB',
+      })
+      .catch(() => {
+        // 失敗しても入力欄はそのまま残し、ユーザーが再送信できるようにする
+      });
   };
 
   // 個別背景は検索バー（<form>）だけに適用する。ウィジェット全体を包むと、
@@ -71,7 +63,7 @@ function SearchWidget({ settings, editMode }: WidgetProps<SearchSettings>) {
 export const searchWidget = defineWidget<SearchSettings>({
   type: 'search',
   name: '検索',
-  description: '好きな検索エンジンにその場で検索できます。',
+  description: 'ブラウザの既定の検索エンジンでその場検索できます。',
   icon: SearchIcon,
   frame: 'bare',
   // 個別背景を検索バーの<form>だけに適用したいため、WidgetFrameの自動適用対象から外す
@@ -79,30 +71,10 @@ export const searchWidget = defineWidget<SearchSettings>({
   backgroundScope: 'self',
   defaultLayout: { w: 6, h: 1, minW: 3, minH: 1 },
   defaultSettings: {
-    engine: 'google',
-    customUrlTemplate: 'https://www.google.com/search?q=%s',
     openInNewTab: false,
     placeholder: '検索...',
   },
   settingsSchema: [
-    {
-      kind: 'select',
-      key: 'engine',
-      label: '検索エンジン',
-      options: [
-        { value: 'google', label: 'Google' },
-        { value: 'bing', label: 'Bing' },
-        { value: 'duckduckgo', label: 'DuckDuckGo' },
-        { value: 'custom', label: 'カスタムURL' },
-      ],
-    },
-    {
-      kind: 'text',
-      key: 'customUrlTemplate',
-      label: 'カスタムURL（%s が検索語に置き換わります）',
-      placeholder: 'https://example.com/search?q=%s',
-      help: '検索エンジンが「カスタムURL」のときだけ使われます。',
-    },
     { kind: 'text', key: 'placeholder', label: 'プレースホルダー文言' },
     { kind: 'toggle', key: 'openInNewTab', label: '新しいタブで結果を開く' },
   ],
