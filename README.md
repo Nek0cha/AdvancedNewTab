@@ -1,5 +1,7 @@
 # AdvancedNewTab
 
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/hhjgbgbnehbodbilpibfaiccpniimjaa?label=Chrome%20Web%20Store)](https://chromewebstore.google.com/detail/hhjgbgbnehbodbilpibfaiccpniimjaa)
+
 ウィジェットを自由に配置できる、カスタマイズ可能な新しいタブページを提供するChrome拡張機能です。
 
 Chromeの新規タブページを、ドラッグ&ドロップでウィジェットを組み替えられるダッシュボードに置き換えます。時計・検索・リンク集・メモといった権限不要のウィジェットに加え、よく使うサイトやブックマーク、天気、RSSフィードなど、ブラウザの機能や外部サービスと連携するウィジェットも用意しています。
@@ -75,9 +77,15 @@ npm run zip       # 配布用zipの作成
 npm run build:web # Webブラウザ版のビルド（site/app/ に出力。下記参照）
 ```
 
-## インストール方法（Releaseからパッケージ化されていない拡張機能として読み込む）
+## インストール方法
 
-Chrome Web Storeには公開していないため、[Releases](../../releases) から配布用のzipをダウンロードして読み込んでください。Chromium系ブラウザ（Chrome、Edge、Braveなど）であれば動作します。
+### Chrome Web Store（推奨）
+
+[Chrome Web Store](https://chromewebstore.google.com/detail/hhjgbgbnehbodbilpibfaiccpniimjaa) からインストールできます。Chromium系ブラウザ（Chrome、Edge、Braveなど）であれば動作します。
+
+### パッケージ化されていない拡張機能として読み込む（Releaseから）
+
+最新の開発版を試したい場合は、[Releases](../../releases) から配布用のzipをダウンロードして読み込むこともできます。
 
 1. [Releases](../../releases) ページから最新の `.zip` をダウンロードし、任意のフォルダに解凍する
 2. ブラウザで拡張機能の管理ページを開く（Chromeなら `chrome://extensions`、Edgeなら `edge://extensions`）
