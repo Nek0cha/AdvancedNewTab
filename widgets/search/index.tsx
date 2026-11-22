@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Search as SearchIcon } from 'lucide-react';
 
+import { useT } from '@/lib/i18n';
 import { getWidgetBackgroundStyle, type WidgetBackgroundSettings } from '@/lib/widget-background';
 import { defineWidget, type WidgetProps } from '@/widgets/types';
 
@@ -13,6 +14,7 @@ interface SearchSettings extends Record<string, unknown> {
 }
 
 function SearchWidget({ settings, editMode }: WidgetProps<SearchSettings>) {
+  const t = useT();
   const [value, setValue] = useState('');
 
   const handleSubmit = (event: FormEvent): void => {
@@ -49,7 +51,7 @@ function SearchWidget({ settings, editMode }: WidgetProps<SearchSettings>) {
         <input
           type="text"
           className={styles.input}
-          placeholder={settings.placeholder}
+          placeholder={t(settings.placeholder)}
           value={value}
           onChange={(e) => setValue(e.target.value)}
           // 編集モード中はドラッグを優先させ、うっかり文字入力が始まらないようにする
@@ -62,6 +64,7 @@ function SearchWidget({ settings, editMode }: WidgetProps<SearchSettings>) {
 
 export const searchWidget = defineWidget<SearchSettings>({
   type: 'search',
+  category: 'links',
   name: '検索',
   description: 'ブラウザの既定の検索エンジンでその場検索できます。',
   icon: SearchIcon,

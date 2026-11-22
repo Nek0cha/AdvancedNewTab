@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { CircleAlert, CircleCheck, Download, FileUp, FolderOpen } from 'lucide-react';
 
+import { useT, type TranslateVars } from '@/lib/i18n';
 import { parseImportedState } from '@/lib/storage';
 import { useAppStore } from '@/lib/store';
 import type { PersistedState } from '@/lib/types';
@@ -14,12 +15,13 @@ function exportFileName(): string {
   return `advanced-new-tab-backup-${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}.json`;
 }
 
-function summarize(state: PersistedState): string {
+function summarize(state: PersistedState, t: (text: string, vars?: TranslateVars) => string): string {
   const widgetCount = Object.keys(state.widgets).length;
-  return `ウィジェット ${widgetCount} 個`;
+  return t('ウィジェット {count} 個', { count: widgetCount });
 }
 
 export function OptionsApp() {
+  const t = useT();
   const ready = useAppStore((s) => s.ready);
   const init = useAppStore((s) => s.init);
   const state = useAppStore((s) => s.state);
@@ -57,8 +59,8 @@ export function OptionsApp() {
       } catch (error) {
         setImportError(
           error instanceof Error
-            ? `ファイルを読み込めませんでした: ${error.message}`
-            : 'ファイルを読み込めませんでした。',
+            ? t('ファイルを読み込めませんでした: {message}', { message: error.message })
+            : t('ファイルを読み込めませんでした。'),
         );
       }
     };
@@ -74,37 +76,35 @@ export function OptionsApp() {
 
   return (
     <main className={styles.page}>
-      <h1 className={styles.title}>AdvancedNewTab の設定</h1>
+      <h1 className={styles.title}>{t('AdvancedNewTab の設定')}</h1>
       <p className={styles.lead}>
-        ウィジェットの追加・配置・見た目の設定は、新しいタブページ上で直接行えます。
-        このページでは設定のバックアップと復元を扱います。
+        {t('ウィジェットの追加・配置・見た目の設定は、新しいタブページ上で直接行えます。このページでは設定のバックアップと復元を扱います。')}
       </p>
 
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>
           <Download size={16} />
-          エクスポート
+          {t('エクスポート')}
         </h2>
         <p className={styles.sectionDesc}>
-          現在の配置・ウィジェット設定・見た目をひとつのJSONファイルに書き出します。
-          端末の乗り換えや、設定の共有・バックアップに使えます。
+          {t('現在の配置・ウィジェット設定・見た目をひとつのJSONファイルに書き出します。端末の乗り換えや、設定の共有・バックアップに使えます。')}
         </p>
         <div className={styles.row}>
           <button type="button" className={styles.button} onClick={handleExport}>
             <Download size={15} />
-            JSONをダウンロード
+            {t('JSONをダウンロード')}
           </button>
         </div>
-        <div className={styles.summary}>現在の設定: {summarize(state)}</div>
+        <div className={styles.summary}>{t('現在の設定: {summary}', { summary: summarize(state, t) })}</div>
       </section>
 
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>
           <FileUp size={16} />
-          インポート
+          {t('インポート')}
         </h2>
         <p className={styles.sectionDesc}>
-          エクスポートしたJSONファイルを読み込みます。適用すると、現在の配置・設定はすべて置き換わります。
+          {t('エクスポートしたJSONファイルを読み込みます。適用すると、現在の配置・設定はすべて置き換わります。')}
         </p>
         <div className={styles.row}>
           <button
@@ -113,7 +113,7 @@ export function OptionsApp() {
             onClick={() => fileInputRef.current?.click()}
           >
             <FolderOpen size={15} />
-            ファイルを選択
+            {t('ファイルを選択')}
           </button>
           <input
             ref={fileInputRef}
@@ -137,17 +137,17 @@ export function OptionsApp() {
 
         {pendingImport && (
           <div className={styles.summary}>
-            読み込み内容: {summarize(pendingImport)}
+            {t('読み込み内容: {summary}', { summary: summarize(pendingImport, t) })}
             <div className={styles.row} style={{ marginTop: 10 }}>
               <button type="button" className={styles.buttonPrimary} onClick={applyImport}>
-                この内容を適用する（現在の設定を上書き）
+                {t('この内容を適用する（現在の設定を上書き）')}
               </button>
               <button
                 type="button"
                 className={styles.button}
                 onClick={() => setPendingImport(null)}
               >
-                キャンセル
+                {t('キャンセル')}
               </button>
             </div>
           </div>
@@ -156,7 +156,7 @@ export function OptionsApp() {
         {applied && (
           <div className={styles.success}>
             <CircleCheck size={14} />
-            設定を適用しました。新しいタブを開いて確認してください。
+            {t('設定を適用しました。新しいタブを開いて確認してください。')}
           </div>
         )}
       </section>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Download, Save, Trash2 } from 'lucide-react';
 
+import { useT } from '@/lib/i18n';
 import { cx } from '@/lib/cx';
 import { useAppStore } from '@/lib/store';
 import { MAX_LAYOUT_PRESETS } from '@/lib/types';
@@ -34,6 +35,7 @@ function useArmedAction(): [number | null, (slot: number) => boolean] {
 
 /** 見た目パネルの「レイアウト保存」セクション。最大 MAX_LAYOUT_PRESETS 枠。 */
 export function LayoutPresetsEditor() {
+  const t = useT();
   const layoutPresets = useAppStore((s) => s.state.layoutPresets);
   const saveLayoutPreset = useAppStore((s) => s.saveLayoutPreset);
   const loadLayoutPreset = useAppStore((s) => s.loadLayoutPreset);
@@ -46,8 +48,7 @@ export function LayoutPresetsEditor() {
   return (
     <div className={styles.root}>
       <p className={styles.help}>
-        今のウィジェット配置・構成・見た目のテーマをまとめて最大{MAX_LAYOUT_PRESETS}
-        枠まで保存し、後から呼び出せます。読み込むと今の配置・テーマは上書きされます。
+        {t('今のウィジェット配置・構成・見た目のテーマをまとめて最大{max}枠まで保存し、後から呼び出せます。読み込むと今の配置・テーマは上書きされます。', { max: MAX_LAYOUT_PRESETS })}
       </p>
       {Array.from({ length: MAX_LAYOUT_PRESETS }, (_, slot) => {
         const preset = layoutPresets[slot] ?? null;
@@ -60,32 +61,32 @@ export function LayoutPresetsEditor() {
               className={styles.nameInput}
               value={draft}
               onChange={(e) => setNameDrafts((prev) => ({ ...prev, [slot]: e.target.value }))}
-              placeholder={`レイアウト${slot + 1}`}
+              placeholder={t('レイアウト{n}', { n: slot + 1 })}
             />
             <div className={styles.slotMeta}>
-              {preset ? `保存日時: ${formatSavedAt(preset.savedAt)}` : '未保存'}
+              {preset ? t('保存日時: {date}', { date: formatSavedAt(preset.savedAt) }) : t('未保存')}
             </div>
             <div className={styles.slotActions}>
               <button
                 type="button"
                 className={styles.actionButton}
-                title="今の配置をこの枠に保存"
+                title={t('今の配置をこの枠に保存')}
                 onClick={() => saveLayoutPreset(slot, draft.trim() || `レイアウト${slot + 1}`)}
               >
                 <Save size={14} />
-                保存
+                {t('保存')}
               </button>
               <button
                 type="button"
                 className={cx(styles.actionButton, !preset && styles.disabled, armedLoad === slot && styles.armed)}
                 disabled={!preset}
-                title="この枠の内容を読み込む（今の配置は上書きされます）"
+                title={t('この枠の内容を読み込む（今の配置は上書きされます）')}
                 onClick={() => {
                   if (triggerLoad(slot)) loadLayoutPreset(slot);
                 }}
               >
                 <Download size={14} />
-                {armedLoad === slot ? 'もう一度で読込' : '読込'}
+                {armedLoad === slot ? t('もう一度で読込') : t('読込')}
               </button>
               <button
                 type="button"
@@ -96,13 +97,13 @@ export function LayoutPresetsEditor() {
                   armedDelete === slot && styles.armed,
                 )}
                 disabled={!preset}
-                title="この枠を空にする"
+                title={t('この枠を空にする')}
                 onClick={() => {
                   if (triggerDelete(slot)) deleteLayoutPreset(slot);
                 }}
               >
                 <Trash2 size={14} />
-                {armedDelete === slot ? 'もう一度で削除' : '削除'}
+                {armedDelete === slot ? t('もう一度で削除') : t('削除')}
               </button>
             </div>
           </div>

@@ -1,3 +1,4 @@
+import { useT } from '@/lib/i18n';
 import { FieldList } from '@/components/Field/FieldList';
 import { useAppStore } from '@/lib/store';
 import { THEME_SCHEMA } from '@/lib/theme-schema';
@@ -11,13 +12,14 @@ import panelStyles from './settings-section.module.css';
 
 /** グローバルなテーマ・レイアウト密度の設定フォーム。 */
 export function ThemeSettingsPanel() {
+  const t = useT();
   const theme = useAppStore((s) => s.state.theme);
   const patchTheme = useAppStore((s) => s.patchTheme);
 
   return (
     <>
       <section className={panelStyles.section}>
-        <h3 className={panelStyles.sectionTitle}>背景</h3>
+        <h3 className={panelStyles.sectionTitle}>{t('背景')}</h3>
         <BackgroundEditor
           value={theme.background}
           onChange={(background) => patchTheme({ background })}
@@ -25,7 +27,7 @@ export function ThemeSettingsPanel() {
       </section>
 
       <section className={panelStyles.section}>
-        <h3 className={panelStyles.sectionTitle}>フォント</h3>
+        <h3 className={panelStyles.sectionTitle}>{t('フォント')}</h3>
         <FontEditor
           canvasFontId={theme.canvasFontId}
           customFont={theme.customFont}
@@ -34,7 +36,7 @@ export function ThemeSettingsPanel() {
       </section>
 
       <section className={panelStyles.section}>
-        <h3 className={panelStyles.sectionTitle}>表示</h3>
+        <h3 className={panelStyles.sectionTitle}>{t('表示')}</h3>
         <FieldList
           schema={THEME_SCHEMA}
           values={theme as unknown as Record<string, unknown>}
@@ -43,12 +45,12 @@ export function ThemeSettingsPanel() {
       </section>
 
       <section className={panelStyles.section}>
-        <h3 className={panelStyles.sectionTitle}>レイアウト保存</h3>
+        <h3 className={panelStyles.sectionTitle}>{t('レイアウト保存')}</h3>
         <LayoutPresetsEditor />
       </section>
 
       <section className={panelStyles.section}>
-        <h3 className={panelStyles.sectionTitle}>このアプリについて</h3>
+        <h3 className={panelStyles.sectionTitle}>{t('このアプリについて')}</h3>
         <AboutSection />
       </section>
     </>

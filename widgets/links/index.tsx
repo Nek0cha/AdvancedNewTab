@@ -3,6 +3,7 @@ import { Link2 } from 'lucide-react';
 import { IconValueDisplay } from '@/components/IconValueDisplay/IconValueDisplay';
 import { faviconUrl } from '@/lib/favicon';
 import { normalizeIconValue } from '@/lib/icon-value';
+import { useT } from '@/lib/i18n';
 import { LINK_PRESETS } from '@/lib/link-presets';
 import { defineWidget, type ListPreset, type WidgetProps } from '@/widgets/types';
 
@@ -59,12 +60,13 @@ function normalizeUrl(raw: string): string | null {
 }
 
 function LinksWidget({ settings, editMode }: WidgetProps<LinksSettings>) {
+  const t = useT();
   const items = settings.items.filter((item) => normalizeUrl(item.url));
 
   if (items.length === 0) {
     return (
       <div className={styles.empty}>
-        リンクが登録されていません。編集モードでウィジェットの設定からリンクを追加してください。
+        {t('リンクが登録されていません。編集モードでウィジェットの設定からリンクを追加してください。')}
       </div>
     );
   }
@@ -111,6 +113,7 @@ function LinksWidget({ settings, editMode }: WidgetProps<LinksSettings>) {
 
 export const linksWidget = defineWidget<LinksSettings>({
   type: 'links',
+  category: 'links',
   name: 'リンク集',
   description: 'よく使うサイトへのリンクをアイコン付きで並べます。',
   icon: Link2,

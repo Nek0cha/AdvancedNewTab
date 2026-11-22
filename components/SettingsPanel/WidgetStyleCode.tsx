@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Check, Clipboard, ClipboardPaste } from 'lucide-react';
 
+import { useT } from '@/lib/i18n';
 import { decodeStyleCode, encodeStyleCode } from '@/lib/widget-style-code';
 
 import panelStyles from './settings-section.module.css';
@@ -19,6 +20,7 @@ interface WidgetStyleCodeProps {
  * lib/widget-style-code.ts が実際のエンコード/デコードを担う。
  */
 export function WidgetStyleCode({ settings, onApply }: WidgetStyleCodeProps) {
+  const t = useT();
   const [copied, setCopied] = useState(false);
   const [pasteValue, setPasteValue] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -46,20 +48,19 @@ export function WidgetStyleCode({ settings, onApply }: WidgetStyleCodeProps) {
 
   return (
     <section className={panelStyles.section}>
-      <h3 className={panelStyles.sectionTitle}>スタイルをコピー</h3>
+      <h3 className={panelStyles.sectionTitle}>{t('スタイルをコピー')}</h3>
       <p className={styles.help}>
-        背景・文字色・サブアクセントカラー・太さの個別設定をコードとしてコピーし、
-        別のウィジェットの貼り付け欄に入れて「適用」すると、同じ見た目を一括で反映できます。
+        {t('背景・文字色・サブアクセントカラー・太さの個別設定をコードとしてコピーし、別のウィジェットの貼り付け欄に入れて「適用」すると、同じ見た目を一括で反映できます。')}
       </p>
       <button type="button" className={styles.button} onClick={() => void handleCopy()}>
         {copied ? <Check size={14} /> : <Clipboard size={14} />}
-        {copied ? 'コピーしました' : 'スタイルをコピー'}
+        {copied ? t('コピーしました') : t('スタイルをコピー')}
       </button>
       <div className={styles.pasteRow}>
         <input
           type="text"
           className={styles.pasteInput}
-          placeholder="コードを貼り付け"
+          placeholder={t('コードを貼り付け')}
           value={pasteValue}
           onChange={(e) => {
             setPasteValue(e.target.value);
@@ -73,10 +74,10 @@ export function WidgetStyleCode({ settings, onApply }: WidgetStyleCodeProps) {
           onClick={handleApply}
         >
           <ClipboardPaste size={14} />
-          適用
+          {t('適用')}
         </button>
       </div>
-      {error && <p className={styles.error}>{error}</p>}
+      {error && <p className={styles.error}>{t(error)}</p>}
     </section>
   );
 }

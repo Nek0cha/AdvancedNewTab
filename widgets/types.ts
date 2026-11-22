@@ -121,9 +121,24 @@ export interface WidgetProps<S> {
   editMode: boolean;
 }
 
+/**
+ * 追加ダイアログの分類。表示順もこの配列の順になる。
+ * label は日本語の原文で、描画時に t() で訳す（lib/i18n 参照）。
+ */
+export const WIDGET_CATEGORIES = [
+  { id: 'time', label: '時間・予定' },
+  { id: 'links', label: 'リンク・検索' },
+  { id: 'info', label: '情報・メディア' },
+  { id: 'tools', label: 'ツール' },
+] as const;
+
+export type WidgetCategory = (typeof WIDGET_CATEGORIES)[number]['id'];
+
 export interface WidgetDef<S extends Record<string, unknown> = Record<string, unknown>> {
   /** レジストリの引き当てキー。永続化データに残るため、一度決めたら変更しない */
   type: string;
+  /** 追加ダイアログでの分類（WIDGET_CATEGORIES 参照） */
+  category: WidgetCategory;
   /** 追加ダイアログとウィジェットのヘッダに出る表示名 */
   name: string;
   /** 追加ダイアログに出る一行説明 */

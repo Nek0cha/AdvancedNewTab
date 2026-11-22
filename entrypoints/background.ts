@@ -11,7 +11,12 @@ const RSS_REFRESH_ALARM = 'ant-refresh-rss';
 
 async function fetchFeedText(url: string): Promise<string> {
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`フィードの取得に失敗しました（${res.status}）`);
+  if (!res.ok) {
+    // background は表示言語の設定を持たないため、文言は表示側（t()）で訳せる固定のキーにし、
+    // ステータスコードはコンソールにだけ残す。
+    console.warn('[AdvancedNewTab] RSSの取得が失敗しました', url, res.status);
+    throw new Error('フィードの取得に失敗しました');
+  }
   return res.text();
 }
 

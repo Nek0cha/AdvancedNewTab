@@ -1,5 +1,6 @@
 import { FileText, Home, Settings2, ShieldCheck } from 'lucide-react';
 
+import { useT } from '@/lib/i18n';
 import { SITE_LINKS } from '@/lib/site-links';
 
 // ボタン自体の見た目（丸ピル）は隣の「レイアウト保存」セクションの .actionButton を
@@ -19,6 +20,7 @@ import listStyles from './about-section.module.css';
  * リンクは単なる外部リンクなので両ビルドで共通に出す。
  */
 export function AboutSection() {
+  const t = useT();
   const isExtension = import.meta.env.VITE_TARGET !== 'web';
 
   return (
@@ -30,20 +32,20 @@ export function AboutSection() {
           onClick={() => void browser.runtime.openOptionsPage()}
         >
           <Settings2 size={14} />
-          拡張機能の設定を開く（JSONエクスポート等）
+          {t('拡張機能の設定を開く（JSONエクスポート等）')}
         </button>
       )}
       <a className={styles.actionButton} href={SITE_LINKS.home} target="_blank" rel="noopener noreferrer">
         <Home size={14} />
-        ホームページ
+        {t('ホームページ')}
       </a>
       <a className={styles.actionButton} href={SITE_LINKS.terms} target="_blank" rel="noopener noreferrer">
         <FileText size={14} />
-        利用規約
+        {t('利用規約')}
       </a>
       <a className={styles.actionButton} href={SITE_LINKS.privacy} target="_blank" rel="noopener noreferrer">
         <ShieldCheck size={14} />
-        プライバシーポリシー
+        {t('プライバシーポリシー')}
       </a>
     </div>
   );

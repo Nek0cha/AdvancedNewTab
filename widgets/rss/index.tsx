@@ -3,6 +3,7 @@ import { Loader2, Rss } from 'lucide-react';
 
 import { PermissionGate } from '@/components/PermissionGate/PermissionGate';
 import { cached } from '@/lib/cache';
+import { useIntlLocale, useT, type TranslateVars } from '@/lib/i18n';
 import { fetchFeedViaBackground } from '@/lib/rss-fetch';
 import { defineWidget, type WidgetProps } from '@/widgets/types';
 
@@ -27,14 +28,20 @@ function originPattern(feedUrl: string): string | null {
   }
 }
 
-function formatDate(ms: number | null): string {
+function formatDate(
+  ms: number | null,
+  t: (text: string, vars?: TranslateVars) => string,
+  locale: string,
+): string {
   if (ms === null) return '';
   const diffHours = (Date.now() - ms) / (1000 * 60 * 60);
-  if (diffHours < 24) return `${Math.max(1, Math.round(diffHours))}時間前`;
-  return new Date(ms).toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' });
+  if (diffHours < 24) return t('{hours}時間前', { hours: Math.max(1, Math.round(diffHours)) });
+  return new Date(ms).toLocaleDateString(locale, { month: 'short', day: 'numeric' });
 }
 
 function RssContent({ settings }: WidgetProps<RssSettings>) {
+  const t = useT();
+  const locale = useIntlLocale();
   const [feedTitle, setFeedTitle] = useState('');
   const [items, setItems] = useState<FeedItem[] | null>(null);
   const [stale, setStale] = useState(false);
@@ -62,26 +69,26 @@ function RssContent({ settings }: WidgetProps<RssSettings>) {
   }, [settings.feedUrl]);
 
   if (error) {
-    return <div className={styles.empty}>{error}</div>;
+    return <div className={styles.empty}>{t(error)}</div>;
   }
   if (!items) {
     return (
       <div className={styles.loading}>
         <Loader2 size={20} className={styles.spinner} aria-hidden />
-        <span>読み込み中…</span>
+        <span>{t('読み込み中…')}</span>
       </div>
     );
   }
 
   const visible = items.slice(0, settings.limit);
   if (visible.length === 0) {
-    return <div className={styles.empty}>記事が見つかりませんでした。</div>;
+    return <div className={styles.empty}>{t('記事が見つかりませんでした。')}</div>;
   }
 
   return (
     <div className={styles.root}>
       {feedTitle && <div className={styles.feedTitle}>{feedTitle}</div>}
-      {stale && <div className={styles.staleBadge}>オフラインのため前回取得時点の情報です</div>}
+      {stale && <div className={styles.staleBadge}>{t('オフラインのため前回取得時点の情報です')}</div>}
       <div className={styles.list}>
         {visible.map((item, index) => (
           <a
@@ -92,9 +99,9 @@ function RssContent({ settings }: WidgetProps<RssSettings>) {
             target={settings.openInNewTab ? '_blank' : undefined}
             rel={settings.openInNewTab ? 'noopener noreferrer' : undefined}
           >
-            <div className={styles.itemTitle}>{item.title || '(タイトルなし)'}</div>
+            <div className={styles.itemTitle}>{item.title || t('(タイトルなし)')}</div>
             {item.publishedAt !== null && (
-              <div className={styles.itemDate}>{formatDate(item.publishedAt)}</div>
+              <div className={styles.itemDate}>{formatDate(item.publishedAt, t, locale)}</div>
             )}
           </a>
         ))}
@@ -104,12 +111,13 @@ function RssContent({ settings }: WidgetProps<RssSettings>) {
 }
 
 function RssWidget(props: WidgetProps<RssSettings>) {
+  const t = useT();
   const pattern = originPattern(props.settings.feedUrl);
 
   if (!pattern) {
     return (
       <div className={styles.empty}>
-        ウィジェットの設定からRSSフィードのURLを入力してください。
+        {t('ウィジェットの設定からRSSフィードのURLを入力してください。')}
       </div>
     );
   }
@@ -117,7 +125,9 @@ function RssWidget(props: WidgetProps<RssSettings>) {
   return (
     <PermissionGate
       permissions={{ hosts: [pattern] }}
-      reason={`このフィード（${new URL(props.settings.feedUrl).host}）を読み込むには通信を許可してください。`}
+      reason={t('このフィード（{host}）を読み込むには通信を許可してください。', {
+        host: new URL(props.settings.feedUrl).host,
+      })}
     >
       <RssContent {...props} />
     </PermissionGate>
@@ -126,6 +136,7 @@ function RssWidget(props: WidgetProps<RssSettings>) {
 
 export const rssWidget = defineWidget<RssSettings>({
   type: 'rss',
+  category: 'info',
   name: 'RSSフィード',
   description: '指定したRSS/AtomフィードURLの新着記事を一覧表示します。',
   icon: Rss,

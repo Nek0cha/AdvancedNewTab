@@ -3,6 +3,7 @@ import { CloudSun, Loader2 } from 'lucide-react';
 
 import { PermissionGate } from '@/components/PermissionGate/PermissionGate';
 import { cached } from '@/lib/cache';
+import { translate, useT } from '@/lib/i18n';
 import { defineWidget, type WidgetProps } from '@/widgets/types';
 
 import { describeWeatherCode, fetchWeather, geocodeCity, type NameLanguage, type WeatherSnapshot } from './open-meteo';
@@ -19,6 +20,7 @@ interface WeatherSettings extends Record<string, unknown> {
 const WEATHER_TTL_MS = 30 * 60 * 1000;
 
 function WeatherContent({ settings }: WidgetProps<WeatherSettings>) {
+  const t = useT();
   const [snapshot, setSnapshot] = useState<WeatherSnapshot | null>(null);
   const [stale, setStale] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,7 +37,8 @@ function WeatherContent({ settings }: WidgetProps<WeatherSettings>) {
     const key = `weather:${settings.cityName}:${settings.tempUnit}:${settings.nameLanguage}`;
     cached(key, WEATHER_TTL_MS, async () => {
       const place = await geocodeCity(settings.cityName, settings.nameLanguage);
-      if (!place) throw new Error(`「${settings.cityName}」が見つかりませんでした`);
+      // 地名を含む文言はキーと一致しなくなるため、表示側の t() ではなくここで訳しておく
+      if (!place) throw new Error(translate('「{city}」が見つかりませんでした', { city: settings.cityName }));
       return fetchWeather(place, settings.tempUnit, settings.nameLanguage);
     })
       .then((result) => {
@@ -53,13 +56,13 @@ function WeatherContent({ settings }: WidgetProps<WeatherSettings>) {
   }, [settings.cityName, settings.tempUnit, settings.nameLanguage]);
 
   if (error) {
-    return <div className={styles.empty}>{error}</div>;
+    return <div className={styles.empty}>{t(error)}</div>;
   }
   if (!snapshot) {
     return (
       <div className={styles.loading}>
         <Loader2 size={20} className={styles.spinner} aria-hidden />
-        <span>読み込み中…</span>
+        <span>{t('読み込み中…')}</span>
       </div>
     );
   }
@@ -75,22 +78,23 @@ function WeatherContent({ settings }: WidgetProps<WeatherSettings>) {
         {unitSuffix}
       </span>
       <span className={styles.place}>
-        {snapshot.place} ・ {label}
+        {snapshot.place} ・ {t(label)}
       </span>
       <span className={styles.detail}>
-        <span>体感 {Math.round(snapshot.apparentTemperature)}{unitSuffix}</span>
-        <span>湿度 {snapshot.humidity}%</span>
+        <span>{t('体感 {temp}{unit}', { temp: Math.round(snapshot.apparentTemperature), unit: unitSuffix })}</span>
+        <span>{t('湿度 {humidity}%', { humidity: snapshot.humidity })}</span>
       </span>
-      {stale && <span className={styles.staleBadge}>オフラインのため前回取得時点の情報です</span>}
+      {stale && <span className={styles.staleBadge}>{t('オフラインのため前回取得時点の情報です')}</span>}
     </div>
   );
 }
 
 function WeatherWidget(props: WidgetProps<WeatherSettings>) {
+  const t = useT();
   return (
     <PermissionGate
       permissions={{ hosts: ['https://api.open-meteo.com/*', 'https://geocoding-api.open-meteo.com/*'] }}
-      reason="天気を表示するには、Open-Meteo（天気情報サービス）への通信を許可してください。"
+      reason={t('天気を表示するには、Open-Meteo（天気情報サービス）への通信を許可してください。')}
     >
       <WeatherContent {...props} />
     </PermissionGate>
@@ -99,6 +103,7 @@ function WeatherWidget(props: WidgetProps<WeatherSettings>) {
 
 export const weatherWidget = defineWidget<WeatherSettings>({
   type: 'weather',
+  category: 'info',
   name: '天気',
   description: '指定した地名の現在の天気を表示します（Open-Meteo提供）。',
   icon: CloudSun,

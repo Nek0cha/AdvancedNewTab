@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { ChevronDown, Image as ImageIcon, Plus, Trash2 } from 'lucide-react';
 
+import { useT } from '@/lib/i18n';
 import { ColorPicker } from '@/components/ColorPicker/ColorPicker';
 import { Dropdown } from '@/components/Dropdown/Dropdown';
 import { IconValueDisplay } from '@/components/IconValueDisplay/IconValueDisplay';
@@ -59,6 +60,7 @@ function createEmptyItem(fields: ReadonlyArray<FieldSchema>): Record<string, unk
  * 設定項目を増やすときにフォームのJSXを書く必要がない。
  */
 export function Field({ schema, value, onChange }: FieldProps) {
+  const t = useT();
   const id = useId();
   // リスト項目の折りたたみ状態。項目の「内容」ではなく「その時点の並び順」に対して
   // 持たせている（並べ替え・削除のたびに index を追従させる。項目自体に安定したIDが
@@ -70,7 +72,7 @@ export function Field({ schema, value, onChange }: FieldProps) {
     return (
       <div className={styles.toggleRow}>
         <label className={styles.label} htmlFor={id}>
-          {schema.label}
+          {t(schema.label)}
         </label>
         <button
           id={id}
@@ -277,15 +279,15 @@ export function Field({ schema, value, onChange }: FieldProps) {
 
     return (
       <div className={styles.field}>
-        <span className={styles.label}>{schema.label}</span>
-        {schema.help && <span className={styles.help}>{schema.help}</span>}
+        <span className={styles.label}>{t(schema.label)}</span>
+        {schema.help && <span className={styles.help}>{t(schema.help)}</span>}
 
         {/* 項目数が増えるほど下の一覧が長くなるため、追加ボタンは一覧の上に固定する
             （毎回スクロールして下まで辿り着かなくても追加できるように） */}
         {showAddButton &&
           (schema.presets && schema.presets.length > 0 ? (
             <AddWithPresets
-              addLabel={schema.addLabel ?? '追加'}
+              addLabel={t(schema.addLabel ?? '追加')}
               presets={schema.presets}
               onAddBlank={() => addItem(createEmptyItem(schema.itemFields))}
               onAddPreset={(preset: ListPreset) => addItem({ ...preset.value })}
@@ -296,22 +298,22 @@ export function Field({ schema, value, onChange }: FieldProps) {
               className={styles.addButton}
               onClick={() => addItem(createEmptyItem(schema.itemFields))}
             >
-              <Plus size={14} /> {schema.addLabel ?? '追加'}
+              <Plus size={14} /> {t(schema.addLabel ?? '追加')}
             </button>
           ))}
         {schema.maxItems !== undefined && items.length >= schema.maxItems && (
-          <span className={styles.help}>最大{schema.maxItems}件まで登録できます。</span>
+          <span className={styles.help}>{t('最大{max}件まで登録できます。', { max: schema.maxItems })}</span>
         )}
 
         {items.length === 0 ? (
-          <div className={styles.empty}>まだ項目がありません</div>
+          <div className={styles.empty}>{t('まだ項目がありません')}</div>
         ) : (
           <div className={styles.listItems}>
             {items.map((item, index) => {
               const isOpen = openIndexes.has(index);
               const isDragging = drag !== null && drag.from === index;
               const titleValue = titleField ? item[titleField.key] : undefined;
-              const title = typeof titleValue === 'string' && titleValue ? titleValue : `項目 ${index + 1}`;
+              const title = typeof titleValue === 'string' && titleValue ? titleValue : t('項目 {n}', { n: index + 1 });
 
               return (
                 <div key={index}>
@@ -368,7 +370,7 @@ export function Field({ schema, value, onChange }: FieldProps) {
                       <button
                         type="button"
                         className={styles.miniButton}
-                        title="削除"
+                        title={t('削除')}
                         onClick={() => {
                           replace(items.filter((_, i) => i !== index));
                           removeOpen(index);
@@ -407,7 +409,7 @@ export function Field({ schema, value, onChange }: FieldProps) {
   return (
     <div className={styles.field}>
       <label className={styles.label} htmlFor={id}>
-        {schema.label}
+        {t(schema.label)}
       </label>
 
       {schema.kind === 'text' && (
@@ -416,7 +418,7 @@ export function Field({ schema, value, onChange }: FieldProps) {
           type="text"
           className={styles.control}
           value={typeof value === 'string' ? value : ''}
-          placeholder={schema.placeholder}
+          placeholder={schema.placeholder ? t(schema.placeholder) : undefined}
           onChange={(event) => onChange(event.target.value)}
         />
       )}
@@ -451,7 +453,7 @@ export function Field({ schema, value, onChange }: FieldProps) {
               className={cx(tabStyles.tab, value === option.value && tabStyles.tabActive)}
               onClick={() => onChange(option.value)}
             >
-              {option.label}
+              {t(option.label)}
             </button>
           ))}
         </div>
@@ -478,7 +480,7 @@ export function Field({ schema, value, onChange }: FieldProps) {
 
       {schema.kind === 'imageList' && <ImageListField value={value} onChange={onChange} />}
 
-      {schema.help && <span className={styles.help}>{schema.help}</span>}
+      {schema.help && <span className={styles.help}>{t(schema.help)}</span>}
     </div>
   );
 }

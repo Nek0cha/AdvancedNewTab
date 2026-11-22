@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react';
 
 import { cx } from '@/lib/cx';
+import { useIntlLocale, useT } from '@/lib/i18n';
 import { defineWidget, type WidgetProps } from '@/widgets/types';
 
 import styles from './calendar.module.css';
@@ -14,7 +15,14 @@ interface CalendarSettings extends Record<string, unknown> {
   colorWeekendsAndHolidays: boolean;
 }
 
-const WEEKDAYS_SUN_FIRST = ['日', '月', '火', '水', '木', '金', '土'] as const;
+/**
+ * 曜日の短い表記を Intl から取る。2024-01-07 は日曜日なので、そこから1日ずつ足して
+ * 日曜始まりの7要素を作る（言語に応じた表記になる）。
+ */
+function weekdayShortLabels(locale: string): string[] {
+  const fmt = new Intl.DateTimeFormat(locale, { weekday: 'short' });
+  return Array.from({ length: 7 }, (_, i) => fmt.format(new Date(2024, 0, 7 + i)));
+}
 
 /**
  * 指定した年月のカレンダーを「週の配列」として組み立てる。
@@ -40,6 +48,8 @@ function isSameDate(a: Date, b: Date): boolean {
 }
 
 function CalendarWidget({ settings }: WidgetProps<CalendarSettings>) {
+  const t = useT();
+  const locale = useIntlLocale();
   const today = useMemo(() => new Date(), []);
   const [cursor, setCursor] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1));
 
@@ -48,9 +58,15 @@ function CalendarWidget({ settings }: WidgetProps<CalendarSettings>) {
     [cursor, settings.startOnMonday],
   );
 
+  const sundayFirstLabels = useMemo(() => weekdayShortLabels(locale), [locale]);
   const weekdayLabels = settings.startOnMonday
-    ? [...WEEKDAYS_SUN_FIRST.slice(1), WEEKDAYS_SUN_FIRST[0]]
-    : WEEKDAYS_SUN_FIRST;
+    ? [...sundayFirstLabels.slice(1), sundayFirstLabels[0] ?? '']
+    : sundayFirstLabels;
+
+  const monthTitle = useMemo(
+    () => new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'long' }).format(cursor),
+    [locale, cursor],
+  );
 
   return (
     <div className={styles.root}>
@@ -58,7 +74,7 @@ function CalendarWidget({ settings }: WidgetProps<CalendarSettings>) {
         <button
           type="button"
           className={cx(styles.navButton, 'ant-no-drag')}
-          title="前の月"
+          title={t('前の月')}
           onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))}
         >
           <ChevronLeft size={14} />
@@ -66,15 +82,15 @@ function CalendarWidget({ settings }: WidgetProps<CalendarSettings>) {
         <button
           type="button"
           className={cx(styles.monthLabel, 'ant-no-drag')}
-          title="今月に戻る"
+          title={t('今月に戻る')}
           onClick={() => setCursor(new Date(today.getFullYear(), today.getMonth(), 1))}
         >
-          {cursor.getFullYear()}年 {cursor.getMonth() + 1}月
+          {monthTitle}
         </button>
         <button
           type="button"
           className={cx(styles.navButton, 'ant-no-drag')}
-          title="次の月"
+          title={t('次の月')}
           onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))}
         >
           <ChevronRight size={14} />
@@ -107,7 +123,7 @@ function CalendarWidget({ settings }: WidgetProps<CalendarSettings>) {
                       !isSameDate(d, today) && isRed && styles.red,
                       !isSameDate(d, today) && isBlue && styles.blue,
                     )}
-                    title={holidayName ?? undefined}
+                    title={holidayName ? t(holidayName) : undefined}
                   >
                     {d.getDate()}
                   </span>
@@ -123,6 +139,7 @@ function CalendarWidget({ settings }: WidgetProps<CalendarSettings>) {
 
 export const calendarWidget = defineWidget<CalendarSettings>({
   type: 'calendar',
+  category: 'time',
   name: 'カレンダー',
   description: '月表示のシンプルなカレンダーです。',
   icon: CalendarDays,

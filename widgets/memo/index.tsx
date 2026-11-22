@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { NotebookPen } from 'lucide-react';
 
+import { useT } from '@/lib/i18n';
 import { useAppStore } from '@/lib/store';
 import { defineWidget, type WidgetProps } from '@/widgets/types';
 
@@ -17,6 +18,7 @@ interface MemoSettings extends Record<string, unknown> {
 const SAVE_DEBOUNCE_MS = 500;
 
 function MemoWidget({ settings, instanceId, editMode }: WidgetProps<MemoSettings>) {
+  const t = useT();
   const patchWidgetSettings = useAppStore((s) => s.patchWidgetSettings);
   const [titleDraft, setTitleDraft] = useState(settings.title);
   const [textDraft, setTextDraft] = useState(settings.text);
@@ -65,7 +67,7 @@ function MemoWidget({ settings, instanceId, editMode }: WidgetProps<MemoSettings
         <input
           type="text"
           className={styles.title}
-          placeholder="タイトル（任意）"
+          placeholder={t('タイトル（任意）')}
           value={titleDraft}
           readOnly={editMode}
           onChange={(e) => handleTitleChange(e.target.value)}
@@ -74,7 +76,7 @@ function MemoWidget({ settings, instanceId, editMode }: WidgetProps<MemoSettings
       <textarea
         className={styles.textarea}
         style={{ fontSize: `${13 * settings.fontScale}px` }}
-        placeholder="メモを入力..."
+        placeholder={t('メモを入力...')}
         value={textDraft}
         readOnly={editMode}
         onChange={(e) => handleTextChange(e.target.value)}
@@ -85,6 +87,7 @@ function MemoWidget({ settings, instanceId, editMode }: WidgetProps<MemoSettings
 
 export const memoWidget = defineWidget<MemoSettings>({
   type: 'memo',
+  category: 'tools',
   name: 'メモ',
   description: '簡単なメモを書き留めておけます。',
   icon: NotebookPen,

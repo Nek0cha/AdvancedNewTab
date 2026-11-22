@@ -1,0 +1,11 @@
+{
+  "extName": {
+    "message": "AdvancedNewTab"
+  },
+  "extDescription": {
+    "message": "可自由排列小组件的自定义新标签页"
+  },
+  "actionTitle": {
+    "message": "AdvancedNewTab - 打开设置"
+  }
+}

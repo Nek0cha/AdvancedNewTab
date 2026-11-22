@@ -1,3 +1,5 @@
+import { setActiveLocale, translate } from '@/lib/i18n';
+
 /**
  * ThemeConfig を実際のCSSへ落とし込む層。
  *
@@ -158,7 +160,9 @@ export function applyTheme(theme: ThemeConfig): void {
   // ポップオーバー（ドロップダウン/カラーピッカー）は判読性優先でカード面より不透明度を上げる
   s.setProperty('--ant-menu-bg', 'rgba(24, 21, 19, 0.92)');
 
-  document.title = theme.tabTitle || '新しいタブ';
+  setActiveLocale(theme.locale);
+  // 既定のタブ名のまま使っている場合だけ訳す（ユーザーが付けた名前は訳さない）
+  document.title = theme.tabTitle && theme.tabTitle !== '新しいタブ' ? theme.tabTitle : translate('新しいタブ');
 
   writeBootThemeMirror(theme);
 }

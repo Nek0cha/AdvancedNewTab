@@ -1,0 +1,11 @@
+{
+  "extName": {
+    "message": "AdvancedNewTab"
+  },
+  "extDescription": {
+    "message": "위젯을 자유롭게 배치할 수 있는 맞춤형 새 탭 페이지"
+  },
+  "actionTitle": {
+    "message": "AdvancedNewTab - 설정 열기"
+  }
+}

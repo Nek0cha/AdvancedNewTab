@@ -1,3 +1,5 @@
+import type { LocaleSetting } from '@/lib/i18n/locales';
+
 /**
  * アプリ全体で共有する永続化データの型定義。
  *
@@ -107,6 +109,8 @@ export interface ThemeConfig {
   gridCompact: 'none' | 'vertical';
   /** ブラウザタブに表示されるページタイトル */
   tabTitle: string;
+  /** 表示言語。'auto' はブラウザの言語に従う */
+  locale: LocaleSetting;
 }
 
 /** 配置されたウィジェット1個の実体。設定の中身は各ウィジェット定義が決める。 */

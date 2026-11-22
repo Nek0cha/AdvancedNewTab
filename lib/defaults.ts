@@ -33,6 +33,7 @@ export const DEFAULT_THEME: ThemeConfig = {
   // 元の位置付近へ自動的に戻ってくる（Grid.tsx のドロップ後圧縮を参照）。
   gridCompact: 'vertical',
   tabTitle: '新しいタブ',
+  locale: 'auto',
 };
 
 /**

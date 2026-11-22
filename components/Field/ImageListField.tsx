@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { Plus, X } from 'lucide-react';
 
+import { useT } from '@/lib/i18n';
 import { cx } from '@/lib/cx';
 
 import styles from './image-list-field.module.css';
@@ -32,6 +33,7 @@ function readAsDataUrl(file: File): Promise<string> {
  * 「フォルダの中身をまとめて登録する」のとほぼ同じ手間で使える。
  */
 export function ImageListField({ value, onChange }: ImageListFieldProps) {
+  const t = useT();
   const images = Array.isArray(value) ? (value.filter((v) => typeof v === 'string') as string[]) : [];
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -55,7 +57,7 @@ export function ImageListField({ value, onChange }: ImageListFieldProps) {
               <button
                 type="button"
                 className={cx(styles.removeButton, 'ant-no-drag')}
-                title="削除"
+                title={t('削除')}
                 onClick={() => onChange(images.filter((_, i) => i !== index))}
               >
                 <X size={12} />
@@ -70,7 +72,7 @@ export function ImageListField({ value, onChange }: ImageListFieldProps) {
         className={styles.addButton}
         onClick={() => fileInputRef.current?.click()}
       >
-        <Plus size={14} /> 画像を追加
+        <Plus size={14} /> {t('画像を追加')}
       </button>
       <input
         ref={fileInputRef}

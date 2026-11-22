@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Pause, Play, RotateCcw, Timer } from 'lucide-react';
 
 import { cx } from '@/lib/cx';
+import { useT } from '@/lib/i18n';
 import { defineWidget, type WidgetProps } from '@/widgets/types';
 
 import styles from './pomodoro.module.css';
@@ -41,6 +42,7 @@ function formatMMSS(totalSeconds: number): string {
  * キッチンタイマー的な割り切り）。
  */
 function PomodoroWidget({ settings }: WidgetProps<PomodoroSettings>) {
+  const t = useT();
   const [phase, setPhase] = useState<Phase>('work');
   const [remaining, setRemaining] = useState(() => settings.workMinutes * 60);
   const [running, setRunning] = useState(false);
@@ -96,7 +98,7 @@ function PomodoroWidget({ settings }: WidgetProps<PomodoroSettings>) {
 
   return (
     <div className={styles.root}>
-      <div className={cx(styles.phaseLabel, styles[phase])}>{PHASE_LABEL[phase]}</div>
+      <div className={cx(styles.phaseLabel, styles[phase])}>{t(PHASE_LABEL[phase])}</div>
       <div className={styles.time}>{formatMMSS(remaining)}</div>
 
       <div className={styles.progressTrack}>
@@ -114,7 +116,7 @@ function PomodoroWidget({ settings }: WidgetProps<PomodoroSettings>) {
         <button
           type="button"
           className={cx(styles.controlButton, styles.playButton, 'ant-no-drag')}
-          title={running ? '一時停止' : '開始'}
+          title={running ? t('一時停止') : t('開始')}
           onClick={() => setRunning((v) => !v)}
         >
           {running ? <Pause size={16} /> : <Play size={16} />}
@@ -122,7 +124,7 @@ function PomodoroWidget({ settings }: WidgetProps<PomodoroSettings>) {
         <button
           type="button"
           className={cx(styles.controlButton, 'ant-no-drag')}
-          title="最初からやり直す"
+          title={t('最初からやり直す')}
           onClick={reset}
         >
           <RotateCcw size={14} />
@@ -134,6 +136,7 @@ function PomodoroWidget({ settings }: WidgetProps<PomodoroSettings>) {
 
 export const pomodoroWidget = defineWidget<PomodoroSettings>({
   type: 'pomodoro',
+  category: 'time',
   name: 'ポモドーロタイマー',
   description: '作業と休憩を交互に繰り返すタイマーです。',
   icon: Timer,

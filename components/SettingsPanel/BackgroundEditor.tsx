@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { ArrowRight, Upload } from 'lucide-react';
 
+import { useT } from '@/lib/i18n';
 import { ColorPicker } from '@/components/ColorPicker/ColorPicker';
 import { NumberStepper } from '@/components/NumberStepper/NumberStepper';
 import { cx } from '@/lib/cx';
@@ -24,6 +25,7 @@ interface BackgroundEditorProps {
  * 単色→画像→単色と行き来しても、それぞれ直前に入力した内容のまま残る。
  */
 export function BackgroundEditor({ value, onChange }: BackgroundEditorProps) {
+  const t = useT();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = (file: File): void => {
@@ -47,21 +49,21 @@ export function BackgroundEditor({ value, onChange }: BackgroundEditorProps) {
           className={cx(styles.tab, value.active === 'solid' && styles.tabActive)}
           onClick={() => onChange({ ...value, active: 'solid' })}
         >
-          単色
+          {t('単色')}
         </button>
         <button
           type="button"
           className={cx(styles.tab, value.active === 'gradient' && styles.tabActive)}
           onClick={() => onChange({ ...value, active: 'gradient' })}
         >
-          グラデーション
+          {t('グラデーション')}
         </button>
         <button
           type="button"
           className={cx(styles.tab, value.active === 'image' && styles.tabActive)}
           onClick={() => onChange({ ...value, active: 'image' })}
         >
-          画像
+          {t('画像')}
         </button>
       </div>
 
@@ -92,7 +94,7 @@ export function BackgroundEditor({ value, onChange }: BackgroundEditorProps) {
             />
           </div>
           <div className={fieldStyles.field}>
-            <label className={fieldStyles.label}>角度</label>
+            <label className={fieldStyles.label}>{t('角度')}</label>
             <NumberStepper
               value={value.gradient.angle}
               min={0}
@@ -113,7 +115,7 @@ export function BackgroundEditor({ value, onChange }: BackgroundEditorProps) {
             className={styles.fileButton}
             onClick={() => fileInputRef.current?.click()}
           >
-            <Upload size={15} /> 画像をアップロード
+            <Upload size={15} /> {t('画像をアップロード')}
           </button>
           <input
             ref={fileInputRef}
@@ -127,7 +129,7 @@ export function BackgroundEditor({ value, onChange }: BackgroundEditorProps) {
             }}
           />
           <div className={fieldStyles.field}>
-            <label className={fieldStyles.label}>外部URLを直接指定</label>
+            <label className={fieldStyles.label}>{t('外部URLを直接指定')}</label>
             <input
               type="text"
               className={fieldStyles.control}
@@ -139,11 +141,11 @@ export function BackgroundEditor({ value, onChange }: BackgroundEditorProps) {
               }}
             />
             <span className={fieldStyles.help}>
-              外部サイトの画像を使う場合、そのサイトへの通信が発生します。
+              {t('外部サイトの画像を使う場合、そのサイトへの通信が発生します。')}
             </span>
           </div>
           <div className={fieldStyles.field}>
-            <label className={fieldStyles.label}>下地の色（画像読み込み前・失敗時）</label>
+            <label className={fieldStyles.label}>{t('下地の色（画像読み込み前・失敗時）')}</label>
             <ColorPicker
               value={value.image.fallbackColor}
               onChange={(fallbackColor) =>
@@ -152,7 +154,7 @@ export function BackgroundEditor({ value, onChange }: BackgroundEditorProps) {
             />
           </div>
           <div className={fieldStyles.field}>
-            <label className={fieldStyles.label}>ぼかし（px）</label>
+            <label className={fieldStyles.label}>{t('ぼかし（px）')}</label>
             <NumberStepper
               value={value.image.blur}
               min={0}
@@ -161,7 +163,7 @@ export function BackgroundEditor({ value, onChange }: BackgroundEditorProps) {
             />
           </div>
           <div className={fieldStyles.field}>
-            <label className={fieldStyles.label}>暗さ（0〜1）</label>
+            <label className={fieldStyles.label}>{t('暗さ（0〜1）')}</label>
             <NumberStepper
               value={value.image.dim}
               min={0}

@@ -1,0 +1,11 @@
+{
+  "extName": {
+    "message": "AdvancedNewTab"
+  },
+  "extDescription": {
+    "message": "可自由排列小工具的自訂新分頁"
+  },
+  "actionTitle": {
+    "message": "AdvancedNewTab - 開啟設定"
+  }
+}

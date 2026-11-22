@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Hourglass } from 'lucide-react';
 
+import { useT } from '@/lib/i18n';
 import { defineWidget, type WidgetProps } from '@/widgets/types';
 
 import styles from './countdown.module.css';
@@ -55,6 +56,7 @@ function dateOnlyDiffDays(targetDateStr: string): number {
 }
 
 function DateOnlyView({ settings }: { settings: CountdownSettings }) {
+  const t = useT();
   const [, forceTick] = useState(0);
 
   // 日付が変わった瞬間に表示を更新したいだけなので、分単位の間隔で十分。
@@ -67,7 +69,7 @@ function DateOnlyView({ settings }: { settings: CountdownSettings }) {
     return (
       <div className={styles.empty}>
         <Hourglass size={18} />
-        <span>ウィジェットの設定から、目標の日付を指定してください。</span>
+        <span>{t('ウィジェットの設定から、目標の日付を指定してください。')}</span>
       </div>
     );
   }
@@ -78,14 +80,14 @@ function DateOnlyView({ settings }: { settings: CountdownSettings }) {
     <div className={styles.compactRoot}>
       {settings.title && <div className={styles.compactTitle}>{settings.title}</div>}
       {diff === 0 ? (
-        <div className={styles.compactValue}>今日</div>
+        <div className={styles.compactValue}>{t('今日')}</div>
       ) : diff > 0 ? (
         <div className={styles.compactValue}>
-          あと<span className={styles.compactNumber}>{diff}</span>日
+          {t('あと')}<span className={styles.compactNumber}>{diff}</span>{t('日')}
         </div>
       ) : (
         <div className={styles.compactValue}>
-          <span className={styles.compactNumber}>{-diff}</span>日経過
+          <span className={styles.compactNumber}>{-diff}</span>{t('日経過')}
         </div>
       )}
     </div>
@@ -93,6 +95,7 @@ function DateOnlyView({ settings }: { settings: CountdownSettings }) {
 }
 
 function DetailedView({ settings }: { settings: CountdownSettings }) {
+  const t = useT();
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
@@ -106,7 +109,7 @@ function DetailedView({ settings }: { settings: CountdownSettings }) {
     return (
       <div className={styles.empty}>
         <Hourglass size={20} />
-        <span>ウィジェットの設定から、目標の日時を指定してください。</span>
+        <span>{t('ウィジェットの設定から、目標の日時を指定してください。')}</span>
       </div>
     );
   }
@@ -121,24 +124,24 @@ function DetailedView({ settings }: { settings: CountdownSettings }) {
       <div className={styles.units}>
         <div className={styles.unit}>
           <span className={styles.value}>{days}</span>
-          <span className={styles.label}>日</span>
+          <span className={styles.label}>{t('日')}</span>
         </div>
         <div className={styles.unit}>
           <span className={styles.value}>{pad2(hours)}</span>
-          <span className={styles.label}>時間</span>
+          <span className={styles.label}>{t('時間')}</span>
         </div>
         <div className={styles.unit}>
           <span className={styles.value}>{pad2(minutes)}</span>
-          <span className={styles.label}>分</span>
+          <span className={styles.label}>{t('分')}</span>
         </div>
         {settings.showSeconds && (
           <div className={styles.unit}>
             <span className={styles.value}>{pad2(seconds)}</span>
-            <span className={styles.label}>秒</span>
+            <span className={styles.label}>{t('秒')}</span>
           </div>
         )}
       </div>
-      <div className={styles.mode}>{isFuture ? 'まで' : '経過'}</div>
+      <div className={styles.mode}>{isFuture ? t('まで') : t('経過')}</div>
     </div>
   );
 }
@@ -149,6 +152,7 @@ function CountdownWidget({ settings }: WidgetProps<CountdownSettings>) {
 
 export const countdownWidget = defineWidget<CountdownSettings>({
   type: 'countdown',
+  category: 'time',
   name: 'カウントダウン / カウントアップ',
   description: '指定した日時までの残り時間、または過ぎてからの経過時間を表示します。',
   icon: Hourglass,

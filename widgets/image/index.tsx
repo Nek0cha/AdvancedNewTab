@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Image as ImageIcon } from 'lucide-react';
 
 import { cx } from '@/lib/cx';
+import { useT } from '@/lib/i18n';
 import { defineWidget, type WidgetProps } from '@/widgets/types';
 
 import styles from './image.module.css';
@@ -35,6 +36,7 @@ function pickNextIndex(count: number, current: number): number {
 }
 
 function ImageWidget({ settings }: WidgetProps<ImageSettings>) {
+  const t = useT();
   const [index, setIndex] = useState(0);
   const [layers, setLayers] = useState<Layer[]>([]);
   const [visibleId, setVisibleId] = useState<number | null>(null);
@@ -85,7 +87,7 @@ function ImageWidget({ settings }: WidgetProps<ImageSettings>) {
     return (
       <div className={styles.empty}>
         <ImageIcon size={20} />
-        <span>ウィジェットの設定から画像を追加してください。</span>
+        <span>{t('ウィジェットの設定から画像を追加してください。')}</span>
       </div>
     );
   }
@@ -107,6 +109,7 @@ function ImageWidget({ settings }: WidgetProps<ImageSettings>) {
 
 export const imageWidget = defineWidget<ImageSettings>({
   type: 'image',
+  category: 'tools',
   name: '画像表示',
   description: '1枚の画像、またはアップロードした複数の画像をシャッフル表示します。',
   icon: ImageIcon,

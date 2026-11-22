@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 
+import { useT } from '@/lib/i18n';
 import { AddWidgetList } from '@/components/AddWidgetList/AddWidgetList';
 import { Grid } from '@/components/Grid/Grid';
 import { SidePanel } from '@/components/SidePanel/SidePanel';
@@ -11,6 +12,7 @@ import { imageOverlayStyle } from '@/lib/theme';
 
 /** 開いているパネルに対応する見出しと中身。 */
 function PanelContent() {
+  const t = useT();
   const panel = useAppStore((s) => s.panel);
   const closePanel = useAppStore((s) => s.closePanel);
 
@@ -19,19 +21,19 @@ function PanelContent() {
   switch (panel.kind) {
     case 'add':
       return (
-        <SidePanel title="ウィジェットを追加" onClose={closePanel}>
+        <SidePanel title={t('ウィジェットを追加')} onClose={closePanel}>
           <AddWidgetList />
         </SidePanel>
       );
     case 'widget':
       return (
-        <SidePanel title="ウィジェットの設定" onClose={closePanel}>
+        <SidePanel title={t('ウィジェットの設定')} onClose={closePanel}>
           <WidgetSettingsPanel instanceId={panel.instanceId} />
         </SidePanel>
       );
     case 'theme':
       return (
-        <SidePanel title="見た目の設定" onClose={closePanel}>
+        <SidePanel title={t('見た目の設定')} onClose={closePanel}>
           <ThemeSettingsPanel />
         </SidePanel>
       );

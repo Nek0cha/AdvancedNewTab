@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Check, ChevronDown } from 'lucide-react';
 
+import { useT } from '@/lib/i18n';
 import { cx } from '@/lib/cx';
 
 import styles from './dropdown.module.css';
@@ -29,6 +30,7 @@ interface DropdownProps {
  * ネイティブ select と同等になるよう実装している。
  */
 export function Dropdown({ value, options, onChange, id, disabled }: DropdownProps) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [highlight, setHighlight] = useState(0);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -134,7 +136,7 @@ export function Dropdown({ value, options, onChange, id, disabled }: DropdownPro
         onKeyDown={handleTriggerKeyDown}
       >
         <span className={styles.triggerLabel} style={selected?.style}>
-          {selected?.label ?? ''}
+          {selected ? t(selected.label) : ''}
         </span>
         <ChevronDown size={15} className={cx(styles.chevron, open && styles.chevronOpen)} />
       </button>
@@ -181,7 +183,7 @@ export function Dropdown({ value, options, onChange, id, disabled }: DropdownPro
                 onMouseEnter={() => setHighlight(index)}
                 onClick={() => commit(index)}
               >
-                <span className={styles.optionLabel}>{option.label}</span>
+                <span className={styles.optionLabel}>{t(option.label)}</span>
                 {option.value === value && <Check size={14} className={styles.checkIcon} />}
               </li>
             ))}

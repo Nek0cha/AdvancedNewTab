@@ -3,6 +3,7 @@ import { Loader2, TrendingUp } from 'lucide-react';
 
 import { PermissionGate } from '@/components/PermissionGate/PermissionGate';
 import { faviconUrl } from '@/lib/favicon';
+import { useT } from '@/lib/i18n';
 import { defineWidget, type WidgetProps } from '@/widgets/types';
 
 import styles from '../links/links.module.css';
@@ -18,6 +19,7 @@ interface Site {
 }
 
 function TopSitesList({ settings, editMode }: WidgetProps<TopSitesSettings>) {
+  const t = useT();
   const [sites, setSites] = useState<Site[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,20 +39,20 @@ function TopSitesList({ settings, editMode }: WidgetProps<TopSitesSettings>) {
   }, []);
 
   if (error) {
-    return <div className={styles.empty}>よく使うサイトを読み込めませんでした: {error}</div>;
+    return <div className={styles.empty}>{t('よく使うサイトを読み込めませんでした: {error}', { error })}</div>;
   }
   if (!sites) {
     return (
       <div className={styles.loading}>
         <Loader2 size={20} className={styles.spinner} aria-hidden />
-        <span>読み込み中…</span>
+        <span>{t('読み込み中…')}</span>
       </div>
     );
   }
 
   const items = sites.slice(0, settings.limit);
   if (items.length === 0) {
-    return <div className={styles.empty}>表示できるサイトがまだありません。</div>;
+    return <div className={styles.empty}>{t('表示できるサイトがまだありません。')}</div>;
   }
 
   return (
@@ -82,10 +84,11 @@ function TopSitesList({ settings, editMode }: WidgetProps<TopSitesSettings>) {
 }
 
 function TopSitesWidget(props: WidgetProps<TopSitesSettings>) {
+  const t = useT();
   return (
     <PermissionGate
       permissions={{ chrome: ['topSites'] }}
-      reason="よく使うサイトを表示するには、閲覧履歴の頻度データへのアクセスを許可してください。"
+      reason={t('よく使うサイトを表示するには、閲覧履歴の頻度データへのアクセスを許可してください。')}
     >
       <TopSitesList {...props} />
     </PermissionGate>
@@ -94,6 +97,7 @@ function TopSitesWidget(props: WidgetProps<TopSitesSettings>) {
 
 export const topSitesWidget = defineWidget<TopSitesSettings>({
   type: 'topsites',
+  category: 'links',
   name: 'よく使うサイト',
   description: 'ブラウザの閲覧頻度をもとに、よく訪れるサイトを表示します。',
   icon: TrendingUp,

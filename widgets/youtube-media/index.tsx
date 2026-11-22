@@ -4,6 +4,7 @@ import { Music2, Pause, Play, SkipBack, SkipForward } from 'lucide-react';
 import { Marquee } from '@/components/Marquee/Marquee';
 import { PermissionGate } from '@/components/PermissionGate/PermissionGate';
 import { cx } from '@/lib/cx';
+import { useT } from '@/lib/i18n';
 import { YOUTUBE_MEDIA_HOSTS, type MediaBroadcastMessage, type MediaState } from '@/lib/media-relay';
 import { defineWidget, type WidgetProps } from '@/widgets/types';
 
@@ -127,6 +128,7 @@ function SeekBar({ state }: { state: MediaState | null }) {
 }
 
 function PlayerContent({ settings }: { settings: YoutubeMediaSettings }) {
+  const t = useT();
   const [state, setState] = useState<MediaState | null>(null);
   const [loaded, setLoaded] = useState(false);
 
@@ -187,9 +189,9 @@ function PlayerContent({ settings }: { settings: YoutubeMediaSettings }) {
             </>
           ) : (
             <>
-              <Marquee className={styles.title} text="再生中の曲はありません" />
+              <Marquee className={styles.title} text={t('再生中の曲はありません')} />
               <div className={styles.metaRow}>
-                <span className={styles.artist}>YouTube / YouTube Musicで再生すると表示されます</span>
+                <span className={styles.artist}>{t('YouTube / YouTube Musicで再生すると表示されます')}</span>
               </div>
             </>
           )}
@@ -199,7 +201,7 @@ function PlayerContent({ settings }: { settings: YoutubeMediaSettings }) {
           <button
             type="button"
             className={styles.controlButton}
-            title="前へ"
+            title={t('前へ')}
             disabled={placeholder}
             onClick={() => sendControl('previous')}
           >
@@ -208,7 +210,7 @@ function PlayerContent({ settings }: { settings: YoutubeMediaSettings }) {
           <button
             type="button"
             className={cx(styles.controlButton, styles.playButton)}
-            title={state?.playing ? '一時停止' : '再生'}
+            title={state?.playing ? t('一時停止') : t('再生')}
             disabled={placeholder}
             onClick={() => sendControl('playpause')}
           >
@@ -217,7 +219,7 @@ function PlayerContent({ settings }: { settings: YoutubeMediaSettings }) {
           <button
             type="button"
             className={styles.controlButton}
-            title="次へ"
+            title={t('次へ')}
             disabled={placeholder}
             onClick={() => sendControl('next')}
           >
@@ -232,10 +234,11 @@ function PlayerContent({ settings }: { settings: YoutubeMediaSettings }) {
 }
 
 function YoutubeMediaWidget({ settings }: WidgetProps<YoutubeMediaSettings>) {
+  const t = useT();
   return (
     <PermissionGate
       permissions={{ hosts: YOUTUBE_MEDIA_HOSTS }}
-      reason="YouTube / YouTube Musicの再生状態を読み取るには、そのサイトへのアクセスを許可してください。"
+      reason={t('YouTube / YouTube Musicの再生状態を読み取るには、そのサイトへのアクセスを許可してください。')}
     >
       <PlayerContent settings={settings} />
     </PermissionGate>
@@ -244,6 +247,7 @@ function YoutubeMediaWidget({ settings }: WidgetProps<YoutubeMediaSettings>) {
 
 export const youtubeMediaWidget = defineWidget<YoutubeMediaSettings>({
   type: 'youtube-media',
+  category: 'info',
   name: 'YouTube ミニプレーヤー',
   description: 'YouTube / YouTube Musicで再生中の曲を操作できます。',
   icon: Music2,

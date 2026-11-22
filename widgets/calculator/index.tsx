@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Calculator as CalculatorIcon } from 'lucide-react';
 
 import { cx } from '@/lib/cx';
+import { useT } from '@/lib/i18n';
 import { defineWidget, type WidgetProps } from '@/widgets/types';
 
 import { evaluateExpression, ExpressionError } from './evaluate';
@@ -32,6 +33,7 @@ function formatResult(value: number, decimalPlaces: number): string {
  * （一般的な電卓の「続けて計算」の挙動）。
  */
 function CalculatorWidget({ settings }: WidgetProps<CalculatorSettings>) {
+  const t = useT();
   const [expression, setExpression] = useState('');
   const [error, setError] = useState<string | null>(null);
 
@@ -42,7 +44,8 @@ function CalculatorWidget({ settings }: WidgetProps<CalculatorSettings>) {
       setExpression(formatResult(result, settings.decimalPlaces));
       setError(null);
     } catch (e) {
-      setError(e instanceof ExpressionError ? e.message : '計算できませんでした');
+      // ExpressionError のメッセージは日本語の原文キーとして翻訳に通す
+      setError(e instanceof ExpressionError ? t(e.message) : t('計算できませんでした'));
     }
   };
 
@@ -105,6 +108,7 @@ function CalculatorWidget({ settings }: WidgetProps<CalculatorSettings>) {
 
 export const calculatorWidget = defineWidget<CalculatorSettings>({
   type: 'calculator',
+  category: 'tools',
   name: '電卓',
   description: '「1*2+3=」のように文字でもボタンでも計算できます。',
   icon: CalculatorIcon,

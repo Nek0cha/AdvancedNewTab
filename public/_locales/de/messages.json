@@ -1,0 +1,11 @@
+{
+  "extName": {
+    "message": "AdvancedNewTab"
+  },
+  "extDescription": {
+    "message": "Eine anpassbare Neuer-Tab-Seite mit frei anordenbaren Widgets"
+  },
+  "actionTitle": {
+    "message": "AdvancedNewTab - Einstellungen öffnen"
+  }
+}

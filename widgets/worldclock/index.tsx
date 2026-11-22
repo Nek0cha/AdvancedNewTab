@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Globe2 } from 'lucide-react';
 
 import { cx } from '@/lib/cx';
+import { useT } from '@/lib/i18n';
 import { defineWidget, type WidgetProps } from '@/widgets/types';
 
 import styles from './worldclock.module.css';
@@ -50,6 +51,7 @@ function readCity(now: Date, timeZone: string, use24Hour: boolean): CityReading 
 }
 
 function WorldClockWidget({ settings }: WidgetProps<WorldClockSettings>) {
+  const t = useT();
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
@@ -63,7 +65,7 @@ function WorldClockWidget({ settings }: WidgetProps<WorldClockSettings>) {
     return (
       <div className={styles.empty}>
         <Globe2 size={18} />
-        <span>ウィジェットの設定から都市を追加してください（最大{MAX_CITIES}件）。</span>
+        <span>{t('ウィジェットの設定から都市を追加してください（最大{max}件）。', { max: MAX_CITIES })}</span>
       </div>
     );
   }
@@ -92,6 +94,7 @@ function WorldClockWidget({ settings }: WidgetProps<WorldClockSettings>) {
 
 export const worldClockWidget = defineWidget<WorldClockSettings>({
   type: 'world-clock',
+  category: 'time',
   name: '世界時計',
   description: '最大4都市の現在時刻をコンパクトにまとめて表示します。',
   icon: Globe2,
