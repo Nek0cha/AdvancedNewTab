@@ -1,6 +1,8 @@
+import type { CSSProperties } from 'react';
 import { Link2 } from 'lucide-react';
 
 import { IconValueDisplay } from '@/components/IconValueDisplay/IconValueDisplay';
+import { cx } from '@/lib/cx';
 import { faviconUrl } from '@/lib/favicon';
 import { normalizeIconValue } from '@/lib/icon-value';
 import { useT } from '@/lib/i18n';
@@ -32,6 +34,12 @@ interface LinksSettings extends Record<string, unknown> {
    * 白系の固定値だったため、明るいテーマに切り替えるとアイコンが背景に溶けて見えなくなっていた。
    */
   svgIconColorMode: 'auto' | 'custom';
+  /** アイコンの大きさ */
+  iconSize: 'small' | 'medium' | 'large';
+  /** アイコンの下にリンク名を出すか */
+  showLabels: boolean;
+  /** 1行に並べる数。0 は幅に合わせて自動で折り返す */
+  columns: number;
   /** ウィジェット幅に対してリンクの並びをどこに寄せるか */
   alignment: 'left' | 'center' | 'right';
 }
@@ -65,6 +73,16 @@ function normalizeUrl(raw: string): string | null {
   }
 }
 
+/**
+ * アイコンの大きさごとの寸法（px）。links.module.css は CSS 変数の既定値として「中」と同じ値を
+ * 持っているため、同じ CSS を流用している topsites / bookmarks の見た目は変わらない。
+ */
+const ICON_SIZES = {
+  small: { icon: 16, wrap: 30, item: 56 },
+  medium: { icon: 20, wrap: 36, item: 64 },
+  large: { icon: 26, wrap: 46, item: 78 },
+} as const;
+
 function LinksWidget({ settings, editMode }: WidgetProps<LinksSettings>) {
   const t = useT();
   const themeTextColor = useAppStore((s) => s.state.theme.textColor);
@@ -78,6 +96,7 @@ function LinksWidget({ settings, editMode }: WidgetProps<LinksSettings>) {
       : extra.textMode === 'custom' && typeof extra.textColor === 'string'
         ? extra.textColor
         : themeTextColor;
+  const size = ICON_SIZES[settings.iconSize] ?? ICON_SIZES.medium;
 
   if (items.length === 0) {
     return (
@@ -89,7 +108,19 @@ function LinksWidget({ settings, editMode }: WidgetProps<LinksSettings>) {
 
   return (
     <div className={styles.root}>
-      <div className={styles.grid} style={{ justifyContent: ALIGNMENT_TO_JUSTIFY_CONTENT[settings.alignment] }}>
+      <div
+        className={cx(styles.grid, !settings.showLabels && styles.noLabels)}
+        style={{
+          justifyContent: ALIGNMENT_TO_JUSTIFY_CONTENT[settings.alignment],
+          '--link-icon': `${size.icon}px`,
+          '--link-wrap': `${size.wrap}px`,
+          '--link-item': `${size.item}px`,
+          // 列数指定時だけ grid に切り替える。flex の折り返しでは「ちょうどN個で改行」を保証できないため
+          ...(settings.columns > 0
+            ? { display: 'grid', gridTemplateColumns: `repeat(${settings.columns}, var(--link-item))` }
+            : {}),
+        } as CSSProperties}
+      >
         {items.map((item, index) => {
           const url = normalizeUrl(item.url);
           if (!url) return null;
@@ -113,7 +144,7 @@ function LinksWidget({ settings, editMode }: WidgetProps<LinksSettings>) {
                 <IconValueDisplay
                   value={normalizeIconValue(item.icon)}
                   fallback={<img className={styles.icon} src={faviconUrl(url)} alt="" />}
-                  size={20}
+                  size={size.icon}
                   className={styles.icon}
                   svgTint={svgTint || undefined}
                 />
@@ -148,6 +179,9 @@ export const linksWidget = defineWidget<LinksSettings>({
     openInNewTab: false,
     svgIconColor: '#f1ecec',
     svgIconColorMode: 'auto',
+    iconSize: 'medium',
+    showLabels: true,
+    columns: 0,
     alignment: 'center',
   },
   settingsSchema: [
@@ -174,6 +208,25 @@ export const linksWidget = defineWidget<LinksSettings>({
         { value: 'center', label: '中央寄せ' },
         { value: 'right', label: '右寄せ' },
       ],
+    },
+    {
+      kind: 'select',
+      key: 'iconSize',
+      label: 'アイコンの大きさ',
+      options: [
+        { value: 'small', label: '小' },
+        { value: 'medium', label: '中' },
+        { value: 'large', label: '大' },
+      ],
+    },
+    { kind: 'toggle', key: 'showLabels', label: 'リンク名を表示' },
+    {
+      kind: 'number',
+      key: 'columns',
+      label: '1行に並べる数（0で自動）',
+      min: 0,
+      max: 12,
+      step: 1,
     },
     {
       kind: 'select',

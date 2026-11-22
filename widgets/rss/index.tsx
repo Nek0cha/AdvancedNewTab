@@ -14,6 +14,8 @@ interface RssSettings extends Record<string, unknown> {
   feedUrl: string;
   limit: number;
   openInNewTab: boolean;
+  /** 記事ごとの公開日時を表示するか */
+  showDate: boolean;
 }
 
 /** background.ts の RSS_TTL_MS と揃えている。 */
@@ -100,7 +102,7 @@ function RssContent({ settings }: WidgetProps<RssSettings>) {
             rel={settings.openInNewTab ? 'noopener noreferrer' : undefined}
           >
             <div className={styles.itemTitle}>{item.title || t('(タイトルなし)')}</div>
-            {item.publishedAt !== null && (
+            {settings.showDate && item.publishedAt !== null && (
               <div className={styles.itemDate}>{formatDate(item.publishedAt, t, locale)}</div>
             )}
           </a>
@@ -143,7 +145,7 @@ export const rssWidget = defineWidget<RssSettings>({
   defaultLayout: { w: 4, h: 4, minW: 2, minH: 2 },
   // フィードURLごとにオリジンが異なるため、追加時点では固定の権限を要求しない。
   // ウィジェット内で PermissionGate が実際の入力URLに応じて要求する。
-  defaultSettings: { feedUrl: '', limit: 6, openInNewTab: true },
+  defaultSettings: { feedUrl: '', limit: 6, openInNewTab: true, showDate: true },
   settingsSchema: [
     {
       kind: 'text',
@@ -153,6 +155,7 @@ export const rssWidget = defineWidget<RssSettings>({
     },
     { kind: 'number', key: 'limit', label: '表示件数', min: 1, max: 20, step: 1 },
     { kind: 'toggle', key: 'openInNewTab', label: '新しいタブで開く' },
+    { kind: 'toggle', key: 'showDate', label: '日付を表示' },
   ],
   Component: RssWidget,
 });

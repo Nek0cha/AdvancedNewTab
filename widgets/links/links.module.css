@@ -33,7 +33,7 @@
 
 .item {
   display: flex;
-  flex: 0 0 64px;
+  flex: 0 0 var(--link-item, 64px);
   /* flexアイテムは既定で min-width: auto のため、中身（.label のテキスト）の
      最小コンテンツ幅がそのままボタンの下限幅になってしまい、長いサイト名を
      入れるとボタンごと横に広がってしまっていた（.label の white-space: nowrap +
@@ -58,16 +58,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: var(--link-wrap, 36px);
+  height: var(--link-wrap, 36px);
   border-radius: 10px;
   background: rgba(var(--ant-card-base), 0.14);
   overflow: hidden;
 }
 
 .icon {
-  width: 20px;
-  height: 20px;
+  width: var(--link-icon, 20px);
+  height: var(--link-icon, 20px);
 }
 
 .label {
@@ -115,4 +115,9 @@
   .spinner {
     animation: none;
   }
+}
+
+/* 「リンク名を表示」がオフのとき。ホバー時の title で名前は確認できる */
+.noLabels .label {
+  display: none;
 }

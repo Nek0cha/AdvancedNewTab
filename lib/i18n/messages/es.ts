@@ -398,6 +398,19 @@ const messages: Record<string, string> = {
   '詳細設定': 'Configuración avanzada',
   'SVGアイコンの色（指定）': 'Color de los iconos SVG (personalizado)',
   '自動（文字色に合わせる）': 'Automático (igual que el color del texto)',
+  '15分': '15 min',
+  '30分': '30 min',
+  '1時間': '1 hora',
+  '3時間': '3 horas',
+  '更新間隔': 'Intervalo de actualización',
+  '小': 'Pequeño',
+  '中': 'Mediano',
+  '大': 'Grande',
+  'アイコンの大きさ': 'Tamaño de icono',
+  'リンク名を表示': 'Mostrar nombres de enlaces',
+  '1行に並べる数（0で自動）': 'Elementos por fila (0 = automático)',
+  'Markdownで表示する': 'Mostrar como Markdown',
+  '見出し(#)・箇条書き(-)・チェックボックス(- [ ])・太字(**)・リンクに対応します。クリックすると編集に切り替わります。': 'Admite títulos (#), listas con viñetas (-), casillas de verificación (- [ ]), negrita (**) y enlaces. Haz clic para cambiar a edición.',
 };
 
 export default messages;

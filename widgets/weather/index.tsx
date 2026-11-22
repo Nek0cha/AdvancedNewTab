@@ -14,16 +14,27 @@ interface WeatherSettings extends Record<string, unknown> {
   tempUnit: 'celsius' | 'fahrenheit';
   /** 地名の表示言語。英語がデフォルト（例: "Osaka, Japan"）。 */
   nameLanguage: NameLanguage;
+  /** 再取得の間隔（分）。select の値は文字列で保存される */
+  refreshMinutes: '15' | '30' | '60' | '180';
 }
 
-/** 天気は分単位でしか変わらないため、この間隔は使い回す。 */
-const WEATHER_TTL_MS = 30 * 60 * 1000;
+/** 不正な保存値のときの更新間隔（分） */
+const DEFAULT_REFRESH_MINUTES = 30;
 
 function WeatherContent({ settings }: WidgetProps<WeatherSettings>) {
   const t = useT();
   const [snapshot, setSnapshot] = useState<WeatherSnapshot | null>(null);
   const [stale, setStale] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // 以前は表示時と設定変更時にしか取得しなかったため、新しいタブを開いたままにすると
+  // 天気が古いまま残っていた。開いている間も更新間隔ごとに取り直す。
+  const [tick, setTick] = useState(0);
+  const refreshMs = (Number(settings.refreshMinutes) || DEFAULT_REFRESH_MINUTES) * 60 * 1000;
+
+  useEffect(() => {
+    const id = setInterval(() => setTick((n) => n + 1), refreshMs);
+    return () => clearInterval(id);
+  }, [refreshMs]);
 
   useEffect(() => {
     if (!settings.cityName.trim()) {
@@ -35,7 +46,7 @@ function WeatherContent({ settings }: WidgetProps<WeatherSettings>) {
     setError(null);
 
     const key = `weather:${settings.cityName}:${settings.tempUnit}:${settings.nameLanguage}`;
-    cached(key, WEATHER_TTL_MS, async () => {
+    cached(key, refreshMs, async () => {
       const place = await geocodeCity(settings.cityName, settings.nameLanguage);
       // 地名を含む文言はキーと一致しなくなるため、表示側の t() ではなくここで訳しておく
       if (!place) throw new Error(translate('「{city}」が見つかりませんでした', { city: settings.cityName }));
@@ -53,7 +64,7 @@ function WeatherContent({ settings }: WidgetProps<WeatherSettings>) {
     return () => {
       cancelled = true;
     };
-  }, [settings.cityName, settings.tempUnit, settings.nameLanguage]);
+  }, [settings.cityName, settings.tempUnit, settings.nameLanguage, refreshMs, tick]);
 
   if (error) {
     return <div className={styles.empty}>{t(error)}</div>;
@@ -109,7 +120,7 @@ export const weatherWidget = defineWidget<WeatherSettings>({
   icon: CloudSun,
   defaultLayout: { w: 3, h: 3, minW: 2, minH: 2 },
   permissions: { hosts: ['https://api.open-meteo.com/*', 'https://geocoding-api.open-meteo.com/*'] },
-  defaultSettings: { cityName: 'Tokyo', tempUnit: 'celsius', nameLanguage: 'en' },
+  defaultSettings: { cityName: 'Tokyo', tempUnit: 'celsius', nameLanguage: 'en', refreshMinutes: '30' },
   settingsSchema: [
     {
       kind: 'text',
@@ -136,6 +147,17 @@ export const weatherWidget = defineWidget<WeatherSettings>({
       options: [
         { value: 'celsius', label: '摂氏（℃）' },
         { value: 'fahrenheit', label: '華氏（℉）' },
+      ],
+    },
+    {
+      kind: 'select',
+      key: 'refreshMinutes',
+      label: '更新間隔',
+      options: [
+        { value: '15', label: '15分' },
+        { value: '30', label: '30分' },
+        { value: '60', label: '1時間' },
+        { value: '180', label: '3時間' },
       ],
     },
   ],

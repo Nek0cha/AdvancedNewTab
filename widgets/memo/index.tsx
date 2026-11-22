@@ -5,6 +5,7 @@ import { useT } from '@/lib/i18n';
 import { useAppStore } from '@/lib/store';
 import { defineWidget, type WidgetProps } from '@/widgets/types';
 
+import { MarkdownView, toggleTaskLine } from './markdown';
 import styles from './memo.module.css';
 
 interface MemoSettings extends Record<string, unknown> {
@@ -12,6 +13,8 @@ interface MemoSettings extends Record<string, unknown> {
   title: string;
   text: string;
   fontScale: number;
+  /** 本文を Markdown として表示する（クリックで編集に切り替わる） */
+  markdown: boolean;
 }
 
 /** 保存の書き込み間隔（ms）。キー入力のたびに storage へ書くと重くなるため間引く。 */
@@ -22,6 +25,7 @@ function MemoWidget({ settings, instanceId, editMode }: WidgetProps<MemoSettings
   const patchWidgetSettings = useAppStore((s) => s.patchWidgetSettings);
   const [titleDraft, setTitleDraft] = useState(settings.title);
   const [textDraft, setTextDraft] = useState(settings.text);
+  const [editing, setEditing] = useState(false);
   const titleTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const textTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
@@ -59,6 +63,16 @@ function MemoWidget({ settings, instanceId, editMode }: WidgetProps<MemoSettings
 
   // タイトルは「無し」を選べる任意項目。編集モード中で空のときは、
   // 存在に気づけるよう薄いプレースホルダー入力だけ出しておく。
+  const handleToggleTask = (line: number): void => {
+    const next = toggleTaskLine(textDraft, line);
+    setTextDraft(next);
+    clearTimeout(textTimerRef.current);
+    patchWidgetSettings(instanceId, { text: next });
+  };
+
+  // Markdown 表示中は、空のメモ・編集モード中を除き、クリックするまで表示用の描画を出す
+  const showPreview = settings.markdown && !editing && textDraft.trim() !== '';
+
   const showTitleRow = titleDraft.trim() !== '' || !editMode;
 
   return (
@@ -73,14 +87,35 @@ function MemoWidget({ settings, instanceId, editMode }: WidgetProps<MemoSettings
           onChange={(e) => handleTitleChange(e.target.value)}
         />
       )}
+      {showPreview ? (
+        <div
+          className={styles.preview}
+          style={{ fontSize: `${13 * settings.fontScale}px` }}
+          role={editMode ? undefined : 'button'}
+          tabIndex={editMode ? undefined : 0}
+          onClick={(e) => {
+            // リンクのクリックは遷移を優先し、編集には切り替えない
+            if (editMode || (e.target as Element).closest('a')) return;
+            setEditing(true);
+          }}
+          onKeyDown={(e) => {
+            if (!editMode && e.key === 'Enter') setEditing(true);
+          }}
+        >
+          <MarkdownView text={textDraft} onToggleTask={handleToggleTask} />
+        </div>
+      ) : (
       <textarea
         className={styles.textarea}
+        autoFocus={settings.markdown && editing}
+        onBlur={() => setEditing(false)}
         style={{ fontSize: `${13 * settings.fontScale}px` }}
         placeholder={t('メモを入力...')}
         value={textDraft}
         readOnly={editMode}
         onChange={(e) => handleTextChange(e.target.value)}
       />
+      )}
     </div>
   );
 }
@@ -92,7 +127,7 @@ export const memoWidget = defineWidget<MemoSettings>({
   description: '簡単なメモを書き留めておけます。',
   icon: NotebookPen,
   defaultLayout: { w: 4, h: 3, minW: 2, minH: 2 },
-  defaultSettings: { title: '', text: '', fontScale: 1 },
+  defaultSettings: { title: '', text: '', fontScale: 1, markdown: false },
   settingsSchema: [
     { kind: 'text', key: 'title', label: 'タイトル（空欄で非表示）', placeholder: '例: 買い物リスト' },
     {
@@ -102,6 +137,12 @@ export const memoWidget = defineWidget<MemoSettings>({
       min: 0.6,
       max: 2.5,
       step: 0.1,
+    },
+    {
+      kind: 'toggle',
+      key: 'markdown',
+      label: 'Markdownで表示する',
+      help: '見出し(#)・箇条書き(-)・チェックボックス(- [ ])・太字(**)・リンクに対応します。クリックすると編集に切り替わります。',
     },
   ],
   Component: MemoWidget,
