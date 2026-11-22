@@ -26,7 +26,7 @@
 `vite.web.config.ts` によって `site/app/` にビルドされる。
 
 ```bash
-npm run build:web
+pnpm build:web
 ```
 
 - データは訪れたブラウザの `localStorage` に保存される。拡張機能版の `chrome.storage.local` とは別管理で、
@@ -37,7 +37,7 @@ npm run build:web
 - アセット参照はすべて相対パス（`base: './'`）でビルドしている。`site/` をドメイン直下に置こうが、
   GitHub Pagesのプロジェクトページ（`https://<user>.github.io/<repo>/` のようにリポジトリ名が
   前段に付くURL）やさらに別のサブパスに置こうが、置いた場所を基準にそのまま動く
-- `npm run build:web` は毎回 `site/app/` の中身をまるごと置き換える。実際のビルドは一時ディレクトリに
+- `pnpm build:web` は毎回 `site/app/` の中身をまるごと置き換える。実際のビルドは一時ディレクトリに
   対して行い、成功したら `site/app/` へアトミックに差し替える（`scripts/build-web.mjs`）。ビルド後の
   `site/app/` が中途半端な状態になることはない
 

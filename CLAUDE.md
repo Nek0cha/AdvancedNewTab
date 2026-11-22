@@ -11,21 +11,21 @@ RSS, a YouTube/YouTube Music mini player). See `README.md` for the user-facing f
 ## Commands
 
 ```bash
-npm install       # also runs `wxt prepare` (postinstall) to generate .wxt/ types
-npm run dev        # dev server with HMR, loads as unpacked extension
-npm run dev:firefox
-npm run build      # production build -> .output/chrome-mv3
-npm run build:firefox
-npm run compile    # tsc --noEmit — run this after any change, it's the fastest correctness check
-npm run zip        # production build + zip -> .output/*.zip (what gets distributed via GitHub Releases)
-npm run zip:firefox
+pnpm install       # also runs `wxt prepare` (postinstall) to generate .wxt/ types
+pnpm dev        # dev server with HMR, loads as unpacked extension
+pnpm dev:firefox
+pnpm build      # production build -> .output/chrome-mv3
+pnpm build:firefox
+pnpm compile    # tsc --noEmit — run this after any change, it's the fastest correctness check
+pnpm zip        # production build + zip -> .output/*.zip (what gets distributed via GitHub Releases)
+pnpm zip:firefox
 ```
 
-There is no test suite and no lint script configured. `npm run compile` (strict TypeScript, see
+There is no test suite and no lint script configured. `pnpm compile` (strict TypeScript, see
 `tsconfig.json` — `strict: true`, `noUncheckedIndexedAccess: true`) is the primary safety net; treat a
 clean `tsc --noEmit` as a required gate before considering a change done.
 
-To manually verify a change end-to-end: `npm run build`, then load `.output/chrome-mv3` as an unpacked
+To manually verify a change end-to-end: `pnpm build`, then load `.output/chrome-mv3` as an unpacked
 extension via `chrome://extensions` (developer mode → "Load unpacked"). Chrome does **not** hot-reload
 an already-open new-tab page or an already-loaded extension after files change on disk — after rebuilding,
 click the reload icon on the extension card in `chrome://extensions` and close/reopen any new-tab pages.
@@ -314,7 +314,7 @@ never dedupe (both fields change every single poll), spamming a message every se
 
 A separate, mostly-static landing site — `terms/` and `privacy/` are directories (not `.html` files) so
 they're reachable at extension-less `/terms` / `/privacy` URLs on static hosts, the same trick `site/app/`
-(the `npm run build:web` output) already used. It has its own locked design system: read `site/design.md`
+(the `pnpm build:web` output) already used. It has its own locked design system: read `site/design.md`
 before touching any page under `site/`, and see `site/README.md` for how the pieces fit together.
 `lib/site-links.ts` is the one place the extension itself (the appearance tab's "about" links) points out
 to that site, independent of everything else under `site/`.

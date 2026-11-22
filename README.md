@@ -44,7 +44,7 @@ Chromeの新規タブページを、ドラッグ&ドロップでウィジェッ�
 素のVite設定（`vite.web.config.ts`）でビルドし、[`site/app/`](site/app) に出力します。
 
 ```bash
-npm run build:web
+pnpm build:web
 ```
 
 - データはブラウザの `localStorage` にこの端末だけの情報として保存されます。拡張機能版とは同期しません。
@@ -69,12 +69,12 @@ npm run build:web
 Node.js が必要です。
 
 ```bash
-npm install
-npm run dev       # 開発モード（HMR付き）
-npm run build     # 本番ビルド（.output/chrome-mv3 に出力）
-npm run compile   # 型チェックのみ
-npm run zip       # 配布用zipの作成
-npm run build:web # Webブラウザ版のビルド（site/app/ に出力。下記参照）
+pnpm install
+pnpm dev       # 開発モード（HMR付き）
+pnpm build     # 本番ビルド（.output/chrome-mv3 に出力）
+pnpm compile   # 型チェックのみ
+pnpm zip       # 配布用zipの作成
+pnpm build:web # Webブラウザ版のビルド（site/app/ に出力。下記参照）
 ```
 
 ## インストール方法
@@ -93,7 +93,7 @@ npm run build:web # Webブラウザ版のビルド（site/app/ に出力。下�
 4. 「パッケージ化されていない拡張機能を読み込む」をクリックし、手順1で解凍してできたフォルダ（`manifest.json` が直下にあるフォルダ）を選択する
 5. 拡張機能一覧に「AdvancedNewTab」が表示されれば完了
 
-コードを変更しながら試したい場合は、`npm run build` で生成される `.output/chrome-mv3` フォルダを同様に読み込んでください（`npm run dev` を使うと変更が自動的に反映されます）。
+コードを変更しながら試したい場合は、`pnpm build` で生成される `.output/chrome-mv3` フォルダを同様に読み込んでください（`pnpm dev` を使うと変更が自動的に反映されます）。
 
 ## ライセンス
 
