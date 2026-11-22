@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Copy, Pencil, Settings2, Trash2 } from 'lucide-react';
+import { Copy, Lock, LockOpen, Pencil, Settings2, Trash2 } from 'lucide-react';
 
 import { cx } from '@/lib/cx';
 import { useT } from '@/lib/i18n';
@@ -14,6 +14,7 @@ interface WidgetContextMenuProps {
   x: number;
   y: number;
   hasSettings: boolean;
+  locked: boolean;
   onClose: () => void;
 }
 
@@ -30,13 +31,14 @@ const EDGE = 8;
  * ここでは起きないが、ウィジェットの枠にも backdrop-filter が掛かるため、
  * 同じ理由で document.body へポータルしている。
  */
-export function WidgetContextMenu({ instanceId, x, y, hasSettings, onClose }: WidgetContextMenuProps) {
+export function WidgetContextMenu({ instanceId, x, y, hasSettings, locked, onClose }: WidgetContextMenuProps) {
   const t = useT();
   const openPanel = useAppStore((s) => s.openPanel);
   const duplicateWidget = useAppStore((s) => s.duplicateWidget);
   const removeWidget = useAppStore((s) => s.removeWidget);
   const editMode = useAppStore((s) => s.editMode);
   const setEditMode = useAppStore((s) => s.setEditMode);
+  const patchWidgetSettings = useAppStore((s) => s.patchWidgetSettings);
   const menuRef = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState({ left: x, top: y });
   // 通常表示ではUndoのボタンもショートカットも無いため、削除だけは
@@ -110,6 +112,15 @@ export function WidgetContextMenu({ instanceId, x, y, hasSettings, onClose }: Wi
       <button type="button" role="menuitem" className={styles.item} onClick={run(() => duplicateWidget(instanceId))}>
         <Copy size={14} />
         {t('複製')}
+      </button>
+      <button
+        type="button"
+        role="menuitem"
+        className={styles.item}
+        onClick={run(() => patchWidgetSettings(instanceId, { locked: !locked }))}
+      >
+        {locked ? <LockOpen size={14} /> : <Lock size={14} />}
+        {locked ? t('固定を解除') : t('位置とサイズを固定する')}
       </button>
       {!editMode && (
         <button type="button" role="menuitem" className={styles.item} onClick={run(() => setEditMode(true))}>

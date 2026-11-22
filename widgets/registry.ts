@@ -53,6 +53,7 @@ function register<S extends Record<string, unknown>>(def: WidgetDef<S>): void {
       ...WIDGET_BACKGROUND_DEFAULTS,
       ...WIDGET_TEXT_DEFAULTS,
       hideOnResize: hideOnResizeDefault,
+      locked: false,
       ...def.defaultSettings,
     },
     settingsSchema: [
@@ -60,6 +61,7 @@ function register<S extends Record<string, unknown>>(def: WidgetDef<S>): void {
       ...widgetBackgroundFields({ border: includeBorder }),
       ...widgetTextFields(),
       { kind: 'toggle', key: 'hideOnResize', label: 'ウィンドウサイズ変更時に自動で非表示にする' },
+      { kind: 'toggle', key: 'locked', label: '位置とサイズを固定する' },
     ],
   } as unknown as AnyWidgetDef;
 

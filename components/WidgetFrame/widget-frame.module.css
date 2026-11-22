@@ -221,3 +221,16 @@
   color: #1a0505;
   pointer-events: none;
 }
+
+/* ロック中: ドラッグは外枠の ant-no-drag クラスで止め、リサイズは取っ手自体を隠して止める */
+.locked :global(.react-resizable-handle) {
+  display: none;
+}
+
+.locked .header {
+  cursor: default;
+}
+
+.headerButtonActive {
+  color: var(--ant-chrome-accent);
+}

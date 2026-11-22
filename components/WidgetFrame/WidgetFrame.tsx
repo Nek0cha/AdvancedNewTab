@@ -1,5 +1,5 @@
 import { forwardRef, useCallback, useState, type HTMLAttributes, type MouseEvent as ReactMouseEvent } from 'react';
-import { AlignHorizontalJustifyCenter, Copy, GripVertical, Settings2, TriangleAlert, X } from 'lucide-react';
+import { AlignHorizontalJustifyCenter, Copy, GripVertical, Lock, LockOpen, Settings2, TriangleAlert, X } from 'lucide-react';
 
 import { useT } from '@/lib/i18n';
 import { useGridStatus } from '@/components/Grid/GridStatusContext';
@@ -39,6 +39,7 @@ export const WidgetFrame = forwardRef<HTMLDivElement, WidgetFrameProps>(function
   const duplicateWidget = useAppStore((s) => s.duplicateWidget);
   const openPanel = useAppStore((s) => s.openPanel);
   const centerWidgetHorizontally = useAppStore((s) => s.centerWidgetHorizontally);
+  const patchWidgetSettings = useAppStore((s) => s.patchWidgetSettings);
   const t = useT();
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
   const closeMenu = useCallback(() => setMenu(null), []);
@@ -67,8 +68,16 @@ export const WidgetFrame = forwardRef<HTMLDivElement, WidgetFrameProps>(function
   const { isResizing, isNarrow } = useGridStatus();
   const shouldHideOnResize = !editMode && settings.hideOnResize === true && (isResizing || isNarrow);
 
+  // ロック中は外枠ごと react-grid-layout のドラッグ対象から外す（dragConfig.cancel は
+  // 押した要素からウィジェット外枠自身までさかのぼって判定するため、外枠に付ければ全体に効く）。
+  // リサイズの取っ手は .locked 側の CSS で隠す。レイアウトのデータには手を入れないので、
+  // Grid.tsx の繊細な回避策（CLAUDE.md の Grid 節）には影響しない。
+  const locked = settings.locked === true;
+
   const rootClassName = cx(
     className,
+    locked && 'ant-no-drag',
+    locked && styles.locked,
     styles.frame,
     frameKind === 'bare' ? styles.bare : styles.card,
     editMode && styles.editing,
@@ -105,7 +114,11 @@ export const WidgetFrame = forwardRef<HTMLDivElement, WidgetFrameProps>(function
 
       {editMode && (
         <div className={styles.header}>
-          <GripVertical size={14} className={styles.gripIcon} aria-hidden />
+          {locked ? (
+            <Lock size={14} className={styles.gripIcon} aria-hidden />
+          ) : (
+            <GripVertical size={14} className={styles.gripIcon} aria-hidden />
+          )}
           {Icon && <Icon size={14} className={styles.titleIcon} aria-hidden />}
           <span className={styles.title}>{def ? t(def.name) : t('不明なウィジェット')}</span>
           <button
@@ -127,6 +140,15 @@ export const WidgetFrame = forwardRef<HTMLDivElement, WidgetFrameProps>(function
               {isCustomized && <span className={styles.customBadge} aria-hidden />}
             </button>
           )}
+          <button
+            type="button"
+            className={cx(styles.headerButton, 'ant-no-drag', locked && styles.headerButtonActive)}
+            title={locked ? t('固定を解除') : t('位置とサイズを固定する')}
+            aria-pressed={locked}
+            onClick={() => patchWidgetSettings(instanceId, { locked: !locked })}
+          >
+            {locked ? <Lock size={14} /> : <LockOpen size={14} />}
+          </button>
           <button
             type="button"
             className={cx(styles.headerButton, 'ant-no-drag')}
@@ -168,6 +190,7 @@ export const WidgetFrame = forwardRef<HTMLDivElement, WidgetFrameProps>(function
           x={menu.x}
           y={menu.y}
           hasSettings={(def?.settingsSchema.length ?? 0) > 0}
+          locked={locked}
           onClose={closeMenu}
         />
       )}

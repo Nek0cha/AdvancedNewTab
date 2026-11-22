@@ -411,6 +411,8 @@ const messages: Record<string, string> = {
   '1行に並べる数（0で自動）': 'Elemente pro Zeile (0 = automatisch)',
   'Markdownで表示する': 'Als Markdown anzeigen',
   '見出し(#)・箇条書き(-)・チェックボックス(- [ ])・太字(**)・リンクに対応します。クリックすると編集に切り替わります。': 'Unterstützt Überschriften (#), Aufzählungen (-), Kontrollkästchen (- [ ]), Fettschrift (**) und Links. Zum Bearbeiten einfach klicken.',
+  '位置とサイズを固定する': 'Position und Größe sperren',
+  '固定を解除': 'Entsperren',
 };
 
 export default messages;

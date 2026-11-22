@@ -99,11 +99,10 @@ export function Toolbar() {
     };
   }, [dragging, setToolbarPosition]);
 
-  // Ctrl+Z / Ctrl+Y（Ctrl+Shift+Z）でUndo/Redo。編集モード中だけ、かつ入力欄に
-  // フォーカスが無いときだけ発動させる（isEditableTarget 参照）。
+  // Ctrl+Z / Ctrl+Y（Ctrl+Shift+Z）でUndo/Redo。入力欄にフォーカスが無いときだけ発動させる
+  // （isEditableTarget 参照）。以前は編集モード中だけだったが、右クリックメニューから
+  // 通常表示のまま削除・複製・テーマ変更ができるようになったため、常に有効にしている。
   useEffect(() => {
-    if (!editMode) return;
-
     const onKeyDown = (e: KeyboardEvent): void => {
       const isModifier = e.ctrlKey || e.metaKey;
       if (!isModifier || isEditableTarget(document.activeElement)) return;
@@ -120,7 +119,7 @@ export function Toolbar() {
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [editMode, undo, redo]);
+  }, [undo, redo]);
 
   const handleGripPointerDown = (e: ReactPointerEvent<HTMLButtonElement>): void => {
     const el = toolbarRef.current;
@@ -193,6 +192,12 @@ export function Toolbar() {
             <Redo2 size={15} />
           </button>
         </>
+      )}
+      {/* 通常表示では、取り消せる操作があるときだけ「元に戻す」を出す（普段の見た目は増やさない） */}
+      {!editMode && canUndo && (
+        <button type="button" className={styles.button} title={t('元に戻す（Ctrl+Z）')} onClick={() => undo()}>
+          <Undo2 size={15} />
+        </button>
       )}
       <button
         type="button"
