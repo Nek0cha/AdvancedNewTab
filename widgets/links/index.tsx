@@ -4,6 +4,7 @@ import { IconValueDisplay } from '@/components/IconValueDisplay/IconValueDisplay
 import { faviconUrl } from '@/lib/favicon';
 import { normalizeIconValue } from '@/lib/icon-value';
 import { useT } from '@/lib/i18n';
+import { useAppStore } from '@/lib/store';
 import { LINK_PRESETS } from '@/lib/link-presets';
 import { defineWidget, type ListPreset, type WidgetProps } from '@/widgets/types';
 
@@ -26,6 +27,11 @@ interface LinksSettings extends Record<string, unknown> {
    * lucide/画像/URLアイコンには影響しない（IconValueDisplay の svgTint 参照）。
    */
   svgIconColor: string;
+  /**
+   * 'auto' はテーマ（またはウィジェット個別）の文字色に合わせる。以前は既定色が
+   * 白系の固定値だったため、明るいテーマに切り替えるとアイコンが背景に溶けて見えなくなっていた。
+   */
+  svgIconColorMode: 'auto' | 'custom';
   /** ウィジェット幅に対してリンクの並びをどこに寄せるか */
   alignment: 'left' | 'center' | 'right';
 }
@@ -61,7 +67,17 @@ function normalizeUrl(raw: string): string | null {
 
 function LinksWidget({ settings, editMode }: WidgetProps<LinksSettings>) {
   const t = useT();
+  const themeTextColor = useAppStore((s) => s.state.theme.textColor);
   const items = settings.items.filter((item) => normalizeUrl(item.url));
+  // SVGは <img> 経由で描画するため CSS の currentColor が届かない（lib/icon-value.ts 参照）。
+  // 「自動」のときは、ウィジェット個別の文字色 → テーマの文字色の順で実際の色を焼き込む。
+  const extra = settings as unknown as Record<string, unknown>;
+  const svgTint =
+    settings.svgIconColorMode === 'custom'
+      ? settings.svgIconColor
+      : extra.textMode === 'custom' && typeof extra.textColor === 'string'
+        ? extra.textColor
+        : themeTextColor;
 
   if (items.length === 0) {
     return (
@@ -99,7 +115,7 @@ function LinksWidget({ settings, editMode }: WidgetProps<LinksSettings>) {
                   fallback={<img className={styles.icon} src={faviconUrl(url)} alt="" />}
                   size={20}
                   className={styles.icon}
-                  svgTint={settings.svgIconColor || undefined}
+                  svgTint={svgTint || undefined}
                 />
               </span>
               <span className={styles.label}>{item.label || new URL(url).hostname}</span>
@@ -131,6 +147,7 @@ export const linksWidget = defineWidget<LinksSettings>({
     ],
     openInNewTab: false,
     svgIconColor: '#f1ecec',
+    svgIconColorMode: 'auto',
     alignment: 'center',
   },
   settingsSchema: [
@@ -159,10 +176,20 @@ export const linksWidget = defineWidget<LinksSettings>({
       ],
     },
     {
-      kind: 'color',
-      key: 'svgIconColor',
+      kind: 'select',
+      key: 'svgIconColorMode',
       label: 'SVGアイコンの色',
       help: 'アイコン設定で「SVG」を選んだものだけに、ウィジェット単位でまとめて適用されます。',
+      options: [
+        { value: 'auto', label: '自動（文字色に合わせる）' },
+        { value: 'custom', label: '色を指定' },
+      ],
+    },
+    {
+      kind: 'color',
+      key: 'svgIconColor',
+      label: 'SVGアイコンの色（指定）',
+      visibleWhen: { key: 'svgIconColorMode', equals: 'custom' },
     },
   ],
   Component: LinksWidget,

@@ -35,8 +35,9 @@ click the reload icon on the extension card in `chrome://extensions` and close/r
 ### Entry points (`entrypoints/`)
 
 - `newtab/` — the dashboard itself (`chrome_url_overrides.newtab`, auto-wired by WXT from the directory name).
-- `options/` — settings page (JSON export/import; most per-widget/theme editing actually happens in the
-  newtab side panel, not here). `open_in_tab: true` is set via a `<meta name="manifest.open_in_tab">` tag
+- `options/` — thin settings page that just renders `components/SettingsPanel/BackupSection.tsx` (JSON
+  export/import). Every setting, including that same backup section, lives in the newtab side panel's
+  appearance tab; the options page is kept only as the toolbar-icon / store "Options" entry point. `open_in_tab: true` is set via a `<meta name="manifest.open_in_tab">` tag
   in `entrypoints/options/index.html`, **not** `wxt.config.ts`'s `manifest.options_ui` — WXT detects the
   `options` entrypoint and regenerates `manifest.options_ui` from that entrypoint's own meta tags,
   silently discarding whatever `wxt.config.ts` sets there (confirmed by reading
@@ -134,7 +135,7 @@ Comparing `external.rev <= highestLocalRev` instead is immune to arrival order: 
 never higher than what's already applied locally, no matter how late it arrives.
 
 `chrome.storage.sync` is deliberately not used (100KB/8KB quota won't fit a background-image data URL);
-cross-device transfer goes through JSON export/import on the options page instead.
+cross-device transfer goes through JSON export/import (`BackupSection`) instead.
 
 Schema migrations live in `lib/storage.ts`'s `migrateRaw()`, keyed off `SCHEMA_VERSION` in
 `lib/defaults.ts`. **Do the shape conversion on the raw/untyped object before the generic
@@ -144,7 +145,7 @@ silently pass through merged with new defaults.
 
 A fresh install's very first state is `createDefaultState()` (hardcoded in `lib/defaults.ts`), *unless*
 `lib/default-state.json` is non-`null` — that file (default `null`) is meant to be replaced wholesale with
-a real `PersistedState` exported from the options page's JSON download, and `loadState()` only consults it
+a real `PersistedState` exported from the backup section's JSON download, and `loadState()` only consults it
 when storage is completely empty (never on top of an existing install). It's routed through the same
 `normalize()` used for imports, so a stale schema in it self-heals the same way an old exported JSON
 would. `createDefaultState()` itself stays untouched by this feature — `normalize()` still falls back to

@@ -1,4 +1,4 @@
-import { FileText, Home, Settings2, ShieldCheck } from 'lucide-react';
+import { FileText, Home, ShieldCheck } from 'lucide-react';
 
 import { useT } from '@/lib/i18n';
 import { SITE_LINKS } from '@/lib/site-links';
@@ -11,30 +11,15 @@ import styles from './layout-presets-editor.module.css';
 import listStyles from './about-section.module.css';
 
 /**
- * 見た目タブの最後に置く「このアプリについて」。
- *
- * 「拡張機能の設定を開く」（JSONエクスポート/インポート等、entrypoints/options 側）は
- * browser.runtime.openOptionsPage() を呼ぶだけなので、拡張機能APIが存在しない
- * 静的サイト版（npm run build:web）では出さない（widgets/registry.ts と同じ
- * import.meta.env.VITE_TARGET による出し分け）。利用規約・プライバシー・ホームページへの
- * リンクは単なる外部リンクなので両ビルドで共通に出す。
+ * 見た目タブの最後に置く「このアプリについて」。外部サイトへのリンクだけを並べる。
+ * 以前ここにあった「拡張機能の設定を開く」（JSONエクスポート/インポート）は、
+ * 同じパネルの「バックアップ」（BackupSection）へ統合した。
  */
 export function AboutSection() {
   const t = useT();
-  const isExtension = import.meta.env.VITE_TARGET !== 'web';
 
   return (
     <div className={listStyles.list}>
-      {isExtension && (
-        <button
-          type="button"
-          className={styles.actionButton}
-          onClick={() => void browser.runtime.openOptionsPage()}
-        >
-          <Settings2 size={14} />
-          {t('拡張機能の設定を開く（JSONエクスポート等）')}
-        </button>
-      )}
       <a className={styles.actionButton} href={SITE_LINKS.home} target="_blank" rel="noopener noreferrer">
         <Home size={14} />
         {t('ホームページ')}

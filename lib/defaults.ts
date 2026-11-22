@@ -5,7 +5,7 @@ import type { PersistedState, ThemeConfig } from '@/lib/types';
  * 現在のスキーマバージョン。
  * PersistedState の構造を後方互換なく変更したら +1 し、lib/storage.ts の migrate に処理を足す。
  */
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 
 export const DEFAULT_THEME: ThemeConfig = {
   background: {

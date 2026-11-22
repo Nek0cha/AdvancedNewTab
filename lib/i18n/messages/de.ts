@@ -383,6 +383,21 @@ const messages: Record<string, string> = {
   '複製': 'Duplizieren',
   '設定': 'Einstellungen',
   '該当するウィジェットはありません': 'Keine passenden Widgets',
+  'ウィジェットの追加・配置・見た目・バックアップの設定は、新しいタブページの「編集」→「見た目」からまとめて行えます。': 'Widgets hinzufügen, anordnen, gestalten und sichern: Alles geht auf der neuen Tab-Seite unter „Bearbeiten“ → „Aussehen“.',
+  'サンセット': 'Sonnenuntergang',
+  'スカイ': 'Himmel',
+  'テーマ': 'Theme',
+  'バックアップ': 'Backup',
+  'フォレスト': 'Wald',
+  'ペーパー': 'Papier',
+  'ミッドナイト': 'Mitternacht',
+  'モノクロ': 'Monochrom',
+  '基本': 'Grundlagen',
+  '文字の太さ・カード・グリッドの寸法': 'Schriftstärke, Karten- und Rastermaße',
+  '設定を適用しました。': 'Einstellungen angewendet.',
+  '詳細設定': 'Erweiterte Einstellungen',
+  'SVGアイコンの色（指定）': 'Farbe der SVG-Symbole (benutzerdefiniert)',
+  '自動（文字色に合わせる）': 'Automatisch (an Textfarbe angepasst)',
 };
 
 export default messages;

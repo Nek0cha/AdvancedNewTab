@@ -8,9 +8,11 @@
   gap: 4px;
   padding: 5px;
   border-radius: 999px;
-  /* SidePanel の .panel と同じ理由で、常に読めるよう文字色を固定トークンにする */
+  /* SidePanel の .panel と同じ理由で、常に読めるよう文字色を固定トークンにする。
+     背景も以前は半透明の白（--ant-card-base の 0.1）だったが、明るいテーマの上では
+     固定の明るい文字色が背景に溶けて読めなくなったため、メニューと同じ常時ダークの面にしている。 */
   color: var(--ant-chrome-text);
-  background: rgba(var(--ant-card-base), 0.1);
+  background: var(--ant-menu-bg);
   border: 1px solid var(--ant-card-border);
   -webkit-backdrop-filter: blur(18px);
   backdrop-filter: blur(18px);

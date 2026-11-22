@@ -104,7 +104,24 @@ function migrateRaw(raw: unknown): unknown {
     theme = rest;
   }
 
-  return theme ? { ...obj, version: SCHEMA_VERSION, theme } : obj;
+  // v3 → v4: リンク集に svgIconColorMode（'auto' | 'custom'）を新設。新しい既定は 'auto'
+  // （文字色に追従）だが、既存データにはこのキーが無いため、そのままだと既定値の 'auto' が
+  // 埋まり、自分で色を選んでいた人の指定が黙って無視されてしまう。旧既定色のままの人だけを
+  // 'auto' に、それ以外は 'custom' として指定色を維持する。
+  let widgets = obj.widgets;
+  if (version < 4 && widgets && typeof widgets === 'object') {
+    widgets = Object.fromEntries(
+      Object.entries(widgets as Record<string, unknown>).map(([id, w]) => {
+        const inst = w as { type?: unknown; settings?: Record<string, unknown> } | null;
+        if (!inst || inst.type !== 'links' || !inst.settings || 'svgIconColorMode' in inst.settings) return [id, w];
+        const color = inst.settings.svgIconColor;
+        const isOldDefault = typeof color !== 'string' || color === '' || color.toLowerCase() === '#f1ecec';
+        return [id, { ...inst, settings: { ...inst.settings, svgIconColorMode: isOldDefault ? 'auto' : 'custom' } }];
+      }),
+    );
+  }
+
+  return theme ? { ...obj, version: SCHEMA_VERSION, theme, widgets } : { ...obj, widgets };
 }
 
 /**
