@@ -3,6 +3,9 @@
  * 未訳のキーは実行時に日本語のまま表示される。漏れは `pnpm i18n:check` で確認できる。
  */
 const messages: Record<string, string> = {
+  'この履歴を削除': 'Quitar del historial',
+  '検索した語はこの端末の中にだけ保存されます。オフにすると、保存済みの履歴も削除されます。': 'Los términos de búsqueda solo se guardan en este dispositivo. Al desactivarlo, también se eliminará el historial guardado.',
+  '検索履歴から候補を出す': 'Sugerir desde el historial de búsqueda',
   'このレイアウトを削除する': 'Eliminar este diseño',
   'このレイアウトを読み込む（今の配置は上書きされます）': 'Cargar este diseño (reemplaza el diseño actual)',
   'もう一度で上書き': 'Pulsa otra vez para sobrescribir',

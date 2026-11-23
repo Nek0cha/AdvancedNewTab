@@ -45,3 +45,73 @@
 .input::placeholder {
   color: var(--ant-muted);
 }
+
+/* 候補の一覧は document.body へポータルされる（index.tsx 参照）。編集 UI の Dropdown と同じく、
+   テーマに関係なく読める固定の暗い配色にする。カードの半透明色を使うと、下にある
+   ウィジェットが透けて文字が読めなくなるため。 */
+.menu {
+  z-index: 200;
+  margin: 0;
+  padding: 5px;
+  list-style: none;
+  max-height: 320px;
+  overflow-y: auto;
+  border-radius: 14px;
+  background: var(--ant-menu-bg);
+  color: var(--ant-chrome-text);
+  border: 1px solid var(--ant-field-border);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  /* lightningcss のプレフィックス統合で標準プロパティが消えることがあるため、-webkit- を先に書く */
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  font-family: var(--ant-canvas-font);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 8px 7px 11px;
+  border-radius: 9px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.optionActive {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.optionIcon {
+  flex: 0 0 auto;
+  color: var(--ant-chrome-muted);
+}
+
+.optionText {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 削除ボタンは選んでいる行にだけ出す。全行に × が並ぶと、うっかり消しやすく見た目もうるさいため */
+.removeButton {
+  display: inline-flex;
+  flex: 0 0 auto;
+  padding: 4px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ant-chrome-muted);
+  opacity: 0;
+  transition: opacity 100ms ease;
+}
+
+.optionActive .removeButton {
+  opacity: 1;
+}
+
+.removeButton:hover {
+  color: var(--ant-chrome-text);
+  background: rgba(255, 255, 255, 0.08);
+}

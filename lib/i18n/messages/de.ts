@@ -3,6 +3,9 @@
  * 未訳のキーは実行時に日本語のまま表示される。漏れは `pnpm i18n:check` で確認できる。
  */
 const messages: Record<string, string> = {
+  'この履歴を削除': 'Aus dem Verlauf entfernen',
+  '検索した語はこの端末の中にだけ保存されます。オフにすると、保存済みの履歴も削除されます。': 'Suchbegriffe werden nur auf diesem Gerät gespeichert. Wenn du dies ausschaltest, wird auch der gespeicherte Verlauf gelöscht.',
+  '検索履歴から候補を出す': 'Vorschläge aus dem Suchverlauf anzeigen',
   'このレイアウトを削除する': 'Dieses Layout löschen',
   'このレイアウトを読み込む（今の配置は上書きされます）': 'Dieses Layout laden (ersetzt das aktuelle Layout)',
   'もう一度で上書き': 'Zum Überschreiben nochmal klicken',

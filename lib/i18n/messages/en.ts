@@ -3,6 +3,9 @@
  * 未訳のキーは実行時に日本語のまま表示される。漏れは `pnpm i18n:check` で確認できる。
  */
 const messages: Record<string, string> = {
+  'この履歴を削除': 'Remove from history',
+  '検索した語はこの端末の中にだけ保存されます。オフにすると、保存済みの履歴も削除されます。': 'Search terms are stored only on this device. Turning this off also deletes the saved history.',
+  '検索履歴から候補を出す': 'Suggest from search history',
   'このレイアウトを削除する': 'Delete this layout',
   'このレイアウトを読み込む（今の配置は上書きされます）': 'Load this layout (replaces the current layout)',
   'もう一度で上書き': 'Click again to overwrite',
