@@ -88,6 +88,12 @@ export type FieldSchema = FieldSchemaCommon &
         presets?: ReadonlyArray<ListPreset>;
         /** 指定するとこの件数に達したとき追加ボタンを隠す（例: 世界時計の最大4都市）。省略時は無制限。 */
         maxItems?: number;
+        /**
+         * 項目内の1欄（`key`）が書き換えられたとき、他の欄を自動で埋める（例: リンク集で URL から表示名）。
+         * 入力のたびに問い合わせないよう、Field 側で入力が止まってから呼ぶ。返した値は
+         * 「その欄がまだ空のとき」だけ反映され、ユーザーが自分で入れた値を上書きすることはない。
+         */
+        autofill?: ListAutofill;
       }
   );
 
@@ -99,6 +105,16 @@ export type FieldSchema = FieldSchemaCommon &
 export function isFieldVisible(schema: FieldSchema, values: Record<string, unknown>): boolean {
   if (!schema.visibleWhen) return true;
   return values[schema.visibleWhen.key] === schema.visibleWhen.equals;
+}
+
+/** FieldSchema(list) の autofill。 */
+export interface ListAutofill {
+  /** この欄の変更をきっかけに自動入力する */
+  key: string;
+  /** 補いたい欄の値を返す。補えるものが無ければ null */
+  resolve: (item: Record<string, unknown>) => Promise<Record<string, unknown> | null>;
+  /** 「空」とみなす判定。省略時は空文字・undefined・null を空とみなす（アイコン欄などで上書きする） */
+  isEmpty?: (key: string, value: unknown) => boolean;
 }
 
 /** FieldSchema(list) の presets に渡す1件分。 */

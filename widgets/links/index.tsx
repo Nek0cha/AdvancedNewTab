@@ -7,6 +7,7 @@ import { faviconUrl } from '@/lib/favicon';
 import { normalizeIconValue } from '@/lib/icon-value';
 import { useT } from '@/lib/i18n';
 import { useAppStore } from '@/lib/store';
+import { resolveLinkAutofill } from '@/lib/link-autofill';
 import { LINK_PRESETS } from '@/lib/link-presets';
 import { defineWidget, type ListPreset, type WidgetProps } from '@/widgets/types';
 
@@ -196,6 +197,15 @@ export const linksWidget = defineWidget<LinksSettings>({
         { kind: 'icon', key: 'icon', label: 'アイコン' },
       ],
       presets: LINK_ADD_PRESETS,
+      autofill: {
+        key: 'url',
+        resolve: resolveLinkAutofill,
+        // アイコン欄は未設定でも { source: 'default' } が入っているため、それも「空」とみなす
+        isEmpty: (key, value) =>
+          key === 'icon'
+            ? normalizeIconValue(value).source === 'default'
+            : value === undefined || (typeof value === 'string' && value.trim() === ''),
+      },
     },
     { kind: 'toggle', key: 'openInNewTab', label: '新しいタブで開く' },
     {
