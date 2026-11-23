@@ -24,22 +24,42 @@
   object-fit: cover;
 }
 
+/* 削除ボタンは、どんな画像の上でも読めるよう不透明な白地に濃い×を置き、影で画像から浮かせる。
+   以前は半透明の黒地に白の×だったため、暗い画像の上では地に溶けて見えなかった。
+   また button 要素のブラウザ既定の枠線（outset）が残っていたため、明示的に消している。 */
 .removeButton {
   position: absolute;
-  top: 2px;
-  right: 2px;
+  top: 4px;
+  right: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.55);
-  color: #fff;
+  background: #f4f1ee;
+  color: #1b1816;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+  transition: background-color 120ms var(--ant-ease), color 120ms var(--ant-ease), transform 120ms var(--ant-ease);
 }
 
 .removeButton:hover {
-  background: rgba(200, 60, 60, 0.85);
+  background: #e5484d;
+  color: #fff;
+  transform: scale(1.08);
+}
+
+.removeButton:focus-visible {
+  outline: 2px solid var(--ant-chrome-accent);
+  outline-offset: 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .removeButton:hover {
+    transform: none;
+  }
 }
 
 .addButton {

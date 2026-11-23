@@ -14,7 +14,7 @@
 import { isExtensionContext } from '@/lib/platform';
 import { DEFAULT_FONT_ID } from '@/lib/fonts';
 import { SCHEMA_VERSION, createDefaultState } from '@/lib/defaults';
-import type { PersistedState } from '@/lib/types';
+import type { BackgroundConfig, LayoutPreset, PersistedState, ThemeConfig } from '@/lib/types';
 
 /**
  * 初回起動（ストレージに何も無い状態）にだけ使う、カスタムの既定レイアウト。
@@ -104,7 +104,36 @@ function migrateRaw(raw: unknown): unknown {
     theme = rest;
   }
 
-  return theme ? { ...obj, version: SCHEMA_VERSION, theme } : obj;
+  // v3 → v4: リンク集に svgIconColorMode（'auto' | 'custom'）を新設。新しい既定は 'auto'
+  // （文字色に追従）だが、既存データにはこのキーが無いため、そのままだと既定値の 'auto' が
+  // 埋まり、自分で色を選んでいた人の指定が黙って無視されてしまう。旧既定色のままの人だけを
+  // 'auto' に、それ以外は 'custom' として指定色を維持する。
+  let widgets = obj.widgets;
+  if (version < 4 && widgets && typeof widgets === 'object') {
+    widgets = Object.fromEntries(
+      Object.entries(widgets as Record<string, unknown>).map(([id, w]) => {
+        const inst = w as { type?: unknown; settings?: Record<string, unknown> } | null;
+        if (!inst || inst.type !== 'links' || !inst.settings || 'svgIconColorMode' in inst.settings) return [id, w];
+        const color = inst.settings.svgIconColor;
+        const isOldDefault = typeof color !== 'string' || color === '' || color.toLowerCase() === '#f1ecec';
+        return [id, { ...inst, settings: { ...inst.settings, svgIconColorMode: isOldDefault ? 'auto' : 'custom' } }];
+      }),
+    );
+  }
+
+  // v4 → v5: レイアウト保存を「null を含む固定3枠」から「上限なしの配列」に変更し、
+  // 各項目に id を持たせた。空き枠（null）はもう意味を持たないので取り除き、
+  // 保存済みの枠だけを元の順番のまま残す。
+  let layoutPresets = obj.layoutPresets;
+  if (version < 5 && Array.isArray(layoutPresets)) {
+    layoutPresets = layoutPresets
+      .filter((p): p is Record<string, unknown> => !!p && typeof p === 'object')
+      .map((p, i) => (typeof p.id === 'string' ? p : { ...p, id: `preset-migrated-${i}` }));
+  }
+
+  return theme
+    ? { ...obj, version: SCHEMA_VERSION, theme, widgets, layoutPresets }
+    : { ...obj, widgets, layoutPresets };
 }
 
 /**
@@ -119,14 +148,9 @@ function normalize(raw: unknown): PersistedState {
   if (!migrated || typeof migrated !== 'object') return fallback;
 
   const value = migrated as Partial<PersistedState>;
-  const theme = value.theme ?? {};
   return {
     version: SCHEMA_VERSION,
-    theme: {
-      ...fallback.theme,
-      ...theme,
-      background: { ...fallback.theme.background, ...(theme as Partial<typeof fallback.theme>).background },
-    },
+    theme: normalizeTheme(value.theme, fallback.theme),
     layouts: value.layouts && typeof value.layouts === 'object' ? value.layouts : fallback.layouts,
     widgets: value.widgets && typeof value.widgets === 'object' ? value.widgets : fallback.widgets,
     // 旧データ（rev導入前）やインポートされたJSONには無いことがあるので0にフォールバックする。
@@ -140,12 +164,58 @@ function normalize(raw: unknown): PersistedState {
       typeof value.toolbarPosition.y === 'number'
         ? value.toolbarPosition
         : null,
-    // 常にちょうど3枠になるよう、欠けていればnullで埋め、多ければ切り詰める
-    // （MAX_LAYOUT_PRESETS を変更した場合もこの正規化だけで追従する）。
-    layoutPresets: Array.from(
-      { length: fallback.layoutPresets.length },
-      (_, i) => (Array.isArray(value.layoutPresets) ? (value.layoutPresets[i] ?? null) : null),
-    ),
+    // 手で編集されたJSONのインポートにも耐えるよう、id・名前・配置を持たない項目は捨てる。
+    layoutPresets: Array.isArray(value.layoutPresets)
+      ? value.layoutPresets.filter(
+          (p): p is LayoutPreset =>
+            !!p &&
+            typeof p === 'object' &&
+            typeof p.id === 'string' &&
+            typeof p.name === 'string' &&
+            !!p.layouts &&
+            typeof p.layouts === 'object' &&
+            !!p.widgets &&
+            typeof p.widgets === 'object',
+        ).map((p) =>
+          // 保存したレイアウトのテーマも、読み込んだ瞬間にそのまま画面に当たるため、
+          // 後から増えた項目（背景のスライドショーなど）を同じように補っておく
+          p.theme ? { ...p, theme: normalizeTheme(p.theme, fallback.theme) } : p,
+        )
+      : fallback.layoutPresets,
+  };
+}
+
+/**
+ * テーマの欠けた項目を既定値で埋める。
+ *
+ * 背景は2段ネストしている（background.image.slideshow）ため、浅いマージだけだと、
+ * スライドショー追加前に保存された image オブジェクトが丸ごと既定値を上書きして
+ * slideshow が undefined のまま残ってしまう。形が変わったわけではなく項目が増えただけなので、
+ * スキーマのバージョンは上げず、ここで階層ごとに補う。
+ */
+function normalizeTheme(raw: unknown, fallback: ThemeConfig): ThemeConfig {
+  const theme = (raw && typeof raw === 'object' ? raw : {}) as Partial<ThemeConfig>;
+  const bg = (theme.background ?? {}) as Partial<BackgroundConfig>;
+  const image = (bg.image ?? {}) as Partial<BackgroundConfig['image']>;
+  const slideshow = (image.slideshow ?? {}) as Partial<BackgroundConfig['image']['slideshow']>;
+  return {
+    ...fallback,
+    ...theme,
+    background: {
+      ...fallback.background,
+      ...bg,
+      image: {
+        ...fallback.background.image,
+        ...image,
+        slideshow: {
+          ...fallback.background.image.slideshow,
+          ...slideshow,
+          images: Array.isArray(slideshow.images)
+            ? slideshow.images.filter((s): s is string => typeof s === 'string')
+            : fallback.background.image.slideshow.images,
+        },
+      },
+    },
   };
 }
 

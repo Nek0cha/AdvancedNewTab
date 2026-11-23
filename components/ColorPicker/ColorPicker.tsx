@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
+import { useT } from '@/lib/i18n';
 import { cx } from '@/lib/cx';
 import { hexToHsv, hsvToHex, isValidHex, normalizeHex, type HSV } from '@/lib/color';
 
@@ -26,6 +27,7 @@ const SWATCHES = [
  * 彩度・明度パネル＋色相バー＋HEX入力を自前で持つポップオーバーにしている。
  */
 export function ColorPicker({ value, onChange, id }: ColorPickerProps) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [hex, setHex] = useState(() => normalizeHex(value));
   const [draftHex, setDraftHex] = useState(hex);
@@ -151,7 +153,7 @@ export function ColorPicker({ value, onChange, id }: ColorPickerProps) {
         type="button"
         className={styles.swatchButton}
         style={{ background: hex }}
-        aria-label="色を選択"
+        aria-label={t('色を選択')}
         onClick={() => setOpen((v) => !v)}
       />
       <input

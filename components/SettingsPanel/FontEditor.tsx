@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { Upload } from 'lucide-react';
 
+import { useT } from '@/lib/i18n';
 import { Dropdown } from '@/components/Dropdown/Dropdown';
 import { cx } from '@/lib/cx';
 import { FONT_OPTIONS } from '@/lib/fonts';
@@ -40,6 +41,7 @@ function formatFromFileName(name: string): string {
  * 二段構えにしている。
  */
 export function FontEditor({ canvasFontId, customFont, onChange }: FontEditorProps) {
+  const t = useT();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = (file: File): void => {
@@ -64,7 +66,7 @@ export function FontEditor({ canvasFontId, customFont, onChange }: FontEditorPro
     <div>
       <div className={fieldStyles.field}>
         <label className={fieldStyles.label} htmlFor="ant-font-select">
-          フォント
+          {t('フォント')}
         </label>
         <Dropdown
           id="ant-font-select"
@@ -72,7 +74,7 @@ export function FontEditor({ canvasFontId, customFont, onChange }: FontEditorPro
           options={[
             ...FONT_OPTIONS.map((f) => ({ value: f.id, label: f.label, style: { fontFamily: f.stack } })),
             ...(customFont
-              ? [{ value: '__custom__', label: `${customFont.originalFileName}（カスタム）` }]
+              ? [{ value: '__custom__', label: t('{name}（カスタム）', { name: customFont.originalFileName }) }]
               : []),
           ]}
           onChange={(next) => {
@@ -87,7 +89,7 @@ export function FontEditor({ canvasFontId, customFont, onChange }: FontEditorPro
         className={styles.fileButton}
         onClick={() => fileInputRef.current?.click()}
       >
-        <Upload size={15} /> カスタムフォントをアップロード（.woff2 / .woff / .ttf / .otf）
+        <Upload size={15} /> {t('カスタムフォントをアップロード（.woff2 / .woff / .ttf / .otf）')}
       </button>
       <input
         ref={fileInputRef}
@@ -106,7 +108,7 @@ export function FontEditor({ canvasFontId, customFont, onChange }: FontEditorPro
           className={cx(fieldStyles.help)}
           style={{ fontFamily: `'${customFont.familyName}'` }}
         >
-          プレビュー: The quick brown fox / あいうえお ({customFont.originalFileName})
+          {t('プレビュー: The quick brown fox / あいうえお ({name})', { name: customFont.originalFileName })}
         </p>
       )}
     </div>

@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { ChevronDown, Image as ImageIcon, Plus, Trash2 } from 'lucide-react';
 
+import { useT } from '@/lib/i18n';
 import { ColorPicker } from '@/components/ColorPicker/ColorPicker';
 import { Dropdown } from '@/components/Dropdown/Dropdown';
 import { IconValueDisplay } from '@/components/IconValueDisplay/IconValueDisplay';
@@ -19,6 +20,11 @@ interface FieldProps {
   schema: FieldSchema;
   value: unknown;
   onChange: (value: unknown) => void;
+}
+
+/** ListAutofill.isEmpty の既定。空文字・空白だけ・未設定を「まだ入力されていない」とみなす。 */
+function isBlankValue(_key: string, value: unknown): boolean {
+  return value === undefined || value === null || (typeof value === 'string' && value.trim() === '');
 }
 
 /** itemFields の宣言から、リストに追加する新規項目の初期値を組み立てる。 */
@@ -59,18 +65,33 @@ function createEmptyItem(fields: ReadonlyArray<FieldSchema>): Record<string, unk
  * 設定項目を増やすときにフォームのJSXを書く必要がない。
  */
 export function Field({ schema, value, onChange }: FieldProps) {
+  const t = useT();
   const id = useId();
   // リスト項目の折りたたみ状態。項目の「内容」ではなく「その時点の並び順」に対して
   // 持たせている（並べ替え・削除のたびに index を追従させる。項目自体に安定したIDが
   // 無く、この配列全体が並べ替え・削除でも位置ベースに扱われているのと同じ考え方）。
   const [openIndexes, setOpenIndexes] = useState<Set<number>>(() => new Set());
 
+  // リストの自動入力（schema.autofill）用。問い合わせの結果が返るまでに一覧が編集・並べ替え
+  // されていることがあるため、結果は「その時点の最新の一覧」に当てはめる必要がある。
+  // クロージャに捕まった古い items で onChange すると、待っている間の編集を巻き戻してしまう。
+  const latestValueRef = useRef(value);
+  latestValueRef.current = value;
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
+  const autofillTimerRef = useRef<number | undefined>(undefined);
+  // 直前に自動入力した値。URL を打っている途中（例: 「github.co」）で入力が止まると、その時点の
+  // 結果が表示名に入ってしまう。そのまま「空ではない」扱いにすると、打ち終えた後の正しい結果で
+  // 直せなくなるため、自動入力した値のまま手つかずの欄は、次の自動入力で上書きしてよいことにする。
+  const lastAutofilledRef = useRef<Record<string, string>>({});
+  useEffect(() => () => window.clearTimeout(autofillTimerRef.current), []);
+
   if (schema.kind === 'toggle') {
     const checked = Boolean(value);
     return (
       <div className={styles.toggleRow}>
         <label className={styles.label} htmlFor={id}>
-          {schema.label}
+          {t(schema.label)}
         </label>
         <button
           id={id}
@@ -95,6 +116,46 @@ export function Field({ schema, value, onChange }: FieldProps) {
     // 折りたたみ用の宣言を別途増やさなくていい）。
     const iconField = schema.itemFields.find((f) => f.kind === 'icon');
     const titleField = schema.itemFields.find((f) => f.kind === 'text');
+
+    /**
+     * 入力が 500ms 止まってから自動入力を問い合わせる。1文字ごとに問い合わせると、
+     * 打ちかけの URL に対して無駄な通信が走り、遅れて返った古い結果が当てはまることもあるため。
+     */
+    const scheduleAutofill = (item: Record<string, unknown>): void => {
+      const autofill = schema.autofill;
+      if (!autofill) return;
+      window.clearTimeout(autofillTimerRef.current);
+      const trigger = item[autofill.key];
+      autofillTimerRef.current = window.setTimeout(() => {
+        autofill
+          .resolve(item)
+          .catch(() => null)
+          .then((filled) => {
+            if (!filled) return;
+            const latest = Array.isArray(latestValueRef.current)
+              ? [...(latestValueRef.current as Record<string, unknown>[])]
+              : [];
+            // 位置ではなく「きっかけの欄が同じ値の項目」を探す。待っている間に並べ替えられたり、
+            // URL がさらに書き換えられたりしていたら（見つからなければ）何もしない。
+            const index = latest.findIndex((it) => it[autofill.key] === trigger);
+            const target = latest[index];
+            if (!target) return;
+            const isEmpty = autofill.isEmpty ?? isBlankValue;
+            const previous = lastAutofilledRef.current;
+            const patch = Object.fromEntries(
+              Object.entries(filled).filter(
+                ([k]) => isEmpty(k, target[k]) || (k in previous && previous[k] === JSON.stringify(target[k])),
+              ),
+            );
+            if (Object.keys(patch).length === 0) return;
+            lastAutofilledRef.current = Object.fromEntries(
+              Object.entries(patch).map(([k, v]) => [k, JSON.stringify(v)]),
+            );
+            latest[index] = { ...target, ...patch };
+            onChangeRef.current(latest);
+          });
+      }, 500);
+    };
 
     const addItem = (item: Record<string, unknown>): void => {
       // 追加した項目は閉じた状態で出す（一覧が伸びていくたびに毎回開いた
@@ -277,15 +338,15 @@ export function Field({ schema, value, onChange }: FieldProps) {
 
     return (
       <div className={styles.field}>
-        <span className={styles.label}>{schema.label}</span>
-        {schema.help && <span className={styles.help}>{schema.help}</span>}
+        <span className={styles.label}>{t(schema.label)}</span>
+        {schema.help && <span className={styles.help}>{t(schema.help)}</span>}
 
         {/* 項目数が増えるほど下の一覧が長くなるため、追加ボタンは一覧の上に固定する
             （毎回スクロールして下まで辿り着かなくても追加できるように） */}
         {showAddButton &&
           (schema.presets && schema.presets.length > 0 ? (
             <AddWithPresets
-              addLabel={schema.addLabel ?? '追加'}
+              addLabel={t(schema.addLabel ?? '追加')}
               presets={schema.presets}
               onAddBlank={() => addItem(createEmptyItem(schema.itemFields))}
               onAddPreset={(preset: ListPreset) => addItem({ ...preset.value })}
@@ -296,22 +357,22 @@ export function Field({ schema, value, onChange }: FieldProps) {
               className={styles.addButton}
               onClick={() => addItem(createEmptyItem(schema.itemFields))}
             >
-              <Plus size={14} /> {schema.addLabel ?? '追加'}
+              <Plus size={14} /> {t(schema.addLabel ?? '追加')}
             </button>
           ))}
         {schema.maxItems !== undefined && items.length >= schema.maxItems && (
-          <span className={styles.help}>最大{schema.maxItems}件まで登録できます。</span>
+          <span className={styles.help}>{t('最大{max}件まで登録できます。', { max: schema.maxItems })}</span>
         )}
 
         {items.length === 0 ? (
-          <div className={styles.empty}>まだ項目がありません</div>
+          <div className={styles.empty}>{t('まだ項目がありません')}</div>
         ) : (
           <div className={styles.listItems}>
             {items.map((item, index) => {
               const isOpen = openIndexes.has(index);
               const isDragging = drag !== null && drag.from === index;
               const titleValue = titleField ? item[titleField.key] : undefined;
-              const title = typeof titleValue === 'string' && titleValue ? titleValue : `項目 ${index + 1}`;
+              const title = typeof titleValue === 'string' && titleValue ? titleValue : t('項目 {n}', { n: index + 1 });
 
               return (
                 <div key={index}>
@@ -368,7 +429,7 @@ export function Field({ schema, value, onChange }: FieldProps) {
                       <button
                         type="button"
                         className={styles.miniButton}
-                        title="削除"
+                        title={t('削除')}
                         onClick={() => {
                           replace(items.filter((_, i) => i !== index));
                           removeOpen(index);
@@ -388,8 +449,10 @@ export function Field({ schema, value, onChange }: FieldProps) {
                             value={item[itemField.key]}
                             onChange={(fieldValue) => {
                               const next = [...items];
-                              next[index] = { ...item, [itemField.key]: fieldValue };
+                              const updated = { ...item, [itemField.key]: fieldValue };
+                              next[index] = updated;
                               replace(next);
+                              if (itemField.key === schema.autofill?.key) scheduleAutofill(updated);
                             }}
                           />
                         ))}
@@ -407,7 +470,7 @@ export function Field({ schema, value, onChange }: FieldProps) {
   return (
     <div className={styles.field}>
       <label className={styles.label} htmlFor={id}>
-        {schema.label}
+        {t(schema.label)}
       </label>
 
       {schema.kind === 'text' && (
@@ -416,7 +479,7 @@ export function Field({ schema, value, onChange }: FieldProps) {
           type="text"
           className={styles.control}
           value={typeof value === 'string' ? value : ''}
-          placeholder={schema.placeholder}
+          placeholder={schema.placeholder ? t(schema.placeholder) : undefined}
           onChange={(event) => onChange(event.target.value)}
         />
       )}
@@ -451,7 +514,7 @@ export function Field({ schema, value, onChange }: FieldProps) {
               className={cx(tabStyles.tab, value === option.value && tabStyles.tabActive)}
               onClick={() => onChange(option.value)}
             >
-              {option.label}
+              {t(option.label)}
             </button>
           ))}
         </div>
@@ -478,7 +541,7 @@ export function Field({ schema, value, onChange }: FieldProps) {
 
       {schema.kind === 'imageList' && <ImageListField value={value} onChange={onChange} />}
 
-      {schema.help && <span className={styles.help}>{schema.help}</span>}
+      {schema.help && <span className={styles.help}>{t(schema.help)}</span>}
     </div>
   );
 }

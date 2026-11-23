@@ -84,6 +84,7 @@ function ClockWidget({ settings }: WidgetProps<ClockSettings>) {
 
 export const clockWidget = defineWidget<ClockSettings>({
   type: 'clock',
+  category: 'time',
   name: '時計',
   description: '現在時刻と日付を表示します（デジタル/アナログ）。',
   icon: ClockIcon,

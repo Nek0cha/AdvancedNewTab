@@ -88,6 +88,12 @@ export type FieldSchema = FieldSchemaCommon &
         presets?: ReadonlyArray<ListPreset>;
         /** 指定するとこの件数に達したとき追加ボタンを隠す（例: 世界時計の最大4都市）。省略時は無制限。 */
         maxItems?: number;
+        /**
+         * 項目内の1欄（`key`）が書き換えられたとき、他の欄を自動で埋める（例: リンク集で URL から表示名）。
+         * 入力のたびに問い合わせないよう、Field 側で入力が止まってから呼ぶ。返した値は
+         * 「その欄がまだ空のとき」だけ反映され、ユーザーが自分で入れた値を上書きすることはない。
+         */
+        autofill?: ListAutofill;
       }
   );
 
@@ -99,6 +105,16 @@ export type FieldSchema = FieldSchemaCommon &
 export function isFieldVisible(schema: FieldSchema, values: Record<string, unknown>): boolean {
   if (!schema.visibleWhen) return true;
   return values[schema.visibleWhen.key] === schema.visibleWhen.equals;
+}
+
+/** FieldSchema(list) の autofill。 */
+export interface ListAutofill {
+  /** この欄の変更をきっかけに自動入力する */
+  key: string;
+  /** 補いたい欄の値を返す。補えるものが無ければ null */
+  resolve: (item: Record<string, unknown>) => Promise<Record<string, unknown> | null>;
+  /** 「空」とみなす判定。省略時は空文字・undefined・null を空とみなす（アイコン欄などで上書きする） */
+  isEmpty?: (key: string, value: unknown) => boolean;
 }
 
 /** FieldSchema(list) の presets に渡す1件分。 */
@@ -121,9 +137,24 @@ export interface WidgetProps<S> {
   editMode: boolean;
 }
 
+/**
+ * 追加ダイアログの分類。表示順もこの配列の順になる。
+ * label は日本語の原文で、描画時に t() で訳す（lib/i18n 参照）。
+ */
+export const WIDGET_CATEGORIES = [
+  { id: 'time', label: '時間・予定' },
+  { id: 'links', label: 'リンク・検索' },
+  { id: 'info', label: '情報・メディア' },
+  { id: 'tools', label: 'ツール' },
+] as const;
+
+export type WidgetCategory = (typeof WIDGET_CATEGORIES)[number]['id'];
+
 export interface WidgetDef<S extends Record<string, unknown> = Record<string, unknown>> {
   /** レジストリの引き当てキー。永続化データに残るため、一度決めたら変更しない */
   type: string;
+  /** 追加ダイアログでの分類（WIDGET_CATEGORIES 参照） */
+  category: WidgetCategory;
   /** 追加ダイアログとウィジェットのヘッダに出る表示名 */
   name: string;
   /** 追加ダイアログに出る一行説明 */

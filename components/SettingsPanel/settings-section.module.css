@@ -16,3 +16,46 @@
   text-transform: uppercase;
   color: var(--ant-chrome-muted);
 }
+
+/* 「詳細設定」の折りたたみ見出し。.sectionTitle の下余白は見出し行の中では不要なので打ち消す */
+.disclosure {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.disclosure .sectionTitle {
+  margin: 0;
+}
+
+.disclosureHint {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  color: var(--ant-chrome-muted);
+  opacity: 0.8;
+}
+
+.chevron {
+  flex: 0 0 auto;
+  color: var(--ant-chrome-muted);
+  transition: transform 160ms var(--ant-ease);
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.disclosureBody {
+  margin-top: 14px;
+}

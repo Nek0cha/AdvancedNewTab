@@ -21,4 +21,5 @@ export const SITE_LINKS = {
   home: SITE_ORIGIN,
   terms: `${SITE_ORIGIN}/terms`,
   privacy: `${SITE_ORIGIN}/privacy`,
+  changelog: `${SITE_ORIGIN}/changelog/`,
 } as const;

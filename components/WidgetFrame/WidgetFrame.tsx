@@ -1,6 +1,7 @@
-import { forwardRef, type HTMLAttributes } from 'react';
-import { AlignHorizontalJustifyCenter, Copy, GripVertical, Settings2, TriangleAlert, X } from 'lucide-react';
+import { forwardRef, useCallback, useState, type HTMLAttributes, type MouseEvent as ReactMouseEvent } from 'react';
+import { AlignHorizontalJustifyCenter, Copy, GripVertical, Lock, LockOpen, Settings2, TriangleAlert, X } from 'lucide-react';
 
+import { useT } from '@/lib/i18n';
 import { useGridStatus } from '@/components/Grid/GridStatusContext';
 import { cx } from '@/lib/cx';
 import { useAppStore } from '@/lib/store';
@@ -10,6 +11,7 @@ import { getWidgetTextStyle, type WidgetTextSettings } from '@/lib/widget-style'
 import { getWidgetDef } from '@/widgets/registry';
 
 import { WidgetErrorBoundary } from './ErrorBoundary';
+import { WidgetContextMenu } from './WidgetContextMenu';
 import styles from './widget-frame.module.css';
 
 interface WidgetFrameProps extends HTMLAttributes<HTMLDivElement> {
@@ -37,6 +39,20 @@ export const WidgetFrame = forwardRef<HTMLDivElement, WidgetFrameProps>(function
   const duplicateWidget = useAppStore((s) => s.duplicateWidget);
   const openPanel = useAppStore((s) => s.openPanel);
   const centerWidgetHorizontally = useAppStore((s) => s.centerWidgetHorizontally);
+  const patchWidgetSettings = useAppStore((s) => s.patchWidgetSettings);
+  const t = useT();
+  const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
+  const closeMenu = useCallback(() => setMenu(null), []);
+
+  // リンク・入力欄・選択中のテキストの上では、ブラウザ標準のメニュー（新しいタブで開く、
+  // コピー/貼り付けなど）の方が必要とされるため、独自メニューを出さずに譲る。
+  const handleContextMenu = (e: ReactMouseEvent<HTMLDivElement>): void => {
+    const target = e.target as Element;
+    if (target.closest('a, input, textarea, select, [contenteditable="true"]')) return;
+    if ((window.getSelection()?.toString() ?? '') !== '') return;
+    e.preventDefault();
+    setMenu({ x: e.clientX, y: e.clientY });
+  };
 
   const def = instance ? getWidgetDef(instance.type) : undefined;
   const frameKind = def?.frame ?? 'card';
@@ -52,8 +68,16 @@ export const WidgetFrame = forwardRef<HTMLDivElement, WidgetFrameProps>(function
   const { isResizing, isNarrow } = useGridStatus();
   const shouldHideOnResize = !editMode && settings.hideOnResize === true && (isResizing || isNarrow);
 
+  // ロック中は外枠ごと react-grid-layout のドラッグ対象から外す（dragConfig.cancel は
+  // 押した要素からウィジェット外枠自身までさかのぼって判定するため、外枠に付ければ全体に効く）。
+  // リサイズの取っ手は .locked 側の CSS で隠す。レイアウトのデータには手を入れないので、
+  // Grid.tsx の繊細な回避策（CLAUDE.md の Grid 節）には影響しない。
+  const locked = settings.locked === true;
+
   const rootClassName = cx(
     className,
+    locked && 'ant-no-drag',
+    locked && styles.locked,
     styles.frame,
     frameKind === 'bare' ? styles.bare : styles.card,
     editMode && styles.editing,
@@ -81,22 +105,26 @@ export const WidgetFrame = forwardRef<HTMLDivElement, WidgetFrameProps>(function
   const isCustomized = isWidgetStyleCustomized(settings);
 
   return (
-    <div ref={ref} className={rootClassName} style={{ ...gridStyle, ...backgroundStyle, ...textStyle }} {...rest}>
+    <div ref={ref} className={rootClassName} style={{ ...gridStyle, ...backgroundStyle, ...textStyle }} {...rest} onContextMenu={instance ? handleContextMenu : undefined}>
       {editMode && overlapping && (
-        <span className={styles.overlapWarning} title="他のウィジェットと重なっています">
+        <span className={styles.overlapWarning} title={t('他のウィジェットと重なっています')}>
           <TriangleAlert size={13} />
         </span>
       )}
 
       {editMode && (
         <div className={styles.header}>
-          <GripVertical size={14} className={styles.gripIcon} aria-hidden />
+          {locked ? (
+            <Lock size={14} className={styles.gripIcon} aria-hidden />
+          ) : (
+            <GripVertical size={14} className={styles.gripIcon} aria-hidden />
+          )}
           {Icon && <Icon size={14} className={styles.titleIcon} aria-hidden />}
-          <span className={styles.title}>{def ? def.name : '不明なウィジェット'}</span>
+          <span className={styles.title}>{def ? t(def.name) : t('不明なウィジェット')}</span>
           <button
             type="button"
             className={cx(styles.headerButton, 'ant-no-drag')}
-            title="水平方向の中央に配置"
+            title={t('水平方向の中央に配置')}
             onClick={() => centerWidgetHorizontally(instanceId)}
           >
             <AlignHorizontalJustifyCenter size={14} />
@@ -105,7 +133,7 @@ export const WidgetFrame = forwardRef<HTMLDivElement, WidgetFrameProps>(function
             <button
               type="button"
               className={cx(styles.headerButton, 'ant-no-drag')}
-              title={isCustomized ? `${def.name} の設定（個別スタイルを使用中）` : `${def.name} の設定`}
+              title={isCustomized ? t('{name} の設定（個別スタイルを使用中）', { name: t(def.name) }) : t('{name} の設定', { name: t(def.name) })}
               onClick={() => openPanel({ kind: 'widget', instanceId })}
             >
               <Settings2 size={14} />
@@ -114,8 +142,17 @@ export const WidgetFrame = forwardRef<HTMLDivElement, WidgetFrameProps>(function
           )}
           <button
             type="button"
+            className={cx(styles.headerButton, 'ant-no-drag', locked && styles.headerButtonActive)}
+            title={locked ? t('固定を解除') : t('位置とサイズを固定する')}
+            aria-pressed={locked}
+            onClick={() => patchWidgetSettings(instanceId, { locked: !locked })}
+          >
+            {locked ? <Lock size={14} /> : <LockOpen size={14} />}
+          </button>
+          <button
+            type="button"
             className={cx(styles.headerButton, 'ant-no-drag')}
-            title="このウィジェットを複製"
+            title={t('このウィジェットを複製')}
             onClick={() => duplicateWidget(instanceId)}
           >
             <Copy size={14} />
@@ -123,7 +160,7 @@ export const WidgetFrame = forwardRef<HTMLDivElement, WidgetFrameProps>(function
           <button
             type="button"
             className={cx(styles.headerButton, styles.danger, 'ant-no-drag')}
-            title="このウィジェットを削除"
+            title={t('このウィジェットを削除')}
             onClick={() => removeWidget(instanceId)}
           >
             <X size={14} />
@@ -140,14 +177,23 @@ export const WidgetFrame = forwardRef<HTMLDivElement, WidgetFrameProps>(function
           <div className={styles.unknown}>
             <TriangleAlert size={16} />
             <span>
-              種類「{instance?.type ?? '不明'}」のウィジェットは見つかりませんでした。
-              拡張機能のバージョンを戻した場合などに起こります。編集モードで削除できます。
+              {t('種類「{type}」のウィジェットは見つかりませんでした。 拡張機能のバージョンを戻した場合などに起こります。編集モードで削除できます。', { type: instance?.type ?? t('不明') })}
             </span>
           </div>
         )}
       </div>
 
       {children}
+      {menu && (
+        <WidgetContextMenu
+          instanceId={instanceId}
+          x={menu.x}
+          y={menu.y}
+          hasSettings={(def?.settingsSchema.length ?? 0) > 0}
+          locked={locked}
+          onClose={closeMenu}
+        />
+      )}
     </div>
   );
 });

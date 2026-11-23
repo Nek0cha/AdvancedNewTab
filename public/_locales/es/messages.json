@@ -1,0 +1,11 @@
+{
+  "extName": {
+    "message": "AdvancedNewTab"
+  },
+  "extDescription": {
+    "message": "Una página de nueva pestaña personalizable con widgets que puedes colocar libremente"
+  },
+  "actionTitle": {
+    "message": "AdvancedNewTab - Abrir ajustes"
+  }
+}

@@ -1,3 +1,4 @@
+import { translate } from '@/lib/i18n';
 import type { RssFetchRequest, RssFetchResponse } from '@/lib/messages';
 
 /**
@@ -8,9 +9,9 @@ export async function fetchFeedViaBackground(url: string): Promise<string> {
   const request: RssFetchRequest = { type: 'ant/rss-fetch', url };
   const response = (await browser.runtime.sendMessage(request)) as RssFetchResponse | undefined;
 
-  if (!response) throw new Error('background との通信に失敗しました');
+  if (!response) throw new Error(translate('background との通信に失敗しました'));
   if (!response.ok || response.text === undefined) {
-    throw new Error(response.error ?? 'フィードの取得に失敗しました');
+    throw new Error(response.error ?? translate('フィードの取得に失敗しました'));
   }
   return response.text;
 }

@@ -120,6 +120,24 @@ export function applyMutedAlpha(color: string): string {
  * lib/theme.ts の `--ant-accent-ring` と lib/widget-style.ts のウィジェット個別上書きの
  * 両方で同じ計算式を使うため、ここに切り出している。
  */
+/**
+ * アクセント色で塗った面の上に乗せる記号（チェックマーク等）の色。`--ant-accent-contrast` として使う。
+ */
+export function computeAccentContrast(accentColor: string): string {
+  // 塗りの明るさ（WCAG の相対輝度）で、上に乗せる記号を白か黒かに決める。
+  // 白で固定すると、テーマによってはアクセント色が明るく、チェックマークが塗りに溶けて見えなくなる。
+  if (!isValidHex(accentColor)) return '#ffffff';
+  const [r, g, b] = hexToRgbString(accentColor)
+    .split(',')
+    .map((c) => {
+      const v = Number(c) / 255;
+      return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+    }) as [number, number, number];
+  const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  // 白との対比と黒との対比が等しくなる境目（約 0.179）で切り替える
+  return luminance > 0.179 ? '#14110f' : '#ffffff';
+}
+
 export function computeAccentRing(accentColor: string): string {
   return `color-mix(in oklab, ${accentColor} 38%, transparent)`;
 }

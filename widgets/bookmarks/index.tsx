@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Loader2, Star } from 'lucide-react';
 
 import { PermissionGate } from '@/components/PermissionGate/PermissionGate';
+import { useT } from '@/lib/i18n';
 import { faviconUrl } from '@/lib/favicon';
 import { defineWidget, type WidgetProps } from '@/widgets/types';
 
@@ -19,6 +20,7 @@ interface Bookmark {
 }
 
 function BookmarksList({ settings, editMode }: WidgetProps<BookmarksSettings>) {
+  const t = useT();
   const [bookmarks, setBookmarks] = useState<Bookmark[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,19 +47,19 @@ function BookmarksList({ settings, editMode }: WidgetProps<BookmarksSettings>) {
   }, [settings.limit]);
 
   if (error) {
-    return <div className={styles.empty}>ブックマークを読み込めませんでした: {error}</div>;
+    return <div className={styles.empty}>{t('ブックマークを読み込めませんでした: {error}', { error })}</div>;
   }
   if (!bookmarks) {
     return (
       <div className={styles.loading}>
         <Loader2 size={20} className={styles.spinner} aria-hidden />
-        <span>読み込み中…</span>
+        <span>{t('読み込み中…')}</span>
       </div>
     );
   }
 
   if (bookmarks.length === 0) {
-    return <div className={styles.empty}>ブックマークがまだありません。</div>;
+    return <div className={styles.empty}>{t('ブックマークがまだありません。')}</div>;
   }
 
   return (
@@ -89,10 +91,11 @@ function BookmarksList({ settings, editMode }: WidgetProps<BookmarksSettings>) {
 }
 
 function BookmarksWidget(props: WidgetProps<BookmarksSettings>) {
+  const t = useT();
   return (
     <PermissionGate
       permissions={{ chrome: ['bookmarks'] }}
-      reason="ブックマークを表示するには、ブックマークへのアクセスを許可してください。"
+      reason={t('ブックマークを表示するには、ブックマークへのアクセスを許可してください。')}
     >
       <BookmarksList {...props} />
     </PermissionGate>
@@ -101,6 +104,7 @@ function BookmarksWidget(props: WidgetProps<BookmarksSettings>) {
 
 export const bookmarksWidget = defineWidget<BookmarksSettings>({
   type: 'bookmarks',
+  category: 'links',
   name: 'ブックマーク',
   description: '最近追加したブックマークを一覧表示します。',
   icon: Star,

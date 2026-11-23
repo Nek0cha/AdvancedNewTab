@@ -5,14 +5,20 @@ import type { PersistedState, ThemeConfig } from '@/lib/types';
  * 現在のスキーマバージョン。
  * PersistedState の構造を後方互換なく変更したら +1 し、lib/storage.ts の migrate に処理を足す。
  */
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 5;
 
 export const DEFAULT_THEME: ThemeConfig = {
   background: {
     active: 'gradient',
     solid: { color: '#11141b' },
     gradient: { from: '#241a2e', to: '#0c0d14', angle: 155 },
-    image: { src: '', fallbackColor: '#11141b', blur: 0, dim: 0.15 },
+    image: {
+      src: '',
+      fallbackColor: '#11141b',
+      blur: 0,
+      dim: 0.15,
+      slideshow: { enabled: false, images: [], intervalMinutes: 0, shuffle: false },
+    },
   },
   textColor: '#f1ecec',
   accentColor: '#ff8a4c',
@@ -33,6 +39,7 @@ export const DEFAULT_THEME: ThemeConfig = {
   // 元の位置付近へ自動的に戻ってくる（Grid.tsx のドロップ後圧縮を参照）。
   gridCompact: 'vertical',
   tabTitle: '新しいタブ',
+  locale: 'auto',
 };
 
 /**
@@ -81,6 +88,6 @@ export function createDefaultState(): PersistedState {
       'links-1': { type: 'links', settings: {} },
     },
     toolbarPosition: null,
-    layoutPresets: [null, null, null],
+    layoutPresets: [],
   };
 }

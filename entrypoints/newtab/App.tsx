@@ -1,16 +1,20 @@
 import { useEffect } from 'react';
 
+import { useT } from '@/lib/i18n';
 import { AddWidgetList } from '@/components/AddWidgetList/AddWidgetList';
+import { BackgroundImage } from '@/components/Background/BackgroundImage';
 import { Grid } from '@/components/Grid/Grid';
 import { SidePanel } from '@/components/SidePanel/SidePanel';
 import { ThemeSettingsPanel } from '@/components/SettingsPanel/ThemeSettingsPanel';
 import { WidgetSettingsPanel } from '@/components/SettingsPanel/WidgetSettingsPanel';
 import { Toolbar } from '@/components/Toolbar/Toolbar';
+import { UpdateNotice } from '@/components/UpdateNotice/UpdateNotice';
 import { useAppStore } from '@/lib/store';
 import { imageOverlayStyle } from '@/lib/theme';
 
 /** 開いているパネルに対応する見出しと中身。 */
 function PanelContent() {
+  const t = useT();
   const panel = useAppStore((s) => s.panel);
   const closePanel = useAppStore((s) => s.closePanel);
 
@@ -19,19 +23,19 @@ function PanelContent() {
   switch (panel.kind) {
     case 'add':
       return (
-        <SidePanel title="ウィジェットを追加" onClose={closePanel}>
+        <SidePanel title={t('ウィジェットを追加')} onClose={closePanel}>
           <AddWidgetList />
         </SidePanel>
       );
     case 'widget':
       return (
-        <SidePanel title="ウィジェットの設定" onClose={closePanel}>
+        <SidePanel title={t('ウィジェットの設定')} onClose={closePanel}>
           <WidgetSettingsPanel instanceId={panel.instanceId} />
         </SidePanel>
       );
     case 'theme':
       return (
-        <SidePanel title="見た目の設定" onClose={closePanel}>
+        <SidePanel title={t('見た目の設定')} onClose={closePanel}>
           <ThemeSettingsPanel />
         </SidePanel>
       );
@@ -67,20 +71,7 @@ export function App() {
 
   return (
     <>
-      {background.active === 'image' && background.image.src && (
-        <div
-          aria-hidden
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 0,
-            pointerEvents: 'none',
-            backgroundImage: `url("${background.image.src}")`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        />
-      )}
+      {background.active === 'image' && <BackgroundImage image={background.image} />}
       {overlay && (
         <div
           aria-hidden
@@ -91,6 +82,7 @@ export function App() {
       <Grid />
       <Toolbar />
       <PanelContent />
+      <UpdateNotice />
     </>
   );
 }

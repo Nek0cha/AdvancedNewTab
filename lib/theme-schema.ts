@@ -1,3 +1,4 @@
+import { LOCALES } from '@/lib/i18n/locales';
 import { WEIGHT_PRESET_OPTIONS } from '@/lib/text-weight';
 import type { FieldSchema } from '@/widgets/types';
 
@@ -8,6 +9,12 @@ import type { FieldSchema } from '@/widgets/types';
  * 専用のエディタ（BackgroundEditor / FontEditor）を別に用意している。
  */
 export const THEME_SCHEMA: ReadonlyArray<FieldSchema> = [
+  {
+    kind: 'select',
+    key: 'locale',
+    label: '表示言語',
+    options: [{ value: 'auto', label: '自動（ブラウザの言語）' }, ...LOCALES.map((l) => ({ value: l.id, label: l.label }))],
+  },
   {
     kind: 'text',
     key: 'tabTitle',

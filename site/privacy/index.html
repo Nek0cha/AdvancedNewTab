@@ -31,7 +31,7 @@
   <article class="doc">
     <a class="back" href="../index.html">&larr; トップに戻る</a>
     <h1>プライバシーポリシー</h1>
-    <p class="doc-updated">最終更新日: 2026年8月11日</p>
+    <p class="doc-updated">最終更新日: 2026年11月23日</p>
 
     <p class="draft-note">
       <!-- Memo -->
@@ -56,6 +56,16 @@
       これらのデータにアクセスすることはありません。端末間で設定を引き継ぐ場合は、設定画面の
       JSONエクスポート/インポート機能をユーザー自身の操作で使用していただく形になります（自動同期は行いません）。
     </p>
+    <p>
+      検索ウィジェットで検索した語は、候補として表示するために同じく<code>chrome.storage.local</code>に保存されます。
+      JSONエクスポートには含まれず、外部へ送信されることもありません。検索ウィジェットの設定で
+      「検索履歴から候補を出す」をオフにすると、保存済みの履歴も削除されます。
+    </p>
+    <p>
+      リンク集にURLを入力したときの表示名の自動入力は、他のウィジェットのためにそのサイトへのアクセスが
+      すでに許可されている場合に限り、ユーザーのブラウザから直接そのページを読み込んで名前を取得します。
+      この機能のために新たな権限を要求することはなく、取得した名前は入力欄に入れるためだけに使用します。
+    </p>
 
     <h2 class="inline">権限について</h2>
     <p>
@@ -66,6 +76,7 @@
     <ul>
       <li><strong>topSites</strong>（よく使うサイトウィジェット）: ブラウザが保持する閲覧頻度データを読み取り、画面に表示するためだけに使用します。</li>
       <li><strong>bookmarks</strong>（ブックマークウィジェット）: 最近のブックマークを画面に表示するためだけに使用します。</li>
+      <li><strong>sessions・tabs</strong>（最近閉じたタブウィジェット）: 最近閉じたタブのタイトルとURLを画面に表示し、クリックで開き直すためだけに使用します。<code>sessions</code>だけではタイトルとURLを読み取れないため、<code>tabs</code>も合わせて要求します。</li>
       <li><strong>ホストアクセス（天気・RSS・YouTube連携）</strong>: ユーザーが指定した外部サービス（Open-Meteo、指定したRSSフィード、YouTube/YouTube Music）に、ユーザーのブラウザから直接アクセスします。開発者のサーバーを経由することはありません。</li>
     </ul>
 
@@ -98,6 +109,7 @@
       <span>&copy; 2026 Neko</span>
       <div class="footer-links">
         <a href="../index.html">トップ</a>
+        <a href="../changelog/">更新履歴</a>
         <a href="../terms/">利用規約</a>
         <a href="../privacy/">プライバシーポリシー</a>
         <a href="https://github.com/Nek0cha/AdvancedNewTab" target="_blank" rel="noopener noreferrer">GitHub</a>

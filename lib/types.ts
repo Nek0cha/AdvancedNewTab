@@ -1,3 +1,5 @@
+import type { LocaleSetting } from '@/lib/i18n/locales';
+
 /**
  * アプリ全体で共有する永続化データの型定義。
  *
@@ -48,7 +50,23 @@ export interface BackgroundConfig {
     blur: number;
     /** 背景を暗くする度合い（0〜1） */
     dim: number;
+    /**
+     * 複数の画像を順に切り替えて表示する。有効で画像が1枚以上あるときは `src` の代わりに使う。
+     * `src` とは別に持つのは、スライドショーをオフにしたとき、元の1枚に戻れるようにするため
+     * （BackgroundConfig が3方式を同時に保持しているのと同じ考え方）。
+     */
+    slideshow: BackgroundSlideshow;
   };
+}
+
+export interface BackgroundSlideshow {
+  enabled: boolean;
+  /** dataURL の一覧（widgets/image と同じく、選んだ画像をそのまま取り込む） */
+  images: string[];
+  /** 切り替える間隔（分）。0 は「新しいタブを開くたびに次の画像」 */
+  intervalMinutes: number;
+  /** 順番どおりではなく、ランダムに選ぶ */
+  shuffle: boolean;
 }
 
 /** ユーザーがアップロードしたカスタムフォント。背景画像と同様 dataURL で保持する。 */
@@ -107,6 +125,8 @@ export interface ThemeConfig {
   gridCompact: 'none' | 'vertical';
   /** ブラウザタブに表示されるページタイトル */
   tabTitle: string;
+  /** 表示言語。'auto' はブラウザの言語に従う */
+  locale: LocaleSetting;
 }
 
 /** 配置されたウィジェット1個の実体。設定の中身は各ウィジェット定義が決める。 */
@@ -117,8 +137,14 @@ export interface WidgetInstance {
   settings: Record<string, unknown>;
 }
 
-/** レイアウト保存機能（最大3枠）の1件分。配置・ウィジェット構成・見た目のテーマを丸ごと保存する。 */
+/** レイアウト保存機能の1件分。配置・ウィジェット構成・見た目のテーマを丸ごと保存する。 */
 export interface LayoutPreset {
+  /**
+   * 並べ替え・削除をしても同じ1件を指し続けるための識別子。
+   * v4 までは配列の位置（スロット番号）で参照していたが、件数を可変にしたことで
+   * 位置がずれるようになったため、v5 で導入した。
+   */
+  id: string;
   name: string;
   savedAt: number;
   layouts: Partial<Record<BreakpointName, Layout>>;
@@ -129,9 +155,6 @@ export interface LayoutPreset {
    */
   theme?: ThemeConfig;
 }
-
-/** レイアウト保存の最大枠数。 */
-export const MAX_LAYOUT_PRESETS = 3;
 
 export interface PersistedState {
   /** マイグレーション用のスキーマバージョン */
@@ -146,8 +169,8 @@ export interface PersistedState {
    * null なら既定位置（右上）に固定表示する。components/Toolbar/Toolbar.tsx 参照。
    */
   toolbarPosition: { x: number; y: number } | null;
-  /** レイアウト保存の3枠。未使用のスロットは null。 */
-  layoutPresets: Array<LayoutPreset | null>;
+  /** 保存したレイアウト。新しく保存したものほど後ろに並ぶ。件数の上限は無い。 */
+  layoutPresets: LayoutPreset[];
   /**
    * ローカルでの変更回数（commit() のたびに +1）。
    *

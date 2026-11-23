@@ -1,0 +1,14 @@
+# esbuild はネイティブバイナリの取得にインストールスクリプトが必要。
+# spawn-sync は古い依存の互換用で、スクリプトを実行しなくても動作する。
+allowBuilds:
+  esbuild: true
+  spawn-sync: false
+
+# wxt → web-ext-run（pnpm dev のブラウザ自動起動）経由で入る古い依存の脆弱性対応。
+# いずれも配布物には含まれない開発時のみの依存。wxt 側が更新されたら外してよい。
+# esbuild（low）は wxt が 0.27 系を前提にしているため据え置いている。
+overrides:
+  shell-quote: ^1.9.0
+  tmp: ^0.2.6
+  adm-zip: ^0.6.1
+  uuid: ^11.1.1

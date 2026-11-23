@@ -1,3 +1,5 @@
+import { setActiveLocale, translate } from '@/lib/i18n';
+
 /**
  * ThemeConfig を実際のCSSへ落とし込む層。
  *
@@ -5,7 +7,7 @@
  * var(--ant-*) だけを参照する。これによりテーマ変更が「変数の差し替え1本」で済む。
  */
 
-import { applyMutedAlpha, CARD_OPACITY_SCALE, computeAccentRing, computeMutedColor, hexToRgbString } from '@/lib/color';
+import { applyMutedAlpha, CARD_OPACITY_SCALE, computeAccentContrast, computeAccentRing, computeMutedColor, hexToRgbString } from '@/lib/color';
 import { getFontStack } from '@/lib/fonts';
 import { WEIGHT_PRESET_DELTA } from '@/lib/text-weight';
 import {
@@ -48,12 +50,17 @@ export function backgroundToCss(bg: BackgroundConfig): string {
  * 画像背景の場合、src が十分に短いときだけ画像込みでミラーする。
  * 長い dataURL は下地の色のみとし、画像は React マウント後に載せる
  * （白い一瞬は防げるので、体感上の目的は達成できる）。
+ *
+ * スライドショー中は下地の色だけにする。次に出す画像は React 側（components/Background）が
+ * 開いたときに選ぶため、ここで前回の画像を塗ると「前の画像が見えてから次の画像に変わる」
+ * チラつきになってしまう。
  */
 export function toBootTheme(theme: ThemeConfig): BootTheme {
   const bg = theme.background;
   let background = backgroundToCss(bg);
+  const slideshowActive = bg.image.slideshow.enabled && bg.image.slideshow.images.length > 0;
 
-  if (bg.active === 'image' && bg.image.src && bg.image.src.length <= MAX_MIRRORED_IMAGE_LENGTH) {
+  if (bg.active === 'image' && !slideshowActive && bg.image.src && bg.image.src.length <= MAX_MIRRORED_IMAGE_LENGTH) {
     background = `${bg.image.fallbackColor} url("${bg.image.src}") center / cover no-repeat fixed`;
   }
 
@@ -115,6 +122,7 @@ export function applyTheme(theme: ThemeConfig): void {
   s.setProperty('--ant-text', theme.textColor);
   s.setProperty('--ant-accent', theme.accentColor);
   s.setProperty('--ant-accent-ring', computeAccentRing(theme.accentColor));
+  s.setProperty('--ant-accent-contrast', computeAccentContrast(theme.accentColor));
   // カード内の「サブアクセントカラー」（カレンダー曜日・時計の目盛り・検索の
   // プレースホルダー等、widgets/**/*.module.css が参照する --ant-muted）。以前は
   // rgba(241, 236, 236, 0.6) の完全固定値だったため、テーマの文字色・アクセントカラーを
@@ -158,7 +166,9 @@ export function applyTheme(theme: ThemeConfig): void {
   // ポップオーバー（ドロップダウン/カラーピッカー）は判読性優先でカード面より不透明度を上げる
   s.setProperty('--ant-menu-bg', 'rgba(24, 21, 19, 0.92)');
 
-  document.title = theme.tabTitle || '新しいタブ';
+  setActiveLocale(theme.locale);
+  // 既定のタブ名のまま使っている場合だけ訳す（ユーザーが付けた名前は訳さない）
+  document.title = theme.tabTitle && theme.tabTitle !== '新しいタブ' ? theme.tabTitle : translate('新しいタブ');
 
   writeBootThemeMirror(theme);
 }

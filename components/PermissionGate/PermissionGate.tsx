@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { LockKeyhole } from 'lucide-react';
 
+import { useT } from '@/lib/i18n';
 import { hasPermissions, requestPermissions, type PermissionSpec } from '@/lib/permissions';
 
 import styles from './permission-gate.module.css';
@@ -20,6 +21,7 @@ interface PermissionGateProps {
  * 再許可を促す導線を出せるようにこのコンポーネントを挟む。
  */
 export function PermissionGate({ permissions, reason, children }: PermissionGateProps) {
+  const t = useT();
   const [granted, setGranted] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -38,7 +40,7 @@ export function PermissionGate({ permissions, reason, children }: PermissionGate
   return (
     <div className={styles.root}>
       <LockKeyhole size={20} className={styles.lockIcon} />
-      <p className={styles.message}>{reason}</p>
+      <p className={styles.message}>{t(reason)}</p>
       <button
         type="button"
         className={styles.button}
@@ -47,7 +49,7 @@ export function PermissionGate({ permissions, reason, children }: PermissionGate
           void requestPermissions(permissions).then((result) => setGranted(result));
         }}
       >
-        アクセスを許可する
+        {t('アクセスを許可する')}
       </button>
     </div>
   );

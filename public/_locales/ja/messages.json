@@ -1,0 +1,11 @@
+{
+  "extName": {
+    "message": "AdvancedNewTab"
+  },
+  "extDescription": {
+    "message": "ウィジェットを自由に配置できる、カスタマイズ可能な新規タブページ"
+  },
+  "actionTitle": {
+    "message": "AdvancedNewTab - 設定を開く"
+  }
+}

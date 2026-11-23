@@ -14,8 +14,11 @@ export default defineConfig({
     build: { modulePreload: false },
   }),
   manifest: {
-    name: 'AdvancedNewTab',
-    description: 'ウィジェットを自由に配置できる、カスタマイズ可能な新規タブページ',
+    // 名前・説明は public/_locales/<言語>/messages.json から引く。
+    // 対応外の言語では default_locale（日本語）が使われる。ストア掲載の既定言語も兼ねるため日本語にしている。
+    name: '__MSG_extName__',
+    description: '__MSG_extDescription__',
+    default_locale: 'ja',
 
     // 必須権限は「インストール時に警告が出ないもの」だけに絞っている。
     // ユーザーデータへのアクセスを伴う権限はすべて optional_permissions 側に置き、
@@ -42,7 +45,7 @@ export default defineConfig({
       // 変更」と「検索設定の変更」の二重目的とみなされ却下されたため撤去した。
       'search',
     ],
-    optional_permissions: ['topSites', 'bookmarks'],
+    optional_permissions: ['topSites', 'bookmarks', 'sessions', 'tabs'],
     optional_host_permissions: ['https://*/*'],
     // options_ui はここでは指定しない： WXTは options エントリーポイントを検出すると
     // manifest.options_ui を自前で（丸ごと）生成し直すため、ここに書いても黙って上書きされる。
@@ -52,7 +55,7 @@ export default defineConfig({
     // default_popup を設定しないことで action.onClicked を発火させ、
     // ツールバーアイコンのワンクリックで設定画面を開けるようにする（background.ts 参照）
     action: {
-      default_title: 'AdvancedNewTab - 設定を開く',
+      default_title: '__MSG_actionTitle__',
     },
   },
 });

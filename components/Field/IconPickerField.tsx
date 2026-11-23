@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { Upload } from 'lucide-react';
 
+import { useT } from '@/lib/i18n';
 import { cx } from '@/lib/cx';
 import { normalizeIconValue, svgToDataUrl, tintSvgCode, type IconValue } from '@/lib/icon-value';
 import { LINK_ICON_OPTIONS } from '@/lib/link-icons';
@@ -40,6 +41,7 @@ const TABS: ReadonlyArray<{ source: IconValue['source']; label: string }> = [
  * 同じタブ切り替えパターンを踏襲している。
  */
 export function IconPickerField({ value, onChange }: IconPickerFieldProps) {
+  const t = useT();
   const current = normalizeIconValue(value);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -70,13 +72,13 @@ export function IconPickerField({ value, onChange }: IconPickerFieldProps) {
               else onChange({ source: 'url', url: '' });
             }}
           >
-            {tab.label}
+            {t(tab.label)}
           </button>
         ))}
       </div>
 
       {current.source === 'default' && (
-        <p className={fieldStyles.help}>サイトのfaviconを自動で表示します。</p>
+        <p className={fieldStyles.help}>{t('サイトのfaviconを自動で表示します。')}</p>
       )}
 
       {current.source === 'lucide' && (
@@ -85,7 +87,7 @@ export function IconPickerField({ value, onChange }: IconPickerFieldProps) {
             <button
               key={option.id}
               type="button"
-              title={option.label}
+              title={t(option.label)}
               className={cx(styles.iconOption, current.id === option.id && styles.iconOptionActive)}
               onClick={() => onChange({ source: 'lucide', id: option.id })}
             >
@@ -107,7 +109,7 @@ export function IconPickerField({ value, onChange }: IconPickerFieldProps) {
             className={backgroundEditorStyles.fileButton}
             onClick={() => fileInputRef.current?.click()}
           >
-            <Upload size={14} /> 画像をアップロード
+            <Upload size={14} /> {t('画像をアップロード')}
           </button>
           <input
             ref={fileInputRef}
@@ -153,7 +155,7 @@ export function IconPickerField({ value, onChange }: IconPickerFieldProps) {
             value={current.url}
             onChange={(e) => onChange({ source: 'url', url: e.target.value })}
           />
-          <span className={fieldStyles.help}>外部の画像URLを直接指定します（通信が発生します）。</span>
+          <span className={fieldStyles.help}>{t('外部の画像URLを直接指定します（通信が発生します）。')}</span>
         </>
       )}
     </>

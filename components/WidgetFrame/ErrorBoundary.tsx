@@ -1,5 +1,7 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 
+import { translate } from '@/lib/i18n';
+
 interface Props {
   /** エラー表示に添えるウィジェット名 */
   label: string;
@@ -34,7 +36,7 @@ export class WidgetErrorBoundary extends Component<Props, State> {
 
     return (
       <div style={{ padding: 12, fontSize: 13, lineHeight: 1.6 }}>
-        <strong>{this.props.label} を表示できません</strong>
+        <strong>{translate('{label} を表示できません', { label: translate(this.props.label) })}</strong>
         <div style={{ opacity: 0.7, marginTop: 4, wordBreak: 'break-word' }}>{error.message}</div>
       </div>
     );

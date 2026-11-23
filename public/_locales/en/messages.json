@@ -1,0 +1,11 @@
+{
+  "extName": {
+    "message": "AdvancedNewTab"
+  },
+  "extDescription": {
+    "message": "A customizable new tab page with freely arrangeable widgets"
+  },
+  "actionTitle": {
+    "message": "AdvancedNewTab - Open settings"
+  }
+}

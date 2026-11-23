@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Plus } from 'lucide-react';
 
+import { useT } from '@/lib/i18n';
 import { DARK_UI_ICON_TINT, svgToDataUrl, tintSvgCode } from '@/lib/icon-value';
 import type { ListPreset } from '@/widgets/types';
 
@@ -25,6 +26,7 @@ interface AddWithPresetsProps {
  * ポータルを使わないとメニューが画面外に飛んでしまう（Dropdown参照）。
  */
 export function AddWithPresets({ addLabel, presets, onAddBlank, onAddPreset }: AddWithPresetsProps) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -94,7 +96,7 @@ export function AddWithPresets({ addLabel, presets, onAddBlank, onAddPreset }: A
               }}
             >
               <span className={popoverStyles.blankIcon} aria-hidden />
-              <span>空の項目を追加</span>
+              <span>{t('空の項目を追加')}</span>
             </button>
 
             <div className={popoverStyles.divider} />
@@ -123,7 +125,7 @@ export function AddWithPresets({ addLabel, presets, onAddBlank, onAddPreset }: A
                   ) : (
                     <span className={popoverStyles.blankIcon} aria-hidden />
                   )}
-                  <span>{preset.label}</span>
+                  <span>{t(preset.label)}</span>
                 </button>
               ))}
             </div>

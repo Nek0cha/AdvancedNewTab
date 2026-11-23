@@ -17,8 +17,10 @@ import { imageWidget } from '@/widgets/image';
 import { linksWidget } from '@/widgets/links';
 import { memoWidget } from '@/widgets/memo';
 import { pomodoroWidget } from '@/widgets/pomodoro';
+import { recentlyClosedWidget } from '@/widgets/recently-closed';
 import { rssWidget } from '@/widgets/rss';
 import { searchWidget } from '@/widgets/search';
+import { todoWidget } from '@/widgets/todo';
 import { topSitesWidget } from '@/widgets/topsites';
 import { weatherWidget } from '@/widgets/weather';
 import { worldClockWidget } from '@/widgets/worldclock';
@@ -53,6 +55,7 @@ function register<S extends Record<string, unknown>>(def: WidgetDef<S>): void {
       ...WIDGET_BACKGROUND_DEFAULTS,
       ...WIDGET_TEXT_DEFAULTS,
       hideOnResize: hideOnResizeDefault,
+      locked: false,
       ...def.defaultSettings,
     },
     settingsSchema: [
@@ -60,6 +63,7 @@ function register<S extends Record<string, unknown>>(def: WidgetDef<S>): void {
       ...widgetBackgroundFields({ border: includeBorder }),
       ...widgetTextFields(),
       { kind: 'toggle', key: 'hideOnResize', label: 'ウィンドウサイズ変更時に自動で非表示にする' },
+      { kind: 'toggle', key: 'locked', label: '位置とサイズを固定する' },
     ],
   } as unknown as AnyWidgetDef;
 
@@ -70,6 +74,7 @@ register(clockWidget);
 register(searchWidget);
 register(linksWidget);
 register(memoWidget);
+register(todoWidget);
 register(calendarWidget);
 register(countdownWidget);
 register(pomodoroWidget);
@@ -89,6 +94,7 @@ register(weatherWidget);
 if (import.meta.env.VITE_TARGET !== 'web') {
   register(topSitesWidget);
   register(bookmarksWidget);
+  register(recentlyClosedWidget);
   register(rssWidget);
   register(youtubeMediaWidget);
 }

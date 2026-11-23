@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
 import { Check, GripVertical, Palette, Pencil, Plus, Redo2, Undo2 } from 'lucide-react';
 
+import { useT } from '@/lib/i18n';
 import { cx } from '@/lib/cx';
 import { useAppStore } from '@/lib/store';
 
@@ -43,6 +44,7 @@ function isEditableTarget(el: Element | null): boolean {
  * 既に好きな場所へ動かしている場合は、その位置を尊重して自動シフトしない。
  */
 export function Toolbar() {
+  const t = useT();
   const editMode = useAppStore((s) => s.editMode);
   const setEditMode = useAppStore((s) => s.setEditMode);
   const panel = useAppStore((s) => s.panel);
@@ -97,11 +99,10 @@ export function Toolbar() {
     };
   }, [dragging, setToolbarPosition]);
 
-  // Ctrl+Z / Ctrl+Y（Ctrl+Shift+Z）でUndo/Redo。編集モード中だけ、かつ入力欄に
-  // フォーカスが無いときだけ発動させる（isEditableTarget 参照）。
+  // Ctrl+Z / Ctrl+Y（Ctrl+Shift+Z）でUndo/Redo。入力欄にフォーカスが無いときだけ発動させる
+  // （isEditableTarget 参照）。以前は編集モード中だけだったが、右クリックメニューから
+  // 通常表示のまま削除・複製・テーマ変更ができるようになったため、常に有効にしている。
   useEffect(() => {
-    if (!editMode) return;
-
     const onKeyDown = (e: KeyboardEvent): void => {
       const isModifier = e.ctrlKey || e.metaKey;
       if (!isModifier || isEditableTarget(document.activeElement)) return;
@@ -118,7 +119,7 @@ export function Toolbar() {
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [editMode, undo, redo]);
+  }, [undo, redo]);
 
   const handleGripPointerDown = (e: ReactPointerEvent<HTMLButtonElement>): void => {
     const el = toolbarRef.current;
@@ -147,7 +148,7 @@ export function Toolbar() {
       <button
         type="button"
         className={cx(styles.grip, 'ant-no-drag')}
-        title="ドラッグで移動（ダブルクリックで既定位置に戻す）"
+        title={t('ドラッグで移動（ダブルクリックで既定位置に戻す）')}
         onPointerDown={handleGripPointerDown}
         onDoubleClick={() => setToolbarPosition(null)}
       >
@@ -162,7 +163,7 @@ export function Toolbar() {
             onClick={() => openPanel({ kind: 'add' })}
           >
             <Plus size={15} />
-            ウィジェット
+            {t('ウィジェット')}
           </button>
           <button
             type="button"
@@ -170,13 +171,13 @@ export function Toolbar() {
             onClick={() => openPanel({ kind: 'theme' })}
           >
             <Palette size={15} />
-            見た目
+            {t('見た目')}
           </button>
           <button
             type="button"
             className={styles.button}
             disabled={!canUndo}
-            title="元に戻す（Ctrl+Z）"
+            title={t('元に戻す（Ctrl+Z）')}
             onClick={() => undo()}
           >
             <Undo2 size={15} />
@@ -185,21 +186,27 @@ export function Toolbar() {
             type="button"
             className={styles.button}
             disabled={!canRedo}
-            title="やり直す（Ctrl+Y）"
+            title={t('やり直す（Ctrl+Y）')}
             onClick={() => redo()}
           >
             <Redo2 size={15} />
           </button>
         </>
       )}
+      {/* 通常表示では、取り消せる操作があるときだけ「元に戻す」を出す（普段の見た目は増やさない） */}
+      {!editMode && canUndo && (
+        <button type="button" className={styles.button} title={t('元に戻す（Ctrl+Z）')} onClick={() => undo()}>
+          <Undo2 size={15} />
+        </button>
+      )}
       <button
         type="button"
         className={cx(styles.button, editMode && styles.primary)}
         onClick={() => setEditMode(!editMode)}
-        title={editMode ? '編集を終了する' : 'レイアウトを編集する'}
+        title={editMode ? t('編集を終了する') : t('レイアウトを編集する')}
       >
         {editMode ? <Check size={15} /> : <Pencil size={15} />}
-        {editMode ? '完了' : '編集'}
+        {editMode ? t('完了') : t('編集')}
       </button>
     </div>
   );

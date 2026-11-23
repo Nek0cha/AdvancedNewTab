@@ -1,5 +1,7 @@
 import { useRef } from 'react';
 
+import { useT } from '@/lib/i18n';
+
 import styles from './clock.module.css';
 
 interface AnalogClockProps {
@@ -30,6 +32,7 @@ function useUnwrappedAngle(rawAngle: number): number {
 
 /** シンプルな文字盤のアナログ時計。SVGの回転で針を表現する。 */
 export function AnalogClock({ now, showSeconds }: AnalogClockProps) {
+  const t = useT();
   const hours = now.getHours() % 12;
   const minutes = now.getMinutes();
   const seconds = now.getSeconds();
@@ -40,7 +43,7 @@ export function AnalogClock({ now, showSeconds }: AnalogClockProps) {
   const secondAngle = useUnwrappedAngle(rawSecondAngle);
 
   return (
-    <svg className={styles.analogFace} viewBox="0 0 100 100" role="img" aria-label="アナログ時計">
+    <svg className={styles.analogFace} viewBox="0 0 100 100" role="img" aria-label={t('アナログ時計')}>
       <circle className={styles.analogRim} cx="50" cy="50" r="47" />
       {TICKS.map((i) => {
         const isMajor = i % 3 === 0;

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
+import { useT } from '@/lib/i18n';
 import styles from './number-stepper.module.css';
 
 interface NumberStepperProps {
@@ -33,6 +34,7 @@ function roundToStep(value: number, step: number): number {
  * 独自の上下矢印ボタンに置き換えたもの。長押しで連続増減できる。
  */
 export function NumberStepper({ id, value, min, max, step = 1, onChange }: NumberStepperProps) {
+  const t = useT();
   const [draft, setDraft] = useState(String(value));
   const repeatTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const repeatIntervalRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
@@ -97,7 +99,7 @@ export function NumberStepper({ id, value, min, max, step = 1, onChange }: Numbe
           type="button"
           className={styles.stepButton}
           tabIndex={-1}
-          aria-label="増やす"
+          aria-label={t('増やす')}
           disabled={max !== undefined && value >= max}
           onPointerDown={() => startRepeat(1)}
           onPointerUp={stopRepeat}
@@ -109,7 +111,7 @@ export function NumberStepper({ id, value, min, max, step = 1, onChange }: Numbe
           type="button"
           className={styles.stepButton}
           tabIndex={-1}
-          aria-label="減らす"
+          aria-label={t('減らす')}
           disabled={min !== undefined && value <= min}
           onPointerDown={() => startRepeat(-1)}
           onPointerUp={stopRepeat}

@@ -11,21 +11,21 @@ RSS, a YouTube/YouTube Music mini player). See `README.md` for the user-facing f
 ## Commands
 
 ```bash
-npm install       # also runs `wxt prepare` (postinstall) to generate .wxt/ types
-npm run dev        # dev server with HMR, loads as unpacked extension
-npm run dev:firefox
-npm run build      # production build -> .output/chrome-mv3
-npm run build:firefox
-npm run compile    # tsc --noEmit — run this after any change, it's the fastest correctness check
-npm run zip        # production build + zip -> .output/*.zip (what gets distributed via GitHub Releases)
-npm run zip:firefox
+pnpm install       # also runs `wxt prepare` (postinstall) to generate .wxt/ types
+pnpm dev        # dev server with HMR, loads as unpacked extension
+pnpm dev:firefox
+pnpm build      # production build -> .output/chrome-mv3
+pnpm build:firefox
+pnpm compile    # tsc --noEmit — run this after any change, it's the fastest correctness check
+pnpm zip        # production build + zip -> .output/*.zip (what gets distributed via GitHub Releases)
+pnpm zip:firefox
 ```
 
-There is no test suite and no lint script configured. `npm run compile` (strict TypeScript, see
+There is no test suite and no lint script configured. `pnpm compile` (strict TypeScript, see
 `tsconfig.json` — `strict: true`, `noUncheckedIndexedAccess: true`) is the primary safety net; treat a
 clean `tsc --noEmit` as a required gate before considering a change done.
 
-To manually verify a change end-to-end: `npm run build`, then load `.output/chrome-mv3` as an unpacked
+To manually verify a change end-to-end: `pnpm build`, then load `.output/chrome-mv3` as an unpacked
 extension via `chrome://extensions` (developer mode → "Load unpacked"). Chrome does **not** hot-reload
 an already-open new-tab page or an already-loaded extension after files change on disk — after rebuilding,
 click the reload icon on the extension card in `chrome://extensions` and close/reopen any new-tab pages.
@@ -35,8 +35,9 @@ click the reload icon on the extension card in `chrome://extensions` and close/r
 ### Entry points (`entrypoints/`)
 
 - `newtab/` — the dashboard itself (`chrome_url_overrides.newtab`, auto-wired by WXT from the directory name).
-- `options/` — settings page (JSON export/import; most per-widget/theme editing actually happens in the
-  newtab side panel, not here). `open_in_tab: true` is set via a `<meta name="manifest.open_in_tab">` tag
+- `options/` — thin settings page that just renders `components/SettingsPanel/BackupSection.tsx` (JSON
+  export/import). Every setting, including that same backup section, lives in the newtab side panel's
+  appearance tab; the options page is kept only as the toolbar-icon / store "Options" entry point. `open_in_tab: true` is set via a `<meta name="manifest.open_in_tab">` tag
   in `entrypoints/options/index.html`, **not** `wxt.config.ts`'s `manifest.options_ui` — WXT detects the
   `options` entrypoint and regenerates `manifest.options_ui` from that entrypoint's own meta tags,
   silently discarding whatever `wxt.config.ts` sets there (confirmed by reading
@@ -134,7 +135,7 @@ Comparing `external.rev <= highestLocalRev` instead is immune to arrival order: 
 never higher than what's already applied locally, no matter how late it arrives.
 
 `chrome.storage.sync` is deliberately not used (100KB/8KB quota won't fit a background-image data URL);
-cross-device transfer goes through JSON export/import on the options page instead.
+cross-device transfer goes through JSON export/import (`BackupSection`) instead.
 
 Schema migrations live in `lib/storage.ts`'s `migrateRaw()`, keyed off `SCHEMA_VERSION` in
 `lib/defaults.ts`. **Do the shape conversion on the raw/untyped object before the generic
@@ -144,7 +145,7 @@ silently pass through merged with new defaults.
 
 A fresh install's very first state is `createDefaultState()` (hardcoded in `lib/defaults.ts`), *unless*
 `lib/default-state.json` is non-`null` — that file (default `null`) is meant to be replaced wholesale with
-a real `PersistedState` exported from the options page's JSON download, and `loadState()` only consults it
+a real `PersistedState` exported from the backup section's JSON download, and `loadState()` only consults it
 when storage is completely empty (never on top of an existing install). It's routed through the same
 `normalize()` used for imports, so a stale schema in it self-heals the same way an old exported JSON
 would. `createDefaultState()` itself stays untouched by this feature — `normalize()` still falls back to
@@ -265,7 +266,8 @@ through to the OS's own Japanese font via the fallback stack baked into every `F
 
 `wxt.config.ts`'s required `permissions` is deliberately minimal (`storage`, `unlimitedStorage`,
 `favicon`, `alarms`, `scripting`) so installing the extension triggers no scary prompt. Everything else —
-`topSites`, `bookmarks`, `history`, `sessions`, and all host access (`optional_host_permissions:
+`topSites`, `bookmarks`, `sessions` + `tabs` (requested together by the recently-closed widget —
+`sessions` alone returns closed tabs with empty `url`/`title`), and all host access (`optional_host_permissions:
 ['https://*/*']`) — is `optional_*` and requested through `lib/permissions.ts`'s
 `requestWidgetPermissions()` only when a widget needing it is actually added
 (`components/AddWidgetList/AddWidgetList.tsx`). `chrome.permissions.request()` only works inside the
@@ -314,7 +316,7 @@ never dedupe (both fields change every single poll), spamming a message every se
 
 A separate, mostly-static landing site — `terms/` and `privacy/` are directories (not `.html` files) so
 they're reachable at extension-less `/terms` / `/privacy` URLs on static hosts, the same trick `site/app/`
-(the `npm run build:web` output) already used. It has its own locked design system: read `site/design.md`
+(the `pnpm build:web` output) already used. It has its own locked design system: read `site/design.md`
 before touching any page under `site/`, and see `site/README.md` for how the pieces fit together.
 `lib/site-links.ts` is the one place the extension itself (the appearance tab's "about" links) points out
 to that site, independent of everything else under `site/`.
