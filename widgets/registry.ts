@@ -17,8 +17,10 @@ import { imageWidget } from '@/widgets/image';
 import { linksWidget } from '@/widgets/links';
 import { memoWidget } from '@/widgets/memo';
 import { pomodoroWidget } from '@/widgets/pomodoro';
+import { recentlyClosedWidget } from '@/widgets/recently-closed';
 import { rssWidget } from '@/widgets/rss';
 import { searchWidget } from '@/widgets/search';
+import { todoWidget } from '@/widgets/todo';
 import { topSitesWidget } from '@/widgets/topsites';
 import { weatherWidget } from '@/widgets/weather';
 import { worldClockWidget } from '@/widgets/worldclock';
@@ -72,6 +74,7 @@ register(clockWidget);
 register(searchWidget);
 register(linksWidget);
 register(memoWidget);
+register(todoWidget);
 register(calendarWidget);
 register(countdownWidget);
 register(pomodoroWidget);
@@ -91,6 +94,7 @@ register(weatherWidget);
 if (import.meta.env.VITE_TARGET !== 'web') {
   register(topSitesWidget);
   register(bookmarksWidget);
+  register(recentlyClosedWidget);
   register(rssWidget);
   register(youtubeMediaWidget);
 }
