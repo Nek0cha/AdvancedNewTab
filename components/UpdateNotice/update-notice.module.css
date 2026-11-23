@@ -1,0 +1,80 @@
+/* テーマに関係なく読めるよう、Toolbar や右クリックメニューと同じ常時ダークの配色にする */
+.root {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  z-index: 150;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: calc(100vw - 32px);
+  padding: 8px 8px 8px 14px;
+  border: 1px solid var(--ant-field-border);
+  border-radius: 999px;
+  background: var(--ant-menu-bg);
+  color: var(--ant-chrome-text);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  font-family: var(--ant-app-font);
+  font-size: 13px;
+  transform: translateX(-50%);
+  animation: update-notice-in 240ms var(--ant-ease) both;
+}
+
+@keyframes update-notice-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root {
+    animation: none;
+  }
+}
+
+.icon {
+  flex: 0 0 auto;
+  color: var(--ant-chrome-accent);
+}
+
+.message {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 3px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--ant-chrome-text);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.close {
+  display: inline-flex;
+  flex: 0 0 auto;
+  padding: 6px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ant-chrome-muted);
+}
+
+.close:hover {
+  color: var(--ant-chrome-text);
+  background: rgba(255, 255, 255, 0.08);
+}

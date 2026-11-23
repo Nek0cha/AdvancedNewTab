@@ -3,6 +3,20 @@
  * 未訳のキーは実行時に日本語のまま表示される。漏れは `pnpm i18n:check` で確認できる。
  */
 const messages: Record<string, string> = {
+  '15分ごと': 'Every 15 minutes',
+  '1日ごと': 'Every day',
+  '1時間ごと': 'Every hour',
+  '30分ごと': 'Every 30 minutes',
+  '5分ごと': 'Every 5 minutes',
+  '6時間ごと': 'Every 6 hours',
+  'AdvancedNewTab が v{version} にアップデートされました。': 'AdvancedNewTab has been updated to v{version}.',
+  'スライドショー': 'Slideshow',
+  'ランダムな順番にする': 'Shuffle order',
+  '切り替える画像': 'Images to cycle through',
+  '切り替える間隔': 'Change interval',
+  '変更内容を見る': 'See what\'s new',
+  '新しいタブを開くたび': 'Every time a new tab is opened',
+  '有効にしている間は、上の画像の代わりにここの画像を順に表示します。': 'While enabled, these images are shown in order instead of the image above.',
   'このウィンドウを開き直す': 'Reopen this window',
   'すべて完了しました。': 'All tasks are done.',
   'ウィンドウ（{n} 個のタブ）': 'Window ({n} tabs)',

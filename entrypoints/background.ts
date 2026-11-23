@@ -4,6 +4,7 @@ import type { MediaControlMessage, MediaStateMessage } from '@/lib/media-relay';
 import { MediaStore } from '@/lib/media-store';
 import { isRssFetchRequest, type RssFetchResponse } from '@/lib/messages';
 import { loadState } from '@/lib/storage';
+import { UPDATE_NOTICE_KEY, shouldNotifyUpdate, type UpdateNotice } from '@/lib/update-notice';
 
 /** RSSは分単位で追う情報ではないため、この間隔は使い回す。widgets/rss/index.tsx と揃えている。 */
 const RSS_TTL_MS = 15 * 60 * 1000;
@@ -52,6 +53,16 @@ async function refreshAllRssFeeds(): Promise<void> {
 }
 
 export default defineBackground(() => {
+  // アップデートを検知したら、次に開いた新しいタブで「更新されました」と知らせる（lib/update-notice.ts）。
+  // onInstalled はサービスワーカーの起動直後にしか届かないため、他のリスナーと同じく同期的に登録する。
+  browser.runtime.onInstalled.addListener(({ reason, previousVersion }) => {
+    if (reason !== 'update') return;
+    const { version } = browser.runtime.getManifest();
+    if (!shouldNotifyUpdate(previousVersion, version)) return;
+    const notice: UpdateNotice = { version };
+    void browser.storage.local.set({ [UPDATE_NOTICE_KEY]: notice });
+  });
+
   // ツールバーアイコンをワンクリックで設定画面に直行させる（default_popup は設定しない）
   browser.action.onClicked.addListener(() => {
     void browser.runtime.openOptionsPage();

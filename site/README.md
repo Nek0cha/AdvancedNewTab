@@ -10,6 +10,7 @@
 ## 中身
 
 - `index.html` — ランディングページ（Workbenchマクロ構造。機能紹介・インストール手順）
+- `changelog/index.html` — 更新履歴（`/changelog/` でアクセス。Long Documentマクロ構造）。拡張機能のアップデート後に新しいタブに出るお知らせの「変更内容を見る」が `#v<バージョン>` 付きでここへ飛んでくるため、バージョンの見出しには必ず `id="v0.3.0"` の形の id を付ける（`lib/update-notice.ts`）。スクリーンショットは `assets/image/changelog/` に置く想定
 - `terms/index.html` — 利用規約（`/terms` でアクセス。Long Documentマクロ構造。**プレースホルダー**）
 - `privacy/index.html` — プライバシーポリシー（`/privacy` でアクセス。Long Documentマクロ構造。**プレースホルダー**。データの取り扱いに関する記述はソースコードの実際の挙動に基づいて書いていますが、公開前に見直してください）
 - `design.md` — ロックされたデザインシステム（トークン値・マクロ構造・声色の一次情報源）

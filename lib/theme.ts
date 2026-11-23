@@ -50,12 +50,17 @@ export function backgroundToCss(bg: BackgroundConfig): string {
  * 画像背景の場合、src が十分に短いときだけ画像込みでミラーする。
  * 長い dataURL は下地の色のみとし、画像は React マウント後に載せる
  * （白い一瞬は防げるので、体感上の目的は達成できる）。
+ *
+ * スライドショー中は下地の色だけにする。次に出す画像は React 側（components/Background）が
+ * 開いたときに選ぶため、ここで前回の画像を塗ると「前の画像が見えてから次の画像に変わる」
+ * チラつきになってしまう。
  */
 export function toBootTheme(theme: ThemeConfig): BootTheme {
   const bg = theme.background;
   let background = backgroundToCss(bg);
+  const slideshowActive = bg.image.slideshow.enabled && bg.image.slideshow.images.length > 0;
 
-  if (bg.active === 'image' && bg.image.src && bg.image.src.length <= MAX_MIRRORED_IMAGE_LENGTH) {
+  if (bg.active === 'image' && !slideshowActive && bg.image.src && bg.image.src.length <= MAX_MIRRORED_IMAGE_LENGTH) {
     background = `${bg.image.fallbackColor} url("${bg.image.src}") center / cover no-repeat fixed`;
   }
 

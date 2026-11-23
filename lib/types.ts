@@ -50,7 +50,23 @@ export interface BackgroundConfig {
     blur: number;
     /** 背景を暗くする度合い（0〜1） */
     dim: number;
+    /**
+     * 複数の画像を順に切り替えて表示する。有効で画像が1枚以上あるときは `src` の代わりに使う。
+     * `src` とは別に持つのは、スライドショーをオフにしたとき、元の1枚に戻れるようにするため
+     * （BackgroundConfig が3方式を同時に保持しているのと同じ考え方）。
+     */
+    slideshow: BackgroundSlideshow;
   };
+}
+
+export interface BackgroundSlideshow {
+  enabled: boolean;
+  /** dataURL の一覧（widgets/image と同じく、選んだ画像をそのまま取り込む） */
+  images: string[];
+  /** 切り替える間隔（分）。0 は「新しいタブを開くたびに次の画像」 */
+  intervalMinutes: number;
+  /** 順番どおりではなく、ランダムに選ぶ */
+  shuffle: boolean;
 }
 
 /** ユーザーがアップロードしたカスタムフォント。背景画像と同様 dataURL で保持する。 */

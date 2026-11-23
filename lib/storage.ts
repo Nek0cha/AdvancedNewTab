@@ -14,7 +14,7 @@
 import { isExtensionContext } from '@/lib/platform';
 import { DEFAULT_FONT_ID } from '@/lib/fonts';
 import { SCHEMA_VERSION, createDefaultState } from '@/lib/defaults';
-import type { LayoutPreset, PersistedState } from '@/lib/types';
+import type { BackgroundConfig, LayoutPreset, PersistedState, ThemeConfig } from '@/lib/types';
 
 /**
  * 初回起動（ストレージに何も無い状態）にだけ使う、カスタムの既定レイアウト。
@@ -148,14 +148,9 @@ function normalize(raw: unknown): PersistedState {
   if (!migrated || typeof migrated !== 'object') return fallback;
 
   const value = migrated as Partial<PersistedState>;
-  const theme = value.theme ?? {};
   return {
     version: SCHEMA_VERSION,
-    theme: {
-      ...fallback.theme,
-      ...theme,
-      background: { ...fallback.theme.background, ...(theme as Partial<typeof fallback.theme>).background },
-    },
+    theme: normalizeTheme(value.theme, fallback.theme),
     layouts: value.layouts && typeof value.layouts === 'object' ? value.layouts : fallback.layouts,
     widgets: value.widgets && typeof value.widgets === 'object' ? value.widgets : fallback.widgets,
     // 旧データ（rev導入前）やインポートされたJSONには無いことがあるので0にフォールバックする。
@@ -181,8 +176,46 @@ function normalize(raw: unknown): PersistedState {
             typeof p.layouts === 'object' &&
             !!p.widgets &&
             typeof p.widgets === 'object',
+        ).map((p) =>
+          // 保存したレイアウトのテーマも、読み込んだ瞬間にそのまま画面に当たるため、
+          // 後から増えた項目（背景のスライドショーなど）を同じように補っておく
+          p.theme ? { ...p, theme: normalizeTheme(p.theme, fallback.theme) } : p,
         )
       : fallback.layoutPresets,
+  };
+}
+
+/**
+ * テーマの欠けた項目を既定値で埋める。
+ *
+ * 背景は2段ネストしている（background.image.slideshow）ため、浅いマージだけだと、
+ * スライドショー追加前に保存された image オブジェクトが丸ごと既定値を上書きして
+ * slideshow が undefined のまま残ってしまう。形が変わったわけではなく項目が増えただけなので、
+ * スキーマのバージョンは上げず、ここで階層ごとに補う。
+ */
+function normalizeTheme(raw: unknown, fallback: ThemeConfig): ThemeConfig {
+  const theme = (raw && typeof raw === 'object' ? raw : {}) as Partial<ThemeConfig>;
+  const bg = (theme.background ?? {}) as Partial<BackgroundConfig>;
+  const image = (bg.image ?? {}) as Partial<BackgroundConfig['image']>;
+  const slideshow = (image.slideshow ?? {}) as Partial<BackgroundConfig['image']['slideshow']>;
+  return {
+    ...fallback,
+    ...theme,
+    background: {
+      ...fallback.background,
+      ...bg,
+      image: {
+        ...fallback.background.image,
+        ...image,
+        slideshow: {
+          ...fallback.background.image.slideshow,
+          ...slideshow,
+          images: Array.isArray(slideshow.images)
+            ? slideshow.images.filter((s): s is string => typeof s === 'string')
+            : fallback.background.image.slideshow.images,
+        },
+      },
+    },
   };
 }
 

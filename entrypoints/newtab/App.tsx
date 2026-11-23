@@ -2,11 +2,13 @@ import { useEffect } from 'react';
 
 import { useT } from '@/lib/i18n';
 import { AddWidgetList } from '@/components/AddWidgetList/AddWidgetList';
+import { BackgroundImage } from '@/components/Background/BackgroundImage';
 import { Grid } from '@/components/Grid/Grid';
 import { SidePanel } from '@/components/SidePanel/SidePanel';
 import { ThemeSettingsPanel } from '@/components/SettingsPanel/ThemeSettingsPanel';
 import { WidgetSettingsPanel } from '@/components/SettingsPanel/WidgetSettingsPanel';
 import { Toolbar } from '@/components/Toolbar/Toolbar';
+import { UpdateNotice } from '@/components/UpdateNotice/UpdateNotice';
 import { useAppStore } from '@/lib/store';
 import { imageOverlayStyle } from '@/lib/theme';
 
@@ -69,20 +71,7 @@ export function App() {
 
   return (
     <>
-      {background.active === 'image' && background.image.src && (
-        <div
-          aria-hidden
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 0,
-            pointerEvents: 'none',
-            backgroundImage: `url("${background.image.src}")`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        />
-      )}
+      {background.active === 'image' && <BackgroundImage image={background.image} />}
       {overlay && (
         <div
           aria-hidden
@@ -93,6 +82,7 @@ export function App() {
       <Grid />
       <Toolbar />
       <PanelContent />
+      <UpdateNotice />
     </>
   );
 }

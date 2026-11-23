@@ -525,6 +525,37 @@ h2 {
   padding-left: 1.2em;
 }
 
+/* 更新履歴（changelog/）の小見出し。h2.inline より一段控えめにし、文書の流れを切らない */
+.doc h3 {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  margin: var(--space-lg) 0 var(--space-2xs);
+}
+
+/* 更新履歴に載せるスクリーンショット。偽のブラウザ枠は付けず、罫線と角丸だけで紙面になじませる */
+.doc figure {
+  margin: var(--space-lg) 0;
+}
+
+.doc figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-input);
+}
+
+.doc figcaption {
+  margin-top: var(--space-2xs);
+  color: var(--color-ink-2);
+  font-size: var(--text-xs);
+}
+
+/* お知らせのリンクから #v0.3.0 のように飛んできたとき、固定ヘッダーに見出しが隠れないようにする */
+.doc h2[id] {
+  scroll-margin-top: var(--space-2xl);
+}
+
 .doc .draft-note {
   font-size: var(--text-sm);
   color: var(--color-ink-2);
