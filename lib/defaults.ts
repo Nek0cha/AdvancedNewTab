@@ -5,7 +5,7 @@ import type { PersistedState, ThemeConfig } from '@/lib/types';
  * 現在のスキーマバージョン。
  * PersistedState の構造を後方互換なく変更したら +1 し、lib/storage.ts の migrate に処理を足す。
  */
-export const SCHEMA_VERSION = 4;
+export const SCHEMA_VERSION = 5;
 
 export const DEFAULT_THEME: ThemeConfig = {
   background: {
@@ -82,6 +82,6 @@ export function createDefaultState(): PersistedState {
       'links-1': { type: 'links', settings: {} },
     },
     toolbarPosition: null,
-    layoutPresets: [null, null, null],
+    layoutPresets: [],
   };
 }

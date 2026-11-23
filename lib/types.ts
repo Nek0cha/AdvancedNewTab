@@ -121,8 +121,14 @@ export interface WidgetInstance {
   settings: Record<string, unknown>;
 }
 
-/** レイアウト保存機能（最大3枠）の1件分。配置・ウィジェット構成・見た目のテーマを丸ごと保存する。 */
+/** レイアウト保存機能の1件分。配置・ウィジェット構成・見た目のテーマを丸ごと保存する。 */
 export interface LayoutPreset {
+  /**
+   * 並べ替え・削除をしても同じ1件を指し続けるための識別子。
+   * v4 までは配列の位置（スロット番号）で参照していたが、件数を可変にしたことで
+   * 位置がずれるようになったため、v5 で導入した。
+   */
+  id: string;
   name: string;
   savedAt: number;
   layouts: Partial<Record<BreakpointName, Layout>>;
@@ -133,9 +139,6 @@ export interface LayoutPreset {
    */
   theme?: ThemeConfig;
 }
-
-/** レイアウト保存の最大枠数。 */
-export const MAX_LAYOUT_PRESETS = 3;
 
 export interface PersistedState {
   /** マイグレーション用のスキーマバージョン */
@@ -150,8 +153,8 @@ export interface PersistedState {
    * null なら既定位置（右上）に固定表示する。components/Toolbar/Toolbar.tsx 参照。
    */
   toolbarPosition: { x: number; y: number } | null;
-  /** レイアウト保存の3枠。未使用のスロットは null。 */
-  layoutPresets: Array<LayoutPreset | null>;
+  /** 保存したレイアウト。新しく保存したものほど後ろに並ぶ。件数の上限は無い。 */
+  layoutPresets: LayoutPreset[];
   /**
    * ローカルでの変更回数（commit() のたびに +1）。
    *

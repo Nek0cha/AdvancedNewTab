@@ -14,7 +14,7 @@
 import { isExtensionContext } from '@/lib/platform';
 import { DEFAULT_FONT_ID } from '@/lib/fonts';
 import { SCHEMA_VERSION, createDefaultState } from '@/lib/defaults';
-import type { PersistedState } from '@/lib/types';
+import type { LayoutPreset, PersistedState } from '@/lib/types';
 
 /**
  * 初回起動（ストレージに何も無い状態）にだけ使う、カスタムの既定レイアウト。
@@ -121,7 +121,19 @@ function migrateRaw(raw: unknown): unknown {
     );
   }
 
-  return theme ? { ...obj, version: SCHEMA_VERSION, theme, widgets } : { ...obj, widgets };
+  // v4 → v5: レイアウト保存を「null を含む固定3枠」から「上限なしの配列」に変更し、
+  // 各項目に id を持たせた。空き枠（null）はもう意味を持たないので取り除き、
+  // 保存済みの枠だけを元の順番のまま残す。
+  let layoutPresets = obj.layoutPresets;
+  if (version < 5 && Array.isArray(layoutPresets)) {
+    layoutPresets = layoutPresets
+      .filter((p): p is Record<string, unknown> => !!p && typeof p === 'object')
+      .map((p, i) => (typeof p.id === 'string' ? p : { ...p, id: `preset-migrated-${i}` }));
+  }
+
+  return theme
+    ? { ...obj, version: SCHEMA_VERSION, theme, widgets, layoutPresets }
+    : { ...obj, widgets, layoutPresets };
 }
 
 /**
@@ -157,12 +169,20 @@ function normalize(raw: unknown): PersistedState {
       typeof value.toolbarPosition.y === 'number'
         ? value.toolbarPosition
         : null,
-    // 常にちょうど3枠になるよう、欠けていればnullで埋め、多ければ切り詰める
-    // （MAX_LAYOUT_PRESETS を変更した場合もこの正規化だけで追従する）。
-    layoutPresets: Array.from(
-      { length: fallback.layoutPresets.length },
-      (_, i) => (Array.isArray(value.layoutPresets) ? (value.layoutPresets[i] ?? null) : null),
-    ),
+    // 手で編集されたJSONのインポートにも耐えるよう、id・名前・配置を持たない項目は捨てる。
+    layoutPresets: Array.isArray(value.layoutPresets)
+      ? value.layoutPresets.filter(
+          (p): p is LayoutPreset =>
+            !!p &&
+            typeof p === 'object' &&
+            typeof p.id === 'string' &&
+            typeof p.name === 'string' &&
+            !!p.layouts &&
+            typeof p.layouts === 'object' &&
+            !!p.widgets &&
+            typeof p.widgets === 'object',
+        )
+      : fallback.layoutPresets,
   };
 }
 

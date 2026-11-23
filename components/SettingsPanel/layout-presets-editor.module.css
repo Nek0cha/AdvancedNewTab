@@ -67,11 +67,6 @@
   background: rgba(var(--ant-card-base), 0.14);
 }
 
-.actionButton.disabled {
-  opacity: 0.4;
-  pointer-events: none;
-}
-
 .actionButton.armed {
   border-color: var(--ant-chrome-accent);
   color: var(--ant-chrome-accent);
@@ -80,4 +75,18 @@
 .actionButton.danger.armed {
   border-color: #ff6b6b;
   color: #ff6b6b;
+}
+
+.newRow {
+  display: flex;
+  gap: 6px;
+}
+
+.newRow .nameInput {
+  flex: 1;
+  min-width: 0;
+}
+
+.newRow .actionButton {
+  flex-shrink: 0;
 }

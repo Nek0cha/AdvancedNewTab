@@ -23,7 +23,6 @@ import { applyTheme } from '@/lib/theme';
 import {
   BREAKPOINT_NAMES,
   COLS,
-  MAX_LAYOUT_PRESETS,
   type BreakpointName,
   type LayoutPreset,
   type PersistedState,
@@ -137,12 +136,16 @@ interface AppStore {
   centerWidgetHorizontally: (instanceId: string) => void;
   /** Toolbar のドラッグ移動後の位置を保存する。null で既定位置（右上）へ戻す。 */
   setToolbarPosition: (position: { x: number; y: number } | null) => void;
-  /** 現在のレイアウト+ウィジェット構成を指定スロット（0〜MAX_LAYOUT_PRESETS-1）に保存する */
-  saveLayoutPreset: (slot: number, name: string) => void;
-  /** 指定スロットの保存内容で、現在のレイアウト+ウィジェット構成を置き換える */
-  loadLayoutPreset: (slot: number) => void;
-  /** 指定スロットを空にする */
-  deleteLayoutPreset: (slot: number) => void;
+  /** 現在のレイアウト+ウィジェット構成+テーマを、新しい1件として末尾に保存する */
+  saveLayoutPreset: (name: string) => void;
+  /** 既存の1件の中身を、現在のレイアウト+ウィジェット構成+テーマで置き換える（名前は維持） */
+  overwriteLayoutPreset: (id: string) => void;
+  /** 既存の1件の名前だけを変える */
+  renameLayoutPreset: (id: string, name: string) => void;
+  /** 指定した1件の保存内容で、現在のレイアウト+ウィジェット構成を置き換える */
+  loadLayoutPreset: (id: string) => void;
+  /** 指定した1件を削除する */
+  deleteLayoutPreset: (id: string) => void;
   /** インポート・初期化用に状態を丸ごと差し替える */
   replaceState: (next: PersistedState) => void;
   /** 直前の変更を1ステップ取り消す。取り消せる変更が無ければ何もしない。 */
@@ -323,35 +326,50 @@ export const useAppStore = create<AppStore>((set, get) => {
       commit({ ...current, toolbarPosition: position });
     },
 
-    saveLayoutPreset: (slot, name) => {
+    saveLayoutPreset: (name) => {
       const current = get().state;
-      if (slot < 0 || slot >= MAX_LAYOUT_PRESETS) return;
       const preset: LayoutPreset = {
+        id: `preset-${Date.now().toString(36)}`,
         name,
         savedAt: Date.now(),
         layouts: current.layouts,
         widgets: current.widgets,
         theme: current.theme,
       };
-      const layoutPresets = [...current.layoutPresets];
-      layoutPresets[slot] = preset;
-      commit({ ...current, layoutPresets });
+      commit({ ...current, layoutPresets: [...current.layoutPresets, preset] });
     },
 
-    loadLayoutPreset: (slot) => {
+    overwriteLayoutPreset: (id) => {
       const current = get().state;
-      const preset = current.layoutPresets[slot];
+      commit({
+        ...current,
+        layoutPresets: current.layoutPresets.map((p) =>
+          p.id === id
+            ? { ...p, savedAt: Date.now(), layouts: current.layouts, widgets: current.widgets, theme: current.theme }
+            : p,
+        ),
+      });
+    },
+
+    renameLayoutPreset: (id, name) => {
+      const current = get().state;
+      const target = current.layoutPresets.find((p) => p.id === id);
+      // 名前が変わっていないのに commit すると、Undo の履歴に何もしない1ステップが積まれてしまう
+      if (!target || target.name === name) return;
+      commit({ ...current, layoutPresets: current.layoutPresets.map((p) => (p.id === id ? { ...p, name } : p)) });
+    },
+
+    loadLayoutPreset: (id) => {
+      const current = get().state;
+      const preset = current.layoutPresets.find((p) => p.id === id);
       if (!preset) return;
       // preset.theme は本機能追加前に保存された枠には存在しない。その場合は今のテーマを維持する。
       commit({ ...current, layouts: preset.layouts, widgets: preset.widgets, theme: preset.theme ?? current.theme });
     },
 
-    deleteLayoutPreset: (slot) => {
+    deleteLayoutPreset: (id) => {
       const current = get().state;
-      if (slot < 0 || slot >= MAX_LAYOUT_PRESETS) return;
-      const layoutPresets = [...current.layoutPresets];
-      layoutPresets[slot] = null;
-      commit({ ...current, layoutPresets });
+      commit({ ...current, layoutPresets: current.layoutPresets.filter((p) => p.id !== id) });
     },
 
     replaceState: (next) => commit(next),
