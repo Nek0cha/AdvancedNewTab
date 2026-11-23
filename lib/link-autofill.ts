@@ -7,8 +7,10 @@
  *
  * 1. 同梱のプリセット（lib/link-presets.ts）にあるサイトなら、その名前と公式ロゴ
  * 2. 他のウィジェットのためにそのサイトへのアクセスがすでに許可されていれば、ページの名前
- * 3. 履歴の権限がすでに許可されていれば、閲覧履歴に残っているページの名前
- * 4. どれも無ければホスト名（例: mail.google.com）
+ * 3. どちらも無ければホスト名（例: mail.google.com）
+ *
+ * 閲覧履歴からページ名を探す案もあったが、manifest の optional_permissions に history を
+ * 置いていない（置けば、この機能のためだけに履歴の権限が要求候補に増える）ため使っていない。
  *
  * プリセットに無いサイトのアイコンは「既定」を返す。既定のままならリンク集は favicon を
  * 自動で表示する。わざわざ「既定」を返すのは、打ちかけの URL がたまたまプリセットに当たって
@@ -94,17 +96,6 @@ async function fetchPageName(url: URL): Promise<string | null> {
   }
 }
 
-async function findHistoryTitle(url: URL): Promise<string | null> {
-  const granted = await browser.permissions.contains({ permissions: ['history'] });
-  if (!granted) return null;
-  const results = await browser.history.search({ text: url.hostname, startTime: 0, maxResults: 50 });
-  const href = url.toString();
-  // 入力された URL そのものを最優先し、無ければ同じサイトのトップページの名前を使う
-  const exact = results.find((r) => r.url === href && r.title);
-  const root = results.find((r) => r.url === `${url.origin}/` && r.title);
-  return (exact ?? root)?.title?.trim() || null;
-}
-
 /** FieldSchema(list) の autofill.resolve としてリンク集から使う。 */
 export async function resolveLinkAutofill(item: Record<string, unknown>): Promise<Record<string, unknown> | null> {
   const url = typeof item.url === 'string' ? parseLinkUrl(item.url) : null;
@@ -114,9 +105,8 @@ export async function resolveLinkAutofill(item: Record<string, unknown>): Promis
   if (preset) return preset;
 
   if (isExtensionContext()) {
-    // どちらの問い合わせが失敗しても、次の手段に進めば済むので握りつぶす
-    const name =
-      (await fetchPageName(url).catch(() => null)) ?? (await findHistoryTitle(url).catch(() => null));
+    // 取得に失敗しても、ホスト名に切り替えれば済むので握りつぶす
+    const name = await fetchPageName(url).catch(() => null);
     if (name) return { label: name, icon: DEFAULT_ICON_VALUE };
   }
 
