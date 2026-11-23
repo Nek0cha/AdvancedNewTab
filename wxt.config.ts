@@ -45,7 +45,7 @@ export default defineConfig({
       // 変更」と「検索設定の変更」の二重目的とみなされ却下されたため撤去した。
       'search',
     ],
-    optional_permissions: ['topSites', 'bookmarks'],
+    optional_permissions: ['topSites', 'bookmarks', 'sessions', 'tabs'],
     optional_host_permissions: ['https://*/*'],
     // options_ui はここでは指定しない： WXTは options エントリーポイントを検出すると
     // manifest.options_ui を自前で（丸ごと）生成し直すため、ここに書いても黙って上書きされる。

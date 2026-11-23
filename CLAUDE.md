@@ -266,7 +266,8 @@ through to the OS's own Japanese font via the fallback stack baked into every `F
 
 `wxt.config.ts`'s required `permissions` is deliberately minimal (`storage`, `unlimitedStorage`,
 `favicon`, `alarms`, `scripting`) so installing the extension triggers no scary prompt. Everything else —
-`topSites`, `bookmarks`, `history`, `sessions`, and all host access (`optional_host_permissions:
+`topSites`, `bookmarks`, `sessions` + `tabs` (requested together by the recently-closed widget —
+`sessions` alone returns closed tabs with empty `url`/`title`), and all host access (`optional_host_permissions:
 ['https://*/*']`) — is `optional_*` and requested through `lib/permissions.ts`'s
 `requestWidgetPermissions()` only when a widget needing it is actually added
 (`components/AddWidgetList/AddWidgetList.tsx`). `chrome.permissions.request()` only works inside the
