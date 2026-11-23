@@ -12,7 +12,7 @@
  */
 import type { CSSProperties } from 'react';
 
-import { applyMutedAlpha, computeAccentRing, computeMutedColor } from '@/lib/color';
+import { applyMutedAlpha, computeAccentContrast, computeAccentRing, computeMutedColor } from '@/lib/color';
 import { WEIGHT_PRESET_DELTA, WIDGET_WEIGHT_PRESET_OPTIONS, type WeightPreset } from '@/lib/text-weight';
 import type { ThemeConfig } from '@/lib/types';
 import type { FieldSchema } from '@/widgets/types';
@@ -142,6 +142,7 @@ export function getWidgetTextStyle(
   if (settings.accentMode === 'custom') {
     style['--ant-accent'] = effectiveAccent;
     style['--ant-accent-ring'] = computeAccentRing(effectiveAccent);
+    style['--ant-accent-contrast'] = computeAccentContrast(effectiveAccent);
   }
 
   if (settings.subAccentMode === 'custom') {

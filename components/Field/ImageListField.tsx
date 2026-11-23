@@ -60,7 +60,7 @@ export function ImageListField({ value, onChange }: ImageListFieldProps) {
                 title={t('削除')}
                 onClick={() => onChange(images.filter((_, i) => i !== index))}
               >
-                <X size={12} />
+                <X size={13} strokeWidth={2.75} />
               </button>
             </div>
           ))}

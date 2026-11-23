@@ -42,8 +42,9 @@
   border: 1.5px solid var(--ant-muted);
   border-radius: 5px;
   background: transparent;
-  /* チェックマークはアクセント色の塗りの上に乗るため、テーマの文字色ではなく白で固定する */
-  color: #fff;
+  /* チェックマークはアクセント色の塗りの上に乗るため、塗りの明るさに応じて白か黒を選ぶ
+     （lib/color.ts の computeAccentContrast）。白で固定すると、明るいアクセント色では見えなくなる。 */
+  color: var(--ant-accent-contrast, #fff);
   transition: background-color 120ms var(--ant-ease), border-color 120ms var(--ant-ease);
 }
 

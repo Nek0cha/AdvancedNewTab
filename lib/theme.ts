@@ -7,7 +7,7 @@ import { setActiveLocale, translate } from '@/lib/i18n';
  * var(--ant-*) だけを参照する。これによりテーマ変更が「変数の差し替え1本」で済む。
  */
 
-import { applyMutedAlpha, CARD_OPACITY_SCALE, computeAccentRing, computeMutedColor, hexToRgbString } from '@/lib/color';
+import { applyMutedAlpha, CARD_OPACITY_SCALE, computeAccentContrast, computeAccentRing, computeMutedColor, hexToRgbString } from '@/lib/color';
 import { getFontStack } from '@/lib/fonts';
 import { WEIGHT_PRESET_DELTA } from '@/lib/text-weight';
 import {
@@ -122,6 +122,7 @@ export function applyTheme(theme: ThemeConfig): void {
   s.setProperty('--ant-text', theme.textColor);
   s.setProperty('--ant-accent', theme.accentColor);
   s.setProperty('--ant-accent-ring', computeAccentRing(theme.accentColor));
+  s.setProperty('--ant-accent-contrast', computeAccentContrast(theme.accentColor));
   // カード内の「サブアクセントカラー」（カレンダー曜日・時計の目盛り・検索の
   // プレースホルダー等、widgets/**/*.module.css が参照する --ant-muted）。以前は
   // rgba(241, 236, 236, 0.6) の完全固定値だったため、テーマの文字色・アクセントカラーを
